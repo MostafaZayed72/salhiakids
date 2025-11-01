@@ -1,5 +1,6 @@
 <template>
   <div style="direction: rtl;">
+
     <NuxtRouteAnnouncer />
     <LazyNuxtPage />
     <Footer />

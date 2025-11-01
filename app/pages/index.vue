@@ -1,7 +1,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import AOS from 'aos'; // 1. استيراد AOS
+import 'aos/dist/aos.css'; // 2. استيراد تنسيقات AOS
 
+import DynamicHeroBackground from '../components/DynamicHeroBackground.vue'; // نفترض وجود هذا المكون
 const router = useRouter();
 
 // ----------------------------------------------------
@@ -278,17 +281,31 @@ const loadContents = async () => {
 
 onMounted(() => {
   loadContents();
+  AOS.init({
+    offset: 50, // نقطة البداية للحركة (بالبيكسل)
+    duration: 800, // مدة الحركة (بالميلي ثانية)
+    easing: 'ease-out-cubic', // نوع التباطؤ
+    once: true // تشغيل الحركة مرة واحدة فقط لكل عنصر
+  });
 });
 
+
+onUnmounted(() => {
+  AOS.refreshHard(); // تنظيف AOS عند مغادرة المسار
+});
 // ملاحظة: تم حذف منطق Web Speech API هنا للاختصار في عرض المكون المجمع
 // ولكن يجب أن يكون كاملاً في ملف index.vue الفعلي.
 
 </script>
 
 <template>
-  <div class="min-h-screen bg-white dark:bg-gray-900 relative">
-    <main >
+  <div class="min-h-screen   relative">
+    
+    
+    <main class="relative z-10"> 
       <Header />
+          <DynamicHeroBackground />
+
       <SectionsHeroSection 
         v-model:searchQuery="searchQuery"
         v-model:showSuggestions="showSuggestions"
@@ -306,24 +323,25 @@ onMounted(() => {
         @handleSearchInput="handleSearchInput"
         @hideSuggestions="hideSuggestions"
         @selectSuggestion="selectSuggestion"
-      />
+        data-aos="fade-up" data-aos-once="false" />
 
-      <div class="container mx-auto px-4 py-20">
         
         <SectionsCategoriesSection 
           :featuredCategories="featuredCategories"
           @searchByCategory="searchByCategory"
+          data-aos="fade-right" data-aos-delay="100"
         />
         
         <SectionsHeroMakerSection 
           :featuredHeroes="featuredHeroes"
           @goToCustomStory="goToCustomStory"
+          data-aos="zoom-in" data-aos-delay="200"
         />
         
-      </div>
       
       <SectionsFeaturesSection 
         :features="features"
+        data-aos="fade-down"
       />
 
       <SectionsLatestContentSection
@@ -333,11 +351,15 @@ onMounted(() => {
         :formatDate="formatDate"
         @viewContent="viewContent"
         @goToSearch="goToSearch"
+        class="py-16"
+        data-aos="fade-up"
       />
 
       <SectionsFeaturedContentSection
         :featuredContents="featuredContents"
         @viewContent="viewContent"
+        class="py-16"
+        data-aos="fade-left"
       />
       
     </main>
