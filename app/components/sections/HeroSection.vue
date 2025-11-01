@@ -1,4 +1,6 @@
 <script setup>
+import { computed } from 'vue'; // تم إضافة الاستيراد اللازم لـ computed
+
 const props = defineProps({
   // V-model bindings
   searchQuery: String,
@@ -70,7 +72,8 @@ const triggerImageInput = () => {
 
         <div class="relative w-full shadow-2xl rounded-2xl custom-fade-in-down delay-400">
           <div class="flex items-center bg-white dark:bg-gray-800 rounded-2xl border-2 border-transparent focus-within:border-indigo-500 transition-all duration-300">
-            <span class="material-icons text-gray-400 text-3xl mx-4">search</span>
+            
+            <span class="material-icons text-gray-400 text-2xl sm:text-3xl mx-2 sm:mx-4">search</span>
             
             <input
               type="text"
@@ -80,36 +83,36 @@ const triggerImageInput = () => {
               @blur="emit('hideSuggestions')"
               @keyup.enter="emit('performSearch')"
               :placeholder="isListening ? voiceTranscript : 'ابحث بعنوان القصة أو المؤلف أو الموضوع...'"
-              class="flex-grow py-4 bg-transparent text-gray-800 dark:text-white focus:outline-none placeholder-gray-500 dark:placeholder-gray-400 text-lg"
+              class="flex-grow py-3 sm:py-4 bg-transparent text-gray-800 dark:text-white focus:outline-none placeholder-gray-500 dark:placeholder-gray-400 text-base sm:text-lg"
               :class="{'animate-pulse text-indigo-500': isListening}"
               :disabled="isListening"
             >
 
             <button 
               @click="toggleAdvancedSearch"
-              class="p-4 text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-200 transition-colors duration-300"
+              class="p-2 sm:p-4 text-indigo-500 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-200 transition-colors duration-300"
               :class="{'bg-indigo-50 dark:bg-gray-700 rounded-lg': showAdvancedSearch}"
               title="البحث المتقدم"
             >
-              <span class="material-icons text-3xl">filter_alt</span>
+              <span class="material-icons text-xl sm:text-3xl">filter_alt</span>
             </button>
 
             <button 
               @click="triggerImageInput" 
-              class="p-4 text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-200 transition-colors duration-300"
+              class="p-2 sm:p-4 text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-200 transition-colors duration-300"
               title="البحث بالصورة"
             >
-              <span class="material-icons text-3xl">camera_alt</span>
+              <span class="material-icons text-xl sm:text-3xl">camera_alt</span>
             </button>
             <input type="file" id="image-search-input" accept="image/*" class="hidden" @change="emit('handleImageSearch', $event)">
 
             <button 
               @click="emit('toggleVoiceSearch')"
-              class="p-4 mr-2 rounded-xl transition-all duration-300"
+              class="p-1 md:p-2 mr-1 sm:mr-2 rounded-xl transition-all duration-300"
               :class="{'bg-red-500 hover:bg-red-600 text-white': isListening, 'bg-indigo-500 hover:bg-indigo-600 text-white': !isListening}"
               :title="isListening ? 'إيقاف البحث الصوتي' : 'البحث بالصوت'"
             >
-              <span class="material-icons text-3xl" :class="{'animate-ping-slow': isListening}">mic</span>
+              <span class="material-icons text-2xl sm:text-3xl mt-1" :class="{'animate-ping-slow': isListening}">mic</span>
             </button>
           </div>
 
@@ -182,4 +185,3 @@ const triggerImageInput = () => {
     </div>
   </section>
 </template>
-
