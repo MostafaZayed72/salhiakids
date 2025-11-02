@@ -303,8 +303,6 @@ onUnmounted(() => {
     
     
     <main class="relative z-10"> 
-      <Header />
-          <DynamicHeroBackground />
 
       <SectionsHeroSection 
         v-model:searchQuery="searchQuery"

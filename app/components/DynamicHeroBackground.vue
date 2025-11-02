@@ -90,5 +90,5 @@ onUnmounted(() => {
   <div 
     ref="canvasContainer" 
     class="absolute top-0 left-0 w-full h-full pointer-events-none z-0 opacity-40 transition-opacity duration-1000"
-    style="height: 60vh;" ></div>
+    style="height: 100%;" ></div>
 </template>

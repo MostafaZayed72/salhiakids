@@ -2,6 +2,9 @@
   <div style="direction: rtl;">
 
     <NuxtRouteAnnouncer />
+          <Header />
+          <DynamicHeroBackground />
+
     <LazyNuxtPage />
     <Footer />
   </div>

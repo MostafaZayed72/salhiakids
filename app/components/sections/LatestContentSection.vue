@@ -15,14 +15,17 @@ const emit = defineEmits(['viewContent', 'goToSearch']);
 </script>
 
 <template>
-  <section class="py-20 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900 dark:via-purple-900 dark:to-pink-900">
+  <section class="py-20 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+              <DynamicHeroBackground /> 
+
     <div class="container mx-auto px-4">
+      
       <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-6">
         <div>
-          <h2 class="text-4xl font-bold text-gray-800 dark:text-white mb-3">
+          <h2 class="text-4xl font-bold text-white mb-3">
             أحدث المحتويات المضافة
           </h2>
-          <p class="text-xl text-gray-700 dark:text-gray-300">
+          <p class="text-xl text-gray-300">
             اكتشف أجمل المحتويات التي انضمت حديثًا إلى مكتبتنا
           </p>
         </div>
@@ -49,11 +52,11 @@ const emit = defineEmits(['viewContent', 'goToSearch']);
       </div>
 
       <div v-if="latestContents.length === 0" class="text-center py-16">
-        <div class="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+        <div class="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
           <span class="material-icons text-gray-400 text-4xl">menu_book</span>
         </div>
-        <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-3">لا توجد محتويات حديثة</h3>
-        <p class="text-gray-700 dark:text-gray-400 text-lg">سيتم إضافة محتويات جديدة قريبًا</p>
+        <h3 class="text-2xl font-bold text-white mb-3">لا توجد محتويات حديثة</h3>
+        <p class="text-gray-400 text-lg">سيتم إضافة محتويات جديدة قريبًا</p>
       </div>
     </div>
   </section>
