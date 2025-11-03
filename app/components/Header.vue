@@ -1,12 +1,9 @@
 <template>
   <header class="bg-gradient-to-r from-white to-purple-50 dark:from-gray-900 dark:to-purple-900 shadow-2xl border-b border-purple-200 dark:border-purple-700 sticky top-0 z-50 transition-all duration-300 font-tajawal">
     <div class="container mx-auto px-6 py-4">
-      <!-- Main Header -->
       <div class="flex items-center justify-between">
         
-        <!-- Logo Section -->
         <router-link to="/" class="flex items-center gap-3 hover:opacity-80 transition-all duration-300 transform hover:scale-105 group">
-          <!-- شعار النظام - يمكن تغييره من إعدادات النظام -->
           <div class="w-12 h-12 rounded-2xl flex items-center justify-center md:bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg overflow-hidden custom-rotate group-hover:rotate-12 transition-transform duration-500">
             <img 
               v-if="systemLogo" 
@@ -24,91 +21,17 @@
           </div>
         </router-link>
         
-        <!-- Controls Section -->
         <div class="flex items-center gap-3">
           
-          <!-- Inbox Button -->
-          <div v-if="isAuthenticated" class="relative group">
-            <router-link 
-              :to="user?.role === 'admin' ? '/admin/messages' : 
-                    user?.role === 'employee' ? '/employee/messages' : '/messages'"
-              class="relative p-3 rounded-xl hover:bg-purple-100 dark:hover:bg-purple-800 transition-all duration-300 transform hover:scale-110 custom-bounce"
-            >
-              <span class="material-icons text-purple-600 dark:text-purple-400 text-xl">mail</span>
-              <span v-if="unreadMessages > 0" class="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-pink-500 to-red-500 rounded-full border-2 border-white dark:border-gray-900 text-xs text-white flex items-center justify-center shadow-lg animate-ping-slow">
-                {{ unreadMessages }}
-              </span>
-            </router-link>
-            
-            <!-- Inbox Preview -->
-            <div class="absolute top-full left-0 mt-3 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-purple-200 dark:border-purple-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 custom-fade-in-up">
-              <div class="p-4 border-b border-purple-100 dark:border-purple-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900">
-                <h3 class="font-bold text-purple-700 dark:text-white">الرسائل</h3>
-                <span class="text-xs text-purple-500 dark:text-purple-300">{{ unreadMessages }} رسالة جديدة</span>
-              </div>
-              <div class="max-h-60 overflow-y-auto">
-                <div v-for="message in messages" :key="message.id" 
-                  @click="goToMessages"
-                  class="p-4 border-b border-purple-50 dark:border-purple-800 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-800 dark:hover:to-pink-800 transition-all duration-300 cursor-pointer transform hover:translate-x-2"
-                  :class="{ 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30': !message.read }"
-                >
-                  <div class="flex items-start gap-3">
-                    <!-- صورة المرسل -->
-                    <div class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-purple-400 to-pink-400 shadow-md">
-                      <img 
-                        v-if="message.senderAvatar" 
-                        :src="message.senderAvatar" 
-                        :alt="message.sender"
-                        class="w-full h-full object-cover"
-                      >
-                      <span v-else class="material-icons text-white text-sm">person</span>
-                    </div>
-                    <div class="flex-1">
-                      <p class="text-sm font-medium text-purple-700 dark:text-purple-300">{{ message.sender }}</p>
-                      <p class="text-sm text-purple-600 dark:text-purple-400 mt-1 line-clamp-1">{{ message.text }}</p>
-                      <p class="text-xs text-purple-500 dark:text-purple-300 mt-1">{{ message.time }}</p>
-                    </div>
-                  </div>
-                </div>
-                <div v-if="messages.length === 0" class="p-6 text-center text-purple-500 dark:text-purple-400">
-                  <span class="material-icons text-4xl mb-2 opacity-50">mail_outline</span>
-                  <p>لا توجد رسائل</p>
-                </div>
-              </div>
-              <div class="p-3 border-t border-purple-200 dark:border-purple-700">
-                <router-link 
-                  :to="user?.role === 'admin' ? '/admin/messages' : 
-                        user?.role === 'employee' ? '/employee/messages' : '/messages'"
-                  class="w-full text-center text-sm bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl py-2 px-4 hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 block shadow-md"
-                >
-                  عرض جميع الرسائل
-                </router-link>
-              </div>
-            </div>
-          </div>
-
-          <!-- Notifications -->
           <NotificationsIcon v-if="isAuthenticated" />
-
-          <!-- Dark Mode Toggle -->
-          <!-- <button
-            @click="toggleDarkMode"
-            class="p-3 rounded-xl hover:bg-purple-100 dark:hover:bg-purple-800 transition-all duration-300 transform hover:scale-110 hover:rotate-12"
-            :title="isDarkMode ? 'الوضع النهاري' : 'الوضع الليلي'"
-          >
-            <span v-if="isDarkMode" class="material-icons text-yellow-400 text-xl custom-spin-slow">light_mode</span>
-            <span v-else class="material-icons text-purple-600 text-xl custom-spin-slow">dark_mode</span>
-          </button> -->
 
           <div class="w-px h-8 bg-gradient-to-b from-purple-300 to-pink-300 dark:from-purple-600 dark:to-pink-600 mx-2"></div>
           
-          <!-- User Menu -->
           <div v-if="isAuthenticated" class="relative">
             <button 
               @click="showMenu = !showMenu"
               class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-800 dark:hover:to-pink-800 transition-all duration-300 transform hover:scale-105 group"
             >
-              <!-- صورة المستخدم الشخصية -->
               <div class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg transform group-hover:rotate-12 transition-transform duration-500">
                 <img 
                   v-if="user?.profileImage" 
@@ -116,7 +39,7 @@
                   :alt="user?.name"
                   class="w-full h-full object-cover"
                 >
-                <span v-else class="text-white text-sm font-bold">
+                <span v-else class="text-white text-base font-extrabold">
                   {{ user?.name?.charAt(0) || 'م' }}
                 </span>
               </div>
@@ -129,14 +52,12 @@
               </span>
             </button>
             
-            <!-- User Dropdown -->
             <transition name="custom-slide-down">
-              <div v-if="showMenu" class="absolute top-full left-0 mt-3 w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-purple-200 dark:border-purple-700 z-50 custom-fade-in-up">
+              <div v-if="showMenu" @click.away="showMenu = false"
+                class="absolute top-full left-0 mt-3 w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-purple-200 dark:border-purple-700 z-50 custom-fade-in-up">
                 
-                <!-- User Info -->
                 <div class="p-4 border-b border-purple-100 dark:border-purple-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900 rounded-t-2xl">
                   <div class="flex items-center gap-3">
-                    <!-- صورة المستخدم في القائمة المنسدلة -->
                     <div class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 shadow-md">
                       <img 
                         v-if="user?.profileImage" 
@@ -157,7 +78,6 @@
                 </div>
                 
                 <div class="p-3 bg-gradient-to-b from-white to-purple-50 dark:from-gray-800 dark:to-purple-900 rounded-b-2xl">
-                  <!-- Admin Menu - تبويبات داخل القائمة المنسدلة -->
                   <template v-if="user?.role === 'admin'">
                     <router-link to="/admin" class="custom-dropdown-item group" @click="showMenu = false">
                       <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
@@ -180,13 +100,6 @@
                       <span>المستفيدين</span>
                       <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
                     </router-link>
-                    <router-link to="/admin/analytics" class="custom-dropdown-item group" @click="showMenu = false">
-                      <div class="custom-dropdown-icon bg-gradient-to-r from-orange-500 to-red-500">
-                        <span class="material-icons">analytics</span>
-                      </div>
-                      <span>التقارير والإحصائيات</span>
-                      <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-                    </router-link>
                     <router-link to="/admin/messages" class="custom-dropdown-item group" @click="showMenu = false">
                       <div class="custom-dropdown-icon bg-gradient-to-r from-indigo-500 to-purple-500">
                         <span class="material-icons">mail</span>
@@ -203,20 +116,12 @@
                     </router-link>
                   </template>
                   
-                  <!-- Employee Menu - تبويبات داخل القائمة المنسدلة -->
                   <template v-else-if="user?.role === 'employee'">
                     <router-link to="/employee/stories" class="custom-dropdown-item group" @click="showMenu = false">
                       <div class="custom-dropdown-icon bg-gradient-to-r from-blue-500 to-cyan-500">
                         <span class="material-icons">library_books</span>
                       </div>
                       <span>إدارة المحتوى</span>
-                      <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-                    </router-link>
-                    <router-link to="/employee/users/new" class="custom-dropdown-item group" @click="showMenu = false">
-                      <div class="custom-dropdown-icon bg-gradient-to-r from-green-500 to-emerald-500">
-                        <span class="material-icons">person_add</span>
-                      </div>
-                      <span>إضافة مستفيد</span>
                       <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
                     </router-link>
                     <router-link to="/employee/messages" class="custom-dropdown-item group" @click="showMenu = false">
@@ -235,9 +140,8 @@
                     </router-link>
                   </template>
                   
-                  <!-- User Menu - تبويبات داخل القائمة المنسدلة -->
                   <template v-else>
-                    <router-link to="/dashboard" class="custom-dropdown-item group" @click="showMenu = false">
+                    <router-link to="/" class="custom-dropdown-item group" @click="showMenu = false">
                       <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
                         <span class="material-icons">dashboard</span>
                       </div>
@@ -274,7 +178,6 @@
             </transition>
           </div>
           
-          <!-- Auth Buttons -->
           <div v-else class="flex items-center gap-3">
             <router-link
               to="/login"
@@ -301,6 +204,7 @@
 <script>
 import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import Cookies from 'js-cookie' 
 import NotificationsIcon from './NotificationsIcon.vue'
 
 export default {
@@ -313,23 +217,29 @@ export default {
     const showMenu = ref(false)
     const isDarkMode = ref(false)
     
-    // تفاعلية بيانات المستخدم
-    const user = ref(null)
+    // **القيمة الافتراضية لكائن user لضمان عدم كونه null**
+    const DEFAULT_USER_OBJECT = { 
+        name: 'مستخدم', 
+        email: 'user@example.com', 
+        role: 'user', 
+        profileImage: null 
+    }
+    
+    const user = ref(DEFAULT_USER_OBJECT) // التهيئة بالقيمة الافتراضية
     const isAuthenticated = ref(false)
-    const systemLogo = ref(null) // رابط صورة شعار النظام
+    const systemLogo = ref(null) 
 
-    // تحديث حالة المستخدم
+    // تحديث حالة المستخدم (استخدام الكوكيز)
     const updateAuthState = () => {
-      const token = localStorage.getItem('authToken')
+      const token = Cookies.get('authToken') 
       const userData = localStorage.getItem('userData')
       
       isAuthenticated.value = !!(token && userData)
-      user.value = userData ? JSON.parse(userData) : null
       
-      // التوجيه التلقائي بعد تسجيل الدخول
-      if (isAuthenticated.value && user.value) {
-        handleAutoRedirect(user.value.role)
-      }
+      // تعيين بيانات المستخدم أو القيمة الافتراضية
+      user.value = userData ? JSON.parse(userData) : DEFAULT_USER_OBJECT
+      
+      // لا توجيه تلقائي بعد تحديث الحالة هنا
     }
 
     // تحميل شعار النظام من الإعدادات
@@ -338,56 +248,38 @@ export default {
       systemLogo.value = systemSettings.logo || null
     }
 
-    // التوجيه التلقائي بناءً على نوع المستخدم
-    const handleAutoRedirect = (userRole) => {
-      const currentPath = router.currentRoute.value.path
-      
-      // إذا كان المستخدم في الصفحة الرئيسية أو صفحات التسجيل، قم بالتوجيه
-      if (currentPath === '/' || currentPath === '/login' || currentPath === '/register') {
-        switch(userRole) {
-          case 'admin':
-            router.push('/admin')
-            break
-          case 'employee':
-            router.push('/employee/stories')
-            break
-          case 'user':
-          case 'parent':
-          case 'teacher':
-          case 'student':
-            router.push('/dashboard')
-            break
-        }
-      }
-    }
-
-    // الاستماع لتغييرات localStorage
+    // الاستماع لتغييرات localStorage والكوكيز
     const setupStorageListener = () => {
+      // ... (المنطق الخاص بـ storage و localStorage.setItem لم يتغير)
       const handleStorageChange = (e) => {
-        if (e.key === 'authToken' || e.key === 'userData' || e.key === 'systemSettings') {
+        if (e.key === 'userData' || e.key === 'systemSettings') {
           updateAuthState()
           if (e.key === 'systemSettings') {
             loadSystemLogo()
           }
         }
       }
-
       window.addEventListener('storage', handleStorageChange)
       
-      // أيضًا نستمع للتغييرات في نفس النافذة
       const originalSetItem = localStorage.setItem
       localStorage.setItem = function(key, value) {
         originalSetItem.apply(this, arguments)
-        if (key === 'authToken' || key === 'userData' || key === 'systemSettings') {
+        if (key === 'userData' || key === 'systemSettings') {
           updateAuthState()
           if (key === 'systemSettings') {
             loadSystemLogo()
           }
         }
       }
+      
+      const handleAuthChange = () => {
+        updateAuthState();
+      };
+      window.addEventListener('auth-change', handleAuthChange);
 
       return () => {
         window.removeEventListener('storage', handleStorageChange)
+        window.removeEventListener('auth-change', handleAuthChange);
       }
     }
 
@@ -395,11 +287,14 @@ export default {
     const setupClickOutsideListener = () => {
       const handleClickOutside = (event) => {
         // إغلاق القائمة المنسدلة للمستخدم
-        if (showMenu.value && !event.target.closest('.relative')) {
-          showMenu.value = false
+        const profileButton = event.target.closest('.relative')
+        if (showMenu.value && profileButton && profileButton.contains(event.target)) {
+            // لا تفعل شيئاً إذا كان النقر داخل المنطقة النسبية (الزر أو القائمة)
+            return;
         }
-        
-        // إغلاق القوائم المنسدلة الأخرى (سيتم التعامل معها في مكوناتها الخاصة)
+        if (showMenu.value && !profileButton) {
+            showMenu.value = false;
+        }
       }
 
       document.addEventListener('click', handleClickOutside)
@@ -408,63 +303,29 @@ export default {
         document.removeEventListener('click', handleClickOutside)
       }
     }
-
-    // الرسائل
+    
+    // الرسائل (الافتراضية)
     const messages = ref([
-      { 
-        id: 1, 
-        sender: 'إدارة النظام', 
-        text: 'مرحباً بك في النظام الجديد! نتمنى لك تجربة ممتعة',
-        time: 'منذ 2 ساعة',
-        read: false,
-        senderAvatar: null
-      },
-      { 
-        id: 2, 
-        sender: 'فريق الدعم', 
-        text: 'تم حل مشكلتك بنجاح، يمكنك متابعة استخدام النظام',
-        time: 'منذ 5 ساعات',
-        read: false,
-        senderAvatar: null
-      },
-      { 
-        id: 3, 
-        sender: 'مكتبة الطفل', 
-        text: 'تم إضافة قصص جديدة قد تعجبك',
-        time: 'منذ يوم',
-        read: true,
-        senderAvatar: null
-      }
+      { id: 1, sender: 'إدارة النظام', text: 'مرحباً بك في النظام الجديد! نتمنى لك تجربة ممتعة', time: 'منذ 2 ساعة', read: false, senderAvatar: null },
+      { id: 2, sender: 'فريق الدعم', text: 'تم حل مشكلتك بنجاح، يمكنك متابعة استخدام النظام', time: 'منذ 5 ساعات', read: false, senderAvatar: null },
+      { id: 3, sender: 'مكتبة الطفل', text: 'تم إضافة قصص جديدة قد تعجبك', time: 'منذ يوم', read: true, senderAvatar: null }
     ])
 
-    // تم نقل وظائف الإشعارات إلى مكون NotificationsIcon
-
-    // حساب الرسائل غير المقروءة
     const unreadMessages = computed(() => {
-      return messages.value.filter(m => !m.read).length
+      return messages.value.filter(m => !m.read).length 
     })
 
-    // دوال التحكم
-    const toggleDarkMode = () => {
-      isDarkMode.value = !isDarkMode.value
-      if (isDarkMode.value) {
-        document.documentElement.classList.add('dark')
-        localStorage.setItem('theme', 'dark')
-      } else {
-        document.documentElement.classList.remove('dark')
-        localStorage.setItem('theme', 'light')
-      }
-    }
-    
+    // دالة تسجيل الخروج (حذف الكوكيز والتوجيه للمسار /)
     const handleLogout = () => {
-      localStorage.removeItem('authToken')
+      Cookies.remove('authToken')
       localStorage.removeItem('userData')
       localStorage.removeItem('userType')
       showMenu.value = false
       
       // تحديث فوري للحالة
-      updateAuthState()
+      updateAuthState() 
       
+      // التوجيه للمسار /
       router.push('/')
     }
 
@@ -478,7 +339,7 @@ export default {
         'student': 'طالب',
         'user': 'مستفيد'
       }
-      return roles[role] || 'مستخدم'
+      return roles[role] || 'مستفيد'
     }
     
     // مراقبة تغيير المسار لإغلاق القوائم
@@ -487,17 +348,12 @@ export default {
     })
     
     onMounted(() => {
-      // تحميل الحالة الأولية
       updateAuthState()
       loadSystemLogo()
       
-      // إعداد مستمع التخزين
       const cleanupStorage = setupStorageListener()
-      
-      // إعداد مستمع النقر خارج القوائم
       const cleanupClickOutside = setupClickOutsideListener()
       
-      // تحميل الوضع الليلي
       const savedTheme = localStorage.getItem('theme')
       if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         isDarkMode.value = true
@@ -510,10 +366,10 @@ export default {
       }
     })
     
-    // توجيه المستخدم لصفحة الرسائل المناسبة
     const goToMessages = () => {
-      const path = user.value?.role === 'admin' ? '/admin/messages' : 
-                  user.value?.role === 'employee' ? '/employee/messages' : '/messages'
+      const role = user.value?.role
+      const path = role === 'admin' ? '/admin/messages' : 
+                   role === 'employee' ? '/employee/messages' : '/messages'
       router.push(path)
       showMenu.value = false
     }
@@ -524,10 +380,8 @@ export default {
       user, 
       showMenu,
       systemLogo,
-      messages,
-
-      unreadMessages,
-      toggleDarkMode, 
+      messages, 
+      unreadMessages, 
       handleLogout,
       getUserRoleText,
       goToMessages
@@ -537,6 +391,7 @@ export default {
 </script>
 
 <style scoped>
+/* (لم يتم تغيير تنسيقات CSS هنا، فقط للتأكد من أنها متضمنة) */
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
