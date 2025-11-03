@@ -47,7 +47,7 @@
                 <span class="material-icons text-lg">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
               </button>
             </div>
-            <a href="#" class="text-xs mt-2 block text-[#456882] text-left hover:underline">نسيت كلمة المرور؟</a>
+            <NuxtLink to="/ForgotPassword" class="text-xs mt-2 block text-white text-left hover:underline">نسيت كلمة المرور؟</NuxtLink>
           </div>
 
           <div v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm">
@@ -187,9 +187,9 @@ export default {
             // 5. التوجيه بناءً على الدور
             let redirectPath = '/'
             if (primaryRole === 'admin') {
-              redirectPath = '/'
+              redirectPath = '/admin'
             } else if (primaryRole === 'employee') {
-              redirectPath = '/'
+              redirectPath = '/employee/stories'
             }
             
             router.push(redirectPath)

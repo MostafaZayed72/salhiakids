@@ -39,10 +39,9 @@
                   :alt="user?.name"
                   class="w-full h-full object-cover"
                 >
-                <span v-else class="text-white text-base font-extrabold">
-                  {{ user?.name?.charAt(0) || 'م' }}
-                </span>
-              </div>
+<span v-else class="text-white text-base font-extrabold">
+    {{ user?.firstInitial || 'م' }} 
+</span>              </div>
               <div class="text-right hidden sm:block">
                 <span class="text-sm font-bold text-purple-700 dark:text-purple-300 block transform group-hover:translate-x-1 transition-transform">{{ user?.name || 'المستخدم' }}</span>
                 <span class="text-xs text-purple-500 dark:text-purple-400 capitalize bg-purple-100 dark:bg-purple-800 px-2 py-1 rounded-full mt-1 inline-block">{{ getUserRoleText(user?.role) }}</span>
@@ -65,10 +64,9 @@
                         :alt="user?.name"
                         class="w-full h-full object-cover"
                       >
-                      <span v-else class="text-white font-bold text-lg">
-                        {{ user?.name?.charAt(0) || 'م' }}
-                      </span>
-                    </div>
+<span v-else class="text-white font-bold text-lg">
+    {{ user?.firstInitial || 'م' }}
+</span>                    </div>
                     <div class="flex-1 text-right">
                       <p class="text-sm font-bold text-purple-700 dark:text-white">{{ user?.name || 'المستخدم' }}</p>
                       <p class="text-xs text-purple-500 dark:text-purple-300 mt-1">{{ user?.email }}</p>
@@ -218,31 +216,49 @@ export default {
     const isDarkMode = ref(false)
     
     // **القيمة الافتراضية لكائن user لضمان عدم كونه null**
-    const DEFAULT_USER_OBJECT = { 
-        name: 'مستخدم', 
-        email: 'user@example.com', 
-        role: 'user', 
-        profileImage: null 
-    }
-    
+const DEFAULT_USER_OBJECT = { 
+    fullName: 'مستخدم', // الاسم الكامل للعرض
+    email: null, 
+    role: 'user', 
+    profileImage: null,
+    firstInitial: 'م' // الحرف الأول للعرض في الدائرة
+}    
     const user = ref(DEFAULT_USER_OBJECT) // التهيئة بالقيمة الافتراضية
     const isAuthenticated = ref(false)
     const systemLogo = ref(null) 
 
     // تحديث حالة المستخدم (استخدام الكوكيز)
-    const updateAuthState = () => {
-      const token = Cookies.get('authToken') 
-      const userData = localStorage.getItem('userData')
-      
-      isAuthenticated.value = !!(token && userData)
-      
-      // تعيين بيانات المستخدم أو القيمة الافتراضية
-      user.value = userData ? JSON.parse(userData) : DEFAULT_USER_OBJECT
-      
-      // لا توجيه تلقائي بعد تحديث الحالة هنا
-    }
+// ... (داخل setup)
 
-    // تحميل شعار النظام من الإعدادات
+// تحديث حالة المستخدم (استخدام الكوكيز)
+const updateAuthState = () => {
+    const token = Cookies.get('authToken') 
+    const userData = localStorage.getItem('userData')
+    
+    isAuthenticated.value = !!(token && userData)
+    
+    // تعيين بيانات المستخدم أو القيمة الافتراضية
+    if (userData) {
+        const parsedData = JSON.parse(userData);
+        // نستخدم fullName و firstInitial المحفوظين من صفحة تسجيل الدخول
+        user.value = {
+            ...DEFAULT_USER_OBJECT,
+            ...parsedData, // هذا يضمن تضمين fullName و firstInitial
+            
+            // التأكد من وجود قيمة للـ name للعرض (نعتمد على fullName أو نعود لـ 'مستخدم')
+            // بما أن القالب يستخدم user?.name، سنضيف حقل name مؤقتاً ليتوافق
+            name: parsedData.fullName || parsedData.firstName || 'مستخدم',
+            
+            // تحديث الحرف الأول في حال كان مفقوداً (لضمان عمله)
+            firstInitial: parsedData.firstInitial || (parsedData.firstName ? parsedData.firstName.charAt(0) : 'م')
+        }
+    } else {
+        user.value = DEFAULT_USER_OBJECT
+    }
+    
+    // لا توجيه تلقائي بعد تحديث الحالة هنا
+}
+// ...    // تحميل شعار النظام من الإعدادات
     const loadSystemLogo = () => {
       const systemSettings = JSON.parse(localStorage.getItem('systemSettings') || '{}')
       systemLogo.value = systemSettings.logo || null
