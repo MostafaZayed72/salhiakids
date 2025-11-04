@@ -84,6 +84,12 @@
                       <span>لوحة التحكم</span>
                       <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
                     </router-link>
+                    <router-link to="/addCustomStory" class="custom-dropdown-item group" @click="showMenu = false">
+        <div class="custom-dropdown-icon bg-gradient-to-r from-green-500 to-teal-500">
+            <span class="material-icons">add_box</span> </div>
+        <span>تخصيص قصة</span>
+        <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+    </router-link>
                     <router-link to="/admin/stories" class="custom-dropdown-item group" @click="showMenu = false">
                       <div class="custom-dropdown-icon bg-gradient-to-r from-blue-500 to-cyan-500">
                         <span class="material-icons">library_books</span>
@@ -133,35 +139,38 @@
                       <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
                         <span class="material-icons">person</span>
                       </div>
+                       
                       <span>الملف الشخصي</span>
                       <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
                     </router-link>
                   </template>
                   
                   <template v-else>
-                    <router-link to="/" class="custom-dropdown-item group" @click="showMenu = false">
-                      <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
-                        <span class="material-icons">dashboard</span>
-                      </div>
-                      <span>لوحة النشاط</span>
-                      <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-                    </router-link>
-                    <router-link to="/messages" class="custom-dropdown-item group" @click="showMenu = false">
-                      <div class="custom-dropdown-icon bg-gradient-to-r from-indigo-500 to-purple-500">
-                        <span class="material-icons">mail</span>
-                      </div>
-                      <span>الرسائل</span>
-                      <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-                    </router-link>
-                    <router-link to="/user/profile" class="custom-dropdown-item group" @click="showMenu = false">
-                      <div class="custom-dropdown-icon bg-gradient-to-r from-blue-500 to-cyan-500">
-                        <span class="material-icons">person</span>
-                      </div>
-                      <span>الملف الشخصي</span>
-                      <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-                    </router-link>
-                  </template>
-                  
+    <router-link to="/" class="custom-dropdown-item group" @click="showMenu = false">
+        <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
+            <span class="material-icons">dashboard</span>
+        </div>
+        <span>لوحة النشاط</span>
+        <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+    </router-link>
+    <router-link to="/messages" class="custom-dropdown-item group" @click="showMenu = false">
+        <div class="custom-dropdown-icon bg-gradient-to-r from-indigo-500 to-purple-500">
+            <span class="material-icons">mail</span>
+        </div>
+        <span>الرسائل</span>
+        <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+    </router-link>
+    
+   
+
+    <router-link to="/user/profile" class="custom-dropdown-item group" @click="showMenu = false">
+        <div class="custom-dropdown-icon bg-gradient-to-r from-blue-500 to-cyan-500">
+            <span class="material-icons">person</span>
+        </div>
+        <span>الملف الشخصي</span>
+        <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+    </router-link>
+</template>
                   <div class="custom-dropdown-divider"></div>
                   
                   <button @click="handleLogout" class="custom-dropdown-item group text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-red-900/20 dark:hover:to-pink-900/20">
@@ -231,34 +240,48 @@ const DEFAULT_USER_OBJECT = {
 // ... (داخل setup)
 
 // تحديث حالة المستخدم (استخدام الكوكيز)
+// ... (داخل setup)
+
+// تحديث حالة المستخدم (استخدام الكوكيز)
 const updateAuthState = () => {
-    const token = Cookies.get('authToken') 
+    const token = Cookies.get('authToken')
     const userData = localStorage.getItem('userData')
-    
+
     isAuthenticated.value = !!(token && userData)
-    
-    // تعيين بيانات المستخدم أو القيمة الافتراضية
+
     if (userData) {
         const parsedData = JSON.parse(userData);
-        // نستخدم fullName و firstInitial المحفوظين من صفحة تسجيل الدخول
+
+        // 1. استخراج الدور وتحويله لأحرف صغيرة (lowercase) للتوافق
+        // نستخدم حقل userTypeName أو roles أو نعود للقيمة الافتراضية 'user'
+        const userRole = (
+            parsedData.userTypeName || 
+            (parsedData.roles && parsedData.roles[0]) || 
+            'user'
+        ).toLowerCase(); // ✅ نحوله إلى lowercase: 'Admin' -> 'admin'
+
+        // 2. تجميع الاسم الكامل
+        const fullName = `${parsedData.firstName || ''} ${parsedData.lastName || ''}`.trim() || 'مستخدم';
+        
+        // 3. الحصول على الحرف الأول
+        const firstInitial = parsedData.firstName ? parsedData.firstName.charAt(0) : 'م';
+
+        // 4. تعيين كائن المستخدم النهائي
         user.value = {
             ...DEFAULT_USER_OBJECT,
-            ...parsedData, // هذا يضمن تضمين fullName و firstInitial
+            ...parsedData, // نحافظ على جميع البيانات الأصلية
             
-            // التأكد من وجود قيمة للـ name للعرض (نعتمد على fullName أو نعود لـ 'مستخدم')
-            // بما أن القالب يستخدم user?.name، سنضيف حقل name مؤقتاً ليتوافق
-            name: parsedData.fullName || parsedData.firstName || 'مستخدم',
-            
-            // تحديث الحرف الأول في حال كان مفقوداً (لضمان عمله)
-            firstInitial: parsedData.firstInitial || (parsedData.firstName ? parsedData.firstName.charAt(0) : 'م')
+            // ✅ الحقول المصححة/المُنشأة
+            role: userRole, // ✅ القيمة المصححة للتوافق مع شروط القالب
+            name: fullName, // القالب يستخدم user?.name، لذا نستخدم الاسم الكامل
+            firstInitial: firstInitial,
         }
     } else {
         user.value = DEFAULT_USER_OBJECT
     }
-    
-    // لا توجيه تلقائي بعد تحديث الحالة هنا
 }
-// ...    // تحميل شعار النظام من الإعدادات
+
+// ... بقية الكود (loadSystemLogo، setupStorageListener، إلخ)// ...    // تحميل شعار النظام من الإعدادات
     const loadSystemLogo = () => {
       const systemSettings = JSON.parse(localStorage.getItem('systemSettings') || '{}')
       systemLogo.value = systemSettings.logo || null

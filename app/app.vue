@@ -3,7 +3,7 @@
 
     <NuxtRouteAnnouncer />
           <Header />
-          <DynamicHeroBackground />
+          <!-- <DynamicHeroBackground /> -->
 
     <LazyNuxtPage />
     <Footer />

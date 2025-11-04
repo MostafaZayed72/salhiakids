@@ -11,7 +11,7 @@ const emit = defineEmits(['searchByCategory']);
 
 <template>
   <section class="py-20  bg-gray-900">
-              <DynamicHeroBackground />
+              <!-- <DynamicHeroBackground /> -->
 
     <div class="container mx-auto px-4">
       <div class="text-center mb-16">

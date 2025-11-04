@@ -145,7 +145,7 @@ const viewContent = (contentId) => {
 };
 
 const goToCustomStory = () => {
-  router.push('/custom-story');
+  router.push('/CustomStory');
 };
 
 const goToSearch = () => {

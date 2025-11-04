@@ -16,7 +16,7 @@ const emit = defineEmits(['viewContent', 'goToSearch']);
 
 <template>
   <section class="py-20 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
-              <DynamicHeroBackground /> 
+              <!-- <DynamicHeroBackground />  -->
 
     <div class="container mx-auto px-4">
       

@@ -267,7 +267,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div dir="rtl" class="min-h-screen" :class="appearanceClasses">
+  <div dir="rtl"  :class="appearanceClasses">
 
     <div class="pt-6"></div>
 
@@ -377,6 +377,7 @@ onUnmounted(() => {
               </button>
             </div>
           </form>
+          
         </div>
       </div>
     </transition>
