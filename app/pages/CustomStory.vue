@@ -384,14 +384,16 @@ export default {
           storyTemplateId: selectedStory.value.id,
           storyTitle: selectedStory.value.title,
         }
-        
+        const storageKey = `child_image_${Date.now()}` // مفتاح فريد
+        if (storyData.childImage) {
+            localStorage.setItem(storageKey, storyData.childImage)
+        }
         router.push({
           path: '/StoryViewer',
           query: {
             name: storyData.childName,
-            image: storyData.childImage,
-            templateId: storyData.storyTemplateId
-          }
+imageKey: storyData.childImage ? storageKey : undefined, // نمرر المفتاح
+      templateId: storyData.storyTemplateId          }
         })
 
       } catch (error) {

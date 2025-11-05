@@ -62,7 +62,8 @@
 
     <main class="relative flex-1 py-8 z-30">
       <div class="container mx-auto px-4">
-        <div class="max-w-4xl mx-auto mb-8">
+        
+        <div v-if="!isLoading" class="max-w-4xl mx-auto mb-8">
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm text-gray-600 dark:text-gray-400">الصفحة {{ currentPage }} من {{ backendTotalPages }}</span>
             <span class="text-sm text-gray-600 dark:text-gray-400">{{ backendTotalPages ? Math.round((currentPage / backendTotalPages) * 100) : 0 }}%</span>
@@ -74,7 +75,7 @@
 
         <div v-if="isLoading" class="max-w-4xl mx-auto p-8 bg-white/90 dark:bg-gray-800/90 rounded-3xl shadow-2xl text-center">
           <div class="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent mx-auto mb-4"></div>
-          <div class="text-gray-600">جاري تحميل القصة...</div>
+          <div class="text-gray-600 dark:text-gray-300">جاري تحميل القصة...</div>
         </div>
 
         <div v-else class="max-w-4xl mx-auto bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-gray-200/50 dark:border-gray-700/50 transform hover:shadow-3xl transition-all duration-500">
@@ -82,7 +83,7 @@
             <div class="relative z-10">
               <div class="relative w-32 h-32 mx-auto mb-4 transform hover:scale-110 transition-transform duration-500">
                 <div class="relative w-full h-full">
-                  <img v-if="childImage" :src="childImage" alt="وجه الطفل" class="absolute top-0 left-0 w-full h-full  child-face-mask animate-pulse-gentle">
+                  <img v-if="childImage" :src="childImage" alt="وجه الطفل" class="absolute top-0 left-0 w-full h-full child-face-mask animate-pulse-gentle">
                 </div>
               </div>
 
@@ -215,65 +216,87 @@
     </transition>
 
     <teleport to="body">
-      <!-- Edit Modal -->
       <div v-if="showEditModal" class="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-4">
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-lg w-full">
-          <h3 class="text-xl font-bold mb-4">تعديل السلايد</h3>
+          <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">تعديل السلايد</h3>
 
           <form @submit.prevent="updateSlide">
             <div class="space-y-4">
               <div>
-                <label class="block mb-1">العنوان</label>
-                <input v-model="editingSlide.title" type="text" class="w-full px-3 py-2 border rounded-lg" required>
+                <label class="block mb-1 text-gray-700 dark:text-gray-300">العنوان</label>
+                <input v-model="editingSlide.title" type="text" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500" required>
               </div>
 
               <div>
-                <label class="block mb-1">الوصف</label>
-                <textarea v-model="editingSlide.description" class="w-full px-3 py-2 border rounded-lg" rows="3" required></textarea>
+                <label class="block mb-1 text-gray-700 dark:text-gray-300">الوصف</label>
+                <textarea v-model="editingSlide.description" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500" rows="3" required></textarea>
               </div>
 
               <div>
-                <label class="block mb-1">الصورة</label>
-                <input type="file" accept="image/*" @change="onEditImageSelected" class="w-full">
-                <img v-if="editingSlide.imageUrl" :src="editingSlide.imageUrl" class="mt-2 h-32 object-cover rounded">
+                <label class="block mb-1 text-gray-700 dark:text-gray-300">الصورة</label>
+                <div class="relative">
+                  <input type="file" accept="image/*" @change="onEditImageSelected" :disabled="isUploadingImage" class="w-full opacity-0 absolute inset-0 cursor-pointer">
+                  
+                  <button type="button" :disabled="isUploadingImage" class="w-full py-2 border rounded-lg flex items-center justify-center gap-2 transition-colors duration-300" :class="isUploadingImage ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600'">
+                    <span v-if="isUploadingImage" class="animate-spin h-5 w-5 border-2 border-current border-t-transparent rounded-full"></span>
+                    <span v-else class="material-icons">cloud_upload</span>
+                    <span>{{ isUploadingImage ? 'جاري الرفع...' : 'اختر ملف صورة جديدة' }}</span>
+                  </button>
+                </div>
+                <img v-if="editingSlide.imageUrl && !isUploadingImage" :src="editingSlide.imageUrl" class="mt-2 h-32 object-contain mx-auto rounded border border-gray-300 p-1">
+                <p v-if="editingSlide.imageUrl && !isUploadingImage" class="text-xs text-center text-gray-500 mt-1">الصورة الحالية</p>
               </div>
             </div>
 
             <div class="flex justify-end gap-2 mt-6">
-              <button type="button" @click="showEditModal = false" class="px-4 py-2 border rounded-lg">إلغاء</button>
-              <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg">حفظ التغييرات</button>
+              <button type="button" @click="showEditModal = false" :disabled="isUploadingImage" class="px-4 py-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700/80 transition-colors">إلغاء</button>
+              <button type="submit" :disabled="isUploadingImage" class="px-4 py-2 bg-blue-500 text-white rounded-lg transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-1">
+                <span v-if="isUploadingImage" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                حفظ التغييرات
+              </button>
             </div>
           </form>
         </div>
       </div>
 
-      <!-- Add Modal -->
       <div v-if="showAddModal" class="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-4">
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-lg w-full">
-          <h3 class="text-xl font-bold mb-4">إضافة سلايد جديد</h3>
+          <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">إضافة سلايد جديد</h3>
 
           <form @submit.prevent="addSlide">
             <div class="space-y-4">
               <div>
-                <label class="block mb-1">العنوان</label>
-                <input v-model="newSlide.title" type="text" class="w-full px-3 py-2 border rounded-lg" required>
+                <label class="block mb-1 text-gray-700 dark:text-gray-300">العنوان</label>
+                <input v-model="newSlide.title" type="text" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500" required>
               </div>
 
               <div>
-                <label class="block mb-1">الوصف</label>
-                <textarea v-model="newSlide.description" class="w-full px-3 py-2 border rounded-lg" rows="3" required></textarea>
+                <label class="block mb-1 text-gray-700 dark:text-gray-300">الوصف</label>
+                <textarea v-model="newSlide.description" class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500" rows="3" required></textarea>
               </div>
 
               <div>
-                <label class="block mb-1">الصورة</label>
-                <input type="file" accept="image/*" @change="onNewImageSelected" class="w-full">
-                <img v-if="newSlide.imageUrl" :src="newSlide.imageUrl" class="mt-2 h-32 object-cover rounded">
+                <label class="block mb-1 text-gray-700 dark:text-gray-300">الصورة</label>
+                <div class="relative">
+                  <input type="file" accept="image/*" @change="onNewImageSelected" :disabled="isUploadingImage" class="w-full opacity-0 absolute inset-0 cursor-pointer">
+                  
+                  <button type="button" :disabled="isUploadingImage" class="w-full py-2 border rounded-lg flex items-center justify-center gap-2 transition-colors duration-300" :class="isUploadingImage ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600'">
+                    <span v-if="isUploadingImage" class="animate-spin h-5 w-5 border-2 border-current border-t-transparent rounded-full"></span>
+                    <span v-else class="material-icons">cloud_upload</span>
+                    <span>{{ isUploadingImage ? 'جاري الرفع...' : 'اختر ملف صورة' }}</span>
+                  </button>
+                </div>
+                <img v-if="newSlide.imageUrl && !isUploadingImage" :src="newSlide.imageUrl" class="mt-2 h-32 object-contain mx-auto rounded border border-gray-300 p-1">
+                <p v-if="newSlide.imageUrl && !isUploadingImage" class="text-xs text-center text-gray-500 mt-1">الصورة الحالية</p>
               </div>
             </div>
 
             <div class="flex justify-end gap-2 mt-6">
-              <button type="button" @click="showAddModal = false" class="px-4 py-2 border rounded-lg">إلغاء</button>
-              <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-lg">إضافة السلايد</button>
+              <button type="button" @click="showAddModal = false" :disabled="isUploadingImage" class="px-4 py-2 border rounded-lg dark:bg-gray-700 dark:text-white dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700/80 transition-colors">إلغاء</button>
+              <button type="submit" :disabled="isUploadingImage" class="px-4 py-2 bg-green-500 text-white rounded-lg transition-colors duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-1">
+                <span v-if="isUploadingImage" class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                إضافة السلايد
+              </button>
             </div>
           </form>
         </div>
@@ -302,7 +325,7 @@ const newSlide = ref({ title: '', description: '', imageUrl: '', image: null })
 
 // state
 const childName = ref(route.query.name || '')
-const childImage = ref(route.query.image || '')
+const childImage = ref('')
 const selectedStory = ref(null)
 const storyAuthor = ref('')
 const storyTitle = computed(() => selectedStory.value?.title || '')
@@ -323,8 +346,8 @@ const isUploadingImage = ref(false)
 
 // helpers
 const getCookie = (name) => {
- const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
- return match ? decodeURIComponent(match[2]) : ''
+const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
+return match ? decodeURIComponent(match[2]) : ''
 }
 const getToken = () => getCookie('authToken') || getCookie('token') || ''
 
@@ -337,208 +360,221 @@ const pageKey = computed(() => `${selectedStory.value?.id || 'none'}-${currentPa
 
 // fetch story page (POST body contains id)
 const fetchStoryPage = async (storyId, itemsPageNumber = 1) => {
- if (!storyId || !API_BASE) return null
- const url = `${API_BASE}/api/CustomStories/GetById`
- const token = getToken()
- const body = {
-  id: storyId,
-  itemsPageNumber,
-  itemsPageSize: ITEMS_PAGE_SIZE,
-  itemsOrderBy: ITEMS_ORDER_BY,
-  itemsDescending: ITEMS_DESCENDING
+if (!storyId || !API_BASE) return null
+const url = `${API_BASE}/api/CustomStories/GetById`
+const token = getToken()
+const body = {
+ id: storyId,
+ itemsPageNumber,
+ itemsPageSize: ITEMS_PAGE_SIZE,
+ itemsOrderBy: ITEMS_ORDER_BY,
+ itemsDescending: ITEMS_DESCENDING
+}
+try {
+ const res = await axios.post(url, body, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+ const data = res.data
+ const pages = (data.items && Array.isArray(data.items.items)) ? data.items.items.map(it => ({
+ id: it.id,
+ title: it.title || it.description || data.title || '',
+ // هنا نحول الـ description من الـ API إلى content في الـ state
+ content: it.description || '', 
+ image: it.imageUrl || '',
+ soundEffect: it.soundEffect || null,
+ interactions: it.interactions || null
+ })) : []
+ storyAuthor.value = data.createdByUserName || data.createdBy || ''
+ return {
+ id: data.id,
+ title: data.title,
+ description: data.description,
+ image: data.imageUrl || '',
+ items: pages,
+ itemsTotalPages: data.items?.totalPages || (pages.length ? 1 : 0)
  }
- try {
-  const res = await axios.post(url, body, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
-  const data = res.data
-  const pages = (data.items && Array.isArray(data.items.items)) ? data.items.items.map(it => ({
-   id: it.id,
-   title: it.title || it.description || data.title || '',
-   // هنا نحول الـ description من الـ API إلى content في الـ state
-   content: it.description || '', 
-   image: it.imageUrl || '',
-   soundEffect: it.soundEffect || null,
-   interactions: it.interactions || null
-  })) : []
-  storyAuthor.value = data.createdByUserName || data.createdBy || ''
-  return {
-   id: data.id,
-   title: data.title,
-   description: data.description,
-   image: data.imageUrl || '',
-   items: pages,
-   itemsTotalPages: data.items?.totalPages || (pages.length ? 1 : 0)
-  }
- } catch (err) {
-  console.error('fetchStoryPage error', err)
-  return null
- }
+} catch (err) {
+ console.error('fetchStoryPage error', err)
+ return null
+}
 }
 
 // suggestions
 const fetchSuggestions = async () => {
- if (!API_BASE) return
- const url = `${API_BASE}/api/CustomStories/GetAllMatching`
- const token = getToken()
- const body = { searchPhrase: '', createdBy: '', orderBy: 'createdAt', descending: true, pageNumber: 1, pageSize: 6 }
- try {
-  const res = await axios.post(url, body, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
-  if (res.data && Array.isArray(res.data.items)) {
-   suggestions.value = res.data.items
-    .filter(i => i.id !== selectedStory.value?.id)
-    .map(i => ({ id: i.id, title: i.title, image: i.imageUrl || '', createdByUserName: i.createdByUserName || i.createdBy }))
-  }
- } catch (err) {
-  console.error('fetchSuggestions error', err)
-  suggestions.value = []
+if (!API_BASE) return
+const url = `${API_BASE}/api/CustomStories/GetAllMatching`
+const token = getToken()
+const body = { searchPhrase: '', createdBy: '', orderBy: 'createdAt', descending: true, pageNumber: 1, pageSize: 6 }
+try {
+ const res = await axios.post(url, body, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+ if (res.data && Array.isArray(res.data.items)) {
+ suggestions.value = res.data.items
+  .filter(i => i.id !== selectedStory.value?.id)
+  .map(i => ({ id: i.id, title: i.title, image: i.imageUrl || '', createdByUserName: i.createdByUserName || i.createdBy }))
  }
+} catch (err) {
+ console.error('fetchSuggestions error', err)
+ suggestions.value = []
+}
 }
 
 // admin: check current user via API
 const checkAdminStatus = async () => {
- if (!API_BASE) { isAdmin.value = false; return }
- const url = `${API_BASE}/api/identity/users/me`
- const token = getToken()
- try {
-  const res = await axios.get(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
-  const data = res.data
-  // determine admin by roles array or userTypeName/value
-  if (data && (Array.isArray(data.roles) ? data.roles.includes('Admin') : data.userTypeName === 'Admin' || data.userTypeValue === 1)) {
-   isAdmin.value = true
-  } else {
-   isAdmin.value = false
-  }
- } catch (err) {
-  console.warn('checkAdminStatus failed', err)
-  isAdmin.value = false
+if (!API_BASE) { isAdmin.value = false; return }
+const url = `${API_BASE}/api/identity/users/me`
+const token = getToken()
+try {
+ const res = await axios.get(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+ const data = res.data
+ // determine admin by roles array or userTypeName/value
+ if (data && (Array.isArray(data.roles) ? data.roles.includes('Admin') : data.userTypeName === 'Admin' || data.userTypeValue === 1)) {
+ isAdmin.value = true
+ } else {
+ isAdmin.value = false
  }
+} catch (err) {
+ console.warn('checkAdminStatus failed', err)
+ isAdmin.value = false
+}
 }
 
 // image upload helper (optional endpoint, adjust if different)
 const uploadImage = async (file) => {
- if (!file || !API_BASE) return ''
- const formData = new FormData()
- formData.append('file', file)
- try {
-  const res = await axios.post(`${API_BASE}/api/Upload/UploadImage`, formData, {
-   headers: { Authorization: getToken() ? `Bearer ${getToken()}` : undefined }
-  })
-  return res.data?.url || ''
- } catch (err) {
-  console.error('uploadImage failed', err)
-  return ''
- }
+if (!file || !API_BASE) return ''
+const formData = new FormData()
+formData.append('file', file)
+try {
+ const res = await axios.post(`${API_BASE}/api/Upload/UploadImage`, formData, {
+ headers: { Authorization: getToken() ? `Bearer ${getToken()}` : undefined }
+ })
+ return res.data?.url || ''
+} catch (err) {
+ console.error('uploadImage failed', err)
+ return ''
+}
 }
 
 // computed & utilities
 const totalPages = computed(() => backendTotalPages.value || 0)
 const currentPageData = computed(() => {
- const items = selectedStory.value?.items || []
- const p = items[0] || {}
- // هذا الجزء يضمن استبدال اسم الطفل في المحتوى
- if (p.content) p.content = String(p.content).replace(/\${childName}/g, childName.value || '') 
- return p
+const items = selectedStory.value?.items || []
+// نستخدم الدالة formatStoryText للتنسيق والاستبدال في الـ Template، 
+// لذلك نكتفي هنا بإرجاع أول عنصر
+const p = items[0] || {}
+return p
 })
 const wordCount = computed(() => {
- const content = currentPageData.value.content || ''
- return content ? content.split(/\s+/).filter(Boolean).length : 0
+const content = currentPageData.value.content || ''
+return content ? content.split(/\s+/).filter(Boolean).length : 0
 })
 const readingTime = computed(() => Math.max(1, Math.ceil(wordCount.value / 200)))
 const completedPercentage = computed(() => (totalPages.value ? Math.round((currentPage.value / totalPages.value) * 100) : 0))
 const storyStats = computed(() => [
- { value: currentPage.value, label: 'الصفحة الحالية' },
- { value: readingTime.value, label: 'دقيقة قراءة' },
- { value: wordCount.value, label: 'كلمة' },
- { value: `${completedPercentage.value}%`, label: 'مكتمل' }
+{ value: currentPage.value, label: 'الصفحة الحالية' },
+{ value: readingTime.value, label: 'دقيقة قراءة' },
+{ value: wordCount.value, label: 'كلمة' },
+{ value: `${completedPercentage.value}%`, label: 'مكتمل' }
 ])
 
-const formatStoryText = (text) => (text ? text.replace(/\n/g, '<br>') : '')
+// 💡 الدالة المُحدَّثة لاستبدال اسم البطل وتنسيق النص
+const formatStoryText = (text) => {
+    if (!text) return ''
+
+    // 1. استبدال المتغير "اسم_البطل" بالقيمة المخزنة في childName.value
+    // نستخدم تعبير عادي مع g للاستبدال الشامل لكل مرات الظهور
+    let formattedText = String(text).replace(/اسم_البطل/g, childName.value || '')
+
+    // 2. تطبيق تنسيق الأسطر الجديدة
+    formattedText = formattedText.replace(/\n/g, '<br>')
+
+    return formattedText
+}
+
 const getPageEmoji = (page) => {
- const emojis = ['🌳', '🐰', '🌊', '🎉', '🚀', '👽', '🕳️', '🏆']
- return emojis[(page - 1) % emojis.length] || '📖'
+const emojis = ['🌳', '🐰', '🌊', '🎉', '🚀', '👽', '🕳️', '🏆']
+return emojis[(page - 1) % emojis.length] || '📖'
 }
 const getSuggestionEmoji = (idx) => ['🐾','🏰','🤖','📚','🌟','✨'][idx % 6] || '📚'
 
 // navigation & interactions
 const loadStory = async (id, page = 1) => {
- if (!id) {
-  console.warn('No story id provided in query')
-  isLoading.value = false
-  return
+if (!id) {
+ console.warn('No story id provided in query')
+ isLoading.value = false
+ return
+}
+isLoading.value = true
+selectedStory.value = null
+currentPage.value = page
+try {
+ const full = await fetchStoryPage(id, page)
+ if (full) {
+ selectedStory.value = { id: full.id, title: full.title, description: full.description, image: full.image, items: full.items }
+ backendTotalPages.value = full.itemsTotalPages || 0
+ startTime.value = Date.now()
+ await fetchSuggestions()
+ } else {
+ alert('تعذر تحميل القصة من السيرفر.')
  }
- isLoading.value = true
- selectedStory.value = null
- currentPage.value = page
- try {
-  const full = await fetchStoryPage(id, page)
-  if (full) {
-   selectedStory.value = { id: full.id, title: full.title, description: full.description, image: full.image, items: full.items }
-   backendTotalPages.value = full.itemsTotalPages || 0
-   startTime.value = Date.now()
-   await fetchSuggestions()
-  } else {
-   alert('تعذر تحميل القصة من السيرفر.')
-  }
- } finally {
-  isLoading.value = false
- }
+} finally {
+ isLoading.value = false
+}
 }
 
 const nextPage = async () => {
- if (currentPage.value < backendTotalPages.value) {
-  pageTransition.value = 'slide-left'
-  currentPage.value++
-  await loadStory(selectedStory.value.id, currentPage.value)
- } else {
-  completeStory()
- }
+if (currentPage.value < backendTotalPages.value) {
+ pageTransition.value = 'slide-left'
+ currentPage.value++
+ await loadStory(selectedStory.value.id, currentPage.value)
+} else {
+ completeStory()
+}
 }
 const previousPage = async () => {
- if (currentPage.value > 1) {
-  pageTransition.value = 'slide-right'
-  currentPage.value--
-  await loadStory(selectedStory.value.id, currentPage.value)
- }
+if (currentPage.value > 1) {
+ pageTransition.value = 'slide-right'
+ currentPage.value--
+ await loadStory(selectedStory.value.id, currentPage.value)
+}
 }
 const goToPage = async (page) => {
- if (page >= 1 && page <= backendTotalPages.value) {
-  pageTransition.value = page > currentPage.value ? 'slide-left' : 'slide-right'
-  currentPage.value = page
-  await loadStory(selectedStory.value.id, page)
- }
+if (page >= 1 && page <= backendTotalPages.value) {
+ pageTransition.value = page > currentPage.value ? 'slide-left' : 'slide-right'
+ currentPage.value = page
+ await loadStory(selectedStory.value.id, page)
+}
 }
 
 const toggleAudio = () => { isAudioPlaying.value = !isAudioPlaying.value }
 const playSoundEffect = (effect) => {
- if (!isAudioPlaying.value) return
- try {
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)()
-  const osc = audioContext.createOscillator()
-  const gain = audioContext.createGain()
-  osc.connect(gain); gain.connect(audioContext.destination)
-  osc.type = 'sine'; osc.frequency.setValueAtTime(440, audioContext.currentTime)
-  gain.gain.setValueAtTime(0.1, audioContext.currentTime)
-  osc.start(); osc.stop(audioContext.currentTime + 1)
- } catch (e) {
-  console.warn('Audio not supported', e)
- }
+if (!isAudioPlaying.value) return
+try {
+ const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+ const osc = audioContext.createOscillator()
+ const gain = audioContext.createGain()
+ osc.connect(gain); gain.connect(audioContext.destination)
+ osc.type = 'sine'; osc.frequency.setValueAtTime(440, audioContext.currentTime)
+ gain.gain.setValueAtTime(0.1, audioContext.currentTime)
+ osc.start(); osc.stop(audioContext.currentTime + 1)
+} catch (e) {
+ console.warn('Audio not supported', e)
+}
 }
 const triggerInteraction = (interaction) => { console.log('interaction', interaction) }
 const shareStory = async () => {
- try {
-  if (navigator.share) {
-   await navigator.share({ title: storyTitle.value || '', text: selectedStory.value?.description || '', url: window.location.href })
-  } else {
-   await navigator.clipboard.writeText(window.location.href)
-   alert('تم نسخ رابط القصة!')
-  }
- } catch (e) {
-  console.error(e)
+try {
+ if (navigator.share) {
+ await navigator.share({ title: storyTitle.value || '', text: selectedStory.value?.description || '', url: window.location.href })
+ } else {
+ await navigator.clipboard.writeText(window.location.href)
+ alert('تم نسخ رابط القصة!')
  }
+} catch (e) {
+ console.error(e)
+}
 }
 const completeStory = () => {
- showCompletion.value = true
- const duration = Math.round((Date.now() - (startTime.value || Date.now())) / 1000 / 60)
- console.log('مدة القراءة (دقائق):', duration)
+showCompletion.value = true
+const duration = Math.round((Date.now() - (startTime.value || Date.now())) / 1000 / 60)
+console.log('مدة القراءة (دقائق):', duration)
 }
 const restartStory = () => { currentPage.value = 1; showCompletion.value = false; startTime.value = Date.now(); if (selectedStory.value?.id) loadStory(selectedStory.value.id, 1) }
 const createNewStory = () => { router.push('/custom-story') }
@@ -547,116 +583,121 @@ const openSuggestion = (sug) => { loadStory(sug.id, 1) }
 
 // Admin functions: edit / delete / add
 const editCurrentSlide = () => {
-    // 💡 تصحيح المشكلة 2 و 3: تعيين القيم الحالية من currentPageData
-    const src = currentPageData.value
-    
-    editingSlide.value = {
-        id: src.id || '',
-        title: src.title || '',
-        // الوصف هو content في الـ state (الذي يرجع description من الـ API)
-        description: src.content || '', 
-        // الصورة هي image في الـ state (الذي يرجع imageUrl من الـ API)
-        imageUrl: src.image || '' 
-    }
-    showEditModal.value = true
+  // تعيين القيم الحالية من currentPageData
+  const src = currentPageData.value
+  
+  editingSlide.value = {
+    id: src.id || '',
+    title: src.title || '',
+    // الوصف هو content في الـ state (الذي يرجع description من الـ API)
+    description: src.content || '', 
+    // الصورة هي image في الـ state (الذي يرجع imageUrl من الـ API)
+    imageUrl: src.image || '' 
+  }
+  showEditModal.value = true
 }
 
 const onEditImageSelected = async (e) => {
-    const file = e.target.files && e.target.files[0]
-    if (file) {
-        isUploadingImage.value = true // 💡 تفعيل حالة التحميل
-        const url = await uploadImage(file)
-        if (url) {
-            // ensure form field updated
-            if (!editingSlide.value) editingSlide.value = {}
-            editingSlide.value.imageUrl = url
-        }
-        isUploadingImage.value = false // 💡 إيقاف حالة التحميل
+  const file = e.target.files && e.target.files[0]
+  if (file) {
+    isUploadingImage.value = true // 💡 تفعيل حالة التحميل
+    const url = await uploadImage(file)
+    if (url) {
+      // ensure form field updated
+      if (!editingSlide.value) editingSlide.value = {}
+      editingSlide.value.imageUrl = url
     }
+    isUploadingImage.value = false // 💡 إيقاف حالة التحميل
+  }
 }
 
 const updateSlide = async () => {
-    if (!editingSlide.value) return
-    if (isUploadingImage.value) return // منع الإرسال أثناء الرفع
+  if (!editingSlide.value) return
+  if (isUploadingImage.value) return // منع الإرسال أثناء الرفع
 
-    try {
-        await axios.put(`${API_BASE}/api/CustomStoryItems/Update`, {
-            id: editingSlide.value.id,
-            title: editingSlide.value.title,
-            // 💡 تصحيح المشكلة 2: إرسال description من الحقل المربوط
-            description: editingSlide.value.description || '', 
-            imageUrl: editingSlide.value.imageUrl || ''
-        }, { headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} })
-        
-        showEditModal.value = false
-        // إعادة تحميل الصفحة الحالية لتعكس التعديلات الجديدة
-        await loadStory(selectedStory.value.id, currentPage.value) 
-    } catch (err) {
-        console.error('updateSlide failed', err)
-        alert('فشل تحديث السلايد')
-    }
+  try {
+    await axios.put(`${API_BASE}/api/CustomStoryItems/Update`, {
+      id: editingSlide.value.id,
+      title: editingSlide.value.title,
+      description: editingSlide.value.description || '', 
+      imageUrl: editingSlide.value.imageUrl || ''
+    }, { headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} })
+    
+    showEditModal.value = false
+    // إعادة تحميل الصفحة الحالية لتعكس التعديلات الجديدة
+    await loadStory(selectedStory.value.id, currentPage.value) 
+  } catch (err) {
+    console.error('updateSlide failed', err)
+    alert('فشل تحديث السلايد')
+  }
 }
 
 const deleteCurrentSlide = async () => {
- if (!currentPageData.value?.id) return
- if (!confirm('هل أنت متأكد من حذف هذا السلايد؟')) return
- try {
-  await axios.delete(`${API_BASE}/api/CustomStoryItems/Delete/${currentPageData.value.id}`, { headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} })
-  // after delete reload current or previous page
-  const nextPageIndex = Math.max(1, Math.min(currentPage.value, backendTotalPages.value - 1 || 1))
-  await loadStory(selectedStory.value.id, nextPageIndex)
- } catch (err) {
-  console.error('deleteCurrentSlide failed', err)
-  alert('فشل حذف السلايد')
- }
+if (!currentPageData.value?.id) return
+if (!confirm('هل أنت متأكد من حذف هذا السلايد؟')) return
+try {
+ await axios.delete(`${API_BASE}/api/CustomStoryItems/Delete/${currentPageData.value.id}`, { headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} })
+ // after delete reload current or previous page
+ const nextPageIndex = Math.max(1, Math.min(currentPage.value, backendTotalPages.value - 1 || 1))
+ await loadStory(selectedStory.value.id, nextPageIndex)
+} catch (err) {
+ console.error('deleteCurrentSlide failed', err)
+ alert('فشل حذف السلايد')
+}
 }
 const onNewImageSelected = async (e) => {
- const file = e.target.files[0]
- if (file) {
-    isUploadingImage.value = true // 💡 تفعيل حالة التحميل
-  const url = await uploadImage(file)
-  if (url) newSlide.value.imageUrl = url
-    isUploadingImage.value = false // 💡 إيقاف حالة التحميل
- }
+const file = e.target.files[0]
+if (file) {
+  isUploadingImage.value = true // 💡 تفعيل حالة التحميل
+ const url = await uploadImage(file)
+ if (url) newSlide.value.imageUrl = url
+  isUploadingImage.value = false // 💡 إيقاف حالة التحميل
+}
 }
 const addSlide = async () => {
- if (!selectedStory.value?.id) return
- if (isUploadingImage.value) return // منع الإرسال أثناء الرفع
- 
- try {
-  await axios.post(`${API_BASE}/api/CustomStoryItems/Add`, {
-   customStoryId: selectedStory.value.id,
-   title: newSlide.value.title,
-   description: newSlide.value.description,
-   imageUrl: newSlide.value.imageUrl || ''
-  }, { headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} })
-  showAddModal.value = false
-  newSlide.value = { title: '', description: '', imageUrl: '', image: null }
-  // reload last page to show new slide (backendTotalPages updated on reload)
-  await loadStory(selectedStory.value.id, backendTotalPages.value + 1)
- } catch (err) {
-  console.error('addSlide failed', err)
-  alert('فشل إضافة السلايد')
- }
+if (!selectedStory.value?.id) return
+if (isUploadingImage.value) return // منع الإرسال أثناء الرفع
+
+try {
+ await axios.post(`${API_BASE}/api/CustomStoryItems/Add`, {
+ customStoryId: selectedStory.value.id,
+ title: newSlide.value.title,
+ description: newSlide.value.description,
+ imageUrl: newSlide.value.imageUrl || ''
+ }, { headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} })
+ showAddModal.value = false
+ newSlide.value = { title: '', description: '', imageUrl: '', image: null }
+ // reload last page to show new slide (backendTotalPages updated on reload)
+ await loadStory(selectedStory.value.id, backendTotalPages.value + 1)
+} catch (err) {
+ console.error('addSlide failed', err)
+ alert('فشل إضافة السلايد')
+}
 }
 
 // lifecycle
 onMounted(async () => {
- await checkAdminStatus()
- const id = route.query.templateId || route.query.story || route.query.id || route.query.template
- const page = Number(route.query.page) || 1
- loadStory(id, page)
- isDarkMode.value = document.documentElement.classList.contains('dark')
+  childName.value = route.query.name || ''
+  const imageKey = route.query.imageKey
+if (imageKey) {
+  const storedImage = localStorage.getItem(imageKey)
+  if (storedImage) {
+    childImage.value = storedImage
+  }
+}
+await checkAdminStatus()
+const id = route.query.templateId || route.query.story || route.query.id || route.query.template
+const page = Number(route.query.page) || 1
+loadStory(id, page)
+isDarkMode.value = document.documentElement.classList.contains('dark')
 })
 
 watch(route, (r) => {
- const id = r.query.templateId || r.query.story || r.query.id
- const page = Number(r.query.page) || 1
- if (id) loadStory(id, page)
+const id = r.query.templateId || r.query.story || r.query.id
+const page = Number(r.query.page) || 1
+if (id) loadStory(id, page)
 })
 </script>
-
-
 <style scoped>
 /* حركات الصفحات */
 .slide-left-enter-active { animation: slideInLeft 0.6s ease-out; }
