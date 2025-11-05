@@ -113,6 +113,15 @@
                   <p class="text-lg text-gray-700 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto animate-fade-in-up-delay" v-html="formatStoryText(currentPageData.content)"></p>
                 </div>
 
+                <div v-if="isAdmin" class="flex justify-center gap-2 mt-4">
+                  <button @click="editCurrentSlide" class="px-3 py-1 bg-blue-500 text-white rounded flex items-center gap-1">
+                    <span class="material-icons text-sm">edit</span>تعديل
+                  </button>
+                  <button @click="deleteCurrentSlide" class="px-3 py-1 bg-red-500 text-white rounded flex items-center gap-1">
+                    <span class="material-icons text-sm">delete</span>حذف
+                  </button>
+                </div>
+
                 <div v-if="currentPageData.soundEffect && isAudioPlaying" class="mb-6 animate-bounce-in">
                   <button @click="playSoundEffect(currentPageData.soundEffect)" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg group">
                     <span class="material-icons text-xl group-hover:animate-spin">play_circle</span>
@@ -145,6 +154,13 @@
               <button @click="nextPage" :disabled="currentPage === backendTotalPages" :class="['flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 transform', currentPage === backendTotalPages ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white hover:scale-105 hover:shadow-lg group']">
                 <span>التالي</span>
                 <span class="material-icons text-xl group-hover:animate-bounce">arrow_back</span>
+              </button>
+            </div>
+
+            <div v-if="isAdmin" class="mt-4 text-center">
+              <button @click="showAddModal = true" class="px-4 py-2 bg-green-500 text-white rounded-xl flex items-center gap-2 mx-auto">
+                <span class="material-icons">add_circle</span>
+                إضافة سلايد جديد
               </button>
             </div>
           </div>
@@ -197,11 +213,77 @@
         </div>
       </div>
     </transition>
+
+    <teleport to="body">
+      <!-- Edit Modal -->
+      <div v-if="showEditModal" class="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-lg w-full">
+          <h3 class="text-xl font-bold mb-4">تعديل السلايد</h3>
+
+          <form @submit.prevent="updateSlide">
+            <div class="space-y-4">
+              <div>
+                <label class="block mb-1">العنوان</label>
+                <input v-model="editingSlide.title" type="text" class="w-full px-3 py-2 border rounded-lg" required>
+              </div>
+
+              <div>
+                <label class="block mb-1">الوصف</label>
+                <textarea v-model="editingSlide.description" class="w-full px-3 py-2 border rounded-lg" rows="3" required></textarea>
+              </div>
+
+              <div>
+                <label class="block mb-1">الصورة</label>
+                <input type="file" accept="image/*" @change="onEditImageSelected" class="w-full">
+                <img v-if="editingSlide.imageUrl" :src="editingSlide.imageUrl" class="mt-2 h-32 object-cover rounded">
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-2 mt-6">
+              <button type="button" @click="showEditModal = false" class="px-4 py-2 border rounded-lg">إلغاء</button>
+              <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg">حفظ التغييرات</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Add Modal -->
+      <div v-if="showAddModal" class="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-lg w-full">
+          <h3 class="text-xl font-bold mb-4">إضافة سلايد جديد</h3>
+
+          <form @submit.prevent="addSlide">
+            <div class="space-y-4">
+              <div>
+                <label class="block mb-1">العنوان</label>
+                <input v-model="newSlide.title" type="text" class="w-full px-3 py-2 border rounded-lg" required>
+              </div>
+
+              <div>
+                <label class="block mb-1">الوصف</label>
+                <textarea v-model="newSlide.description" class="w-full px-3 py-2 border rounded-lg" rows="3" required></textarea>
+              </div>
+
+              <div>
+                <label class="block mb-1">الصورة</label>
+                <input type="file" accept="image/*" @change="onNewImageSelected" class="w-full">
+                <img v-if="newSlide.imageUrl" :src="newSlide.imageUrl" class="mt-2 h-32 object-cover rounded">
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-2 mt-6">
+              <button type="button" @click="showAddModal = false" class="px-4 py-2 border rounded-lg">إلغاء</button>
+              <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-lg">إضافة السلايد</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 
@@ -210,10 +292,17 @@ const route = useRoute()
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
 
+// admin & modals
+const isAdmin = ref(false)
+const showEditModal = ref(false)
+const showAddModal = ref(false)
+const editingSlide = ref(null)
+const newSlide = ref({ title: '', description: '', imageUrl: '', image: null })
+
 // state
 const childName = ref(route.query.name || '')
 const childImage = ref(route.query.image || '')
-const selectedStory = ref(null) // will hold meta and current page items
+const selectedStory = ref(null)
 const storyAuthor = ref('')
 const storyTitle = computed(() => selectedStory.value?.title || '')
 const currentPage = ref(1)
@@ -236,12 +325,13 @@ const getCookie = (name) => {
 const getToken = () => getCookie('authToken') || getCookie('token') || ''
 
 // backend pagination settings for story items
-const ITEMS_PAGE_SIZE = 1 // server-side items per page (adjust if backend expects different)
+const ITEMS_PAGE_SIZE = 1
 const ITEMS_ORDER_BY = 'createdAt'
-const ITEMS_DESCENDING = false // عرض الأقدم أولاً
+const ITEMS_DESCENDING = false // older first
 const backendTotalPages = ref(0)
 const pageKey = computed(() => `${selectedStory.value?.id || 'none'}-${currentPage.value}`)
-// ...existing code...
+
+// fetch story page (POST body contains id)
 const fetchStoryPage = async (storyId, itemsPageNumber = 1) => {
   if (!storyId || !API_BASE) return null
   const url = `${API_BASE}/api/CustomStories/GetById`
@@ -265,7 +355,6 @@ const fetchStoryPage = async (storyId, itemsPageNumber = 1) => {
       interactions: it.interactions || null
     })) : []
     storyAuthor.value = data.createdByUserName || data.createdBy || ''
-    // return meta + page items + pagination info
     return {
       id: data.id,
       title: data.title,
@@ -279,32 +368,19 @@ const fetchStoryPage = async (storyId, itemsPageNumber = 1) => {
     return null
   }
 }
-// ...existing code...
 
-// suggestions (GetAllMatching)
+// suggestions
 const fetchSuggestions = async () => {
   if (!API_BASE) return
   const url = `${API_BASE}/api/CustomStories/GetAllMatching`
   const token = getToken()
-  const body = {
-    searchPhrase: '',
-    createdBy: '',
-    orderBy: 'createdAt',
-    descending: true,
-    pageNumber: 1,
-    pageSize: 6
-  }
+  const body = { searchPhrase: '', createdBy: '', orderBy: 'createdAt', descending: true, pageNumber: 1, pageSize: 6 }
   try {
     const res = await axios.post(url, body, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
     if (res.data && Array.isArray(res.data.items)) {
       suggestions.value = res.data.items
         .filter(i => i.id !== selectedStory.value?.id)
-        .map(i => ({
-          id: i.id,
-          title: i.title,
-          image: i.imageUrl || '',
-          createdByUserName: i.createdByUserName || i.createdBy
-        }))
+        .map(i => ({ id: i.id, title: i.title, image: i.imageUrl || '', createdByUserName: i.createdByUserName || i.createdBy }))
     }
   } catch (err) {
     console.error('fetchSuggestions error', err)
@@ -312,15 +388,48 @@ const fetchSuggestions = async () => {
   }
 }
 
-// computed
+// admin: check current user via API
+const checkAdminStatus = async () => {
+  if (!API_BASE) { isAdmin.value = false; return }
+  const url = `${API_BASE}/api/identity/users/me`
+  const token = getToken()
+  try {
+    const res = await axios.get(url, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
+    const data = res.data
+    // determine admin by roles array or userTypeName/value
+    if (data && (Array.isArray(data.roles) ? data.roles.includes('Admin') : data.userTypeName === 'Admin' || data.userTypeValue === 1)) {
+      isAdmin.value = true
+    } else {
+      isAdmin.value = false
+    }
+  } catch (err) {
+    console.warn('checkAdminStatus failed', err)
+    isAdmin.value = false
+  }
+}
+
+// image upload helper (optional endpoint, adjust if different)
+const uploadImage = async (file) => {
+  if (!file || !API_BASE) return ''
+  const formData = new FormData()
+  formData.append('file', file)
+  try {
+    const res = await axios.post(`${API_BASE}/api/Upload/UploadImage`, formData, {
+      headers: { Authorization: getToken() ? `Bearer ${getToken()}` : undefined }
+    })
+    return res.data?.url || ''
+  } catch (err) {
+    console.error('uploadImage failed', err)
+    return ''
+  }
+}
+
+// computed & utilities
 const totalPages = computed(() => backendTotalPages.value || 0)
 const currentPageData = computed(() => {
   const items = selectedStory.value?.items || []
   const p = items[0] || {}
-  if (p.content) {
-    // inject childName safely
-    p.content = String(p.content).replace(/\${childName}/g, childName.value || '')
-  }
+  if (p.content) p.content = String(p.content).replace(/\${childName}/g, childName.value || '')
   return p
 })
 const wordCount = computed(() => {
@@ -336,7 +445,6 @@ const storyStats = computed(() => [
   { value: `${completedPercentage.value}%`, label: 'مكتمل' }
 ])
 
-// utilities
 const formatStoryText = (text) => (text ? text.replace(/\n/g, '<br>') : '')
 const getPageEmoji = (page) => {
   const emojis = ['🌳', '🐰', '🌊', '🎉', '🚀', '👽', '🕳️', '🏆']
@@ -357,14 +465,7 @@ const loadStory = async (id, page = 1) => {
   try {
     const full = await fetchStoryPage(id, page)
     if (full) {
-      // selectedStory keeps meta and current page items array (server returns items for requested page)
-      selectedStory.value = {
-        id: full.id,
-        title: full.title,
-        description: full.description,
-        image: full.image,
-        items: full.items
-      }
+      selectedStory.value = { id: full.id, title: full.title, description: full.description, image: full.image, items: full.items }
       backendTotalPages.value = full.itemsTotalPages || 0
       startTime.value = Date.now()
       await fetchSuggestions()
@@ -436,19 +537,78 @@ const completeStory = () => {
 const restartStory = () => { currentPage.value = 1; showCompletion.value = false; startTime.value = Date.now(); if (selectedStory.value?.id) loadStory(selectedStory.value.id, 1) }
 const createNewStory = () => { router.push('/custom-story') }
 const goBack = () => { router.back() }
-const openSuggestion = (sug) => {
-  // open suggestion by fetching its page 1
-  loadStory(sug.id, 1)
+const openSuggestion = (sug) => { loadStory(sug.id, 1) }
+
+// Admin functions: edit / delete / add
+const editCurrentSlide = () => {
+  editingSlide.value = { ...currentPageData.value }
+  showEditModal.value = true
+}
+const onEditImageSelected = async (e) => {
+  const file = e.target.files[0]
+  if (file) {
+    const url = await uploadImage(file)
+    if (url) editingSlide.value.imageUrl = url
+  }
+}
+const updateSlide = async () => {
+  if (!editingSlide.value) return
+  try {
+    await axios.put(`${API_BASE}/api/CustomStoryItems/Update`, {
+      id: editingSlide.value.id,
+      title: editingSlide.value.title,
+      description: editingSlide.value.content || editingSlide.value.description || '',
+      imageUrl: editingSlide.value.imageUrl || ''
+    }, { headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} })
+    showEditModal.value = false
+    await loadStory(selectedStory.value.id, currentPage.value)
+  } catch (err) {
+    console.error('updateSlide failed', err)
+    alert('فشل تحديث السلايد')
+  }
+}
+const deleteCurrentSlide = async () => {
+  if (!currentPageData.value?.id) return
+  if (!confirm('هل أنت متأكد من حذف هذا السلايد؟')) return
+  try {
+    await axios.delete(`${API_BASE}/api/CustomStoryItems/Delete/${currentPageData.value.id}`, { headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} })
+    // after delete reload current or previous page
+    const nextPageIndex = Math.max(1, Math.min(currentPage.value, backendTotalPages.value - 1 || 1))
+    await loadStory(selectedStory.value.id, nextPageIndex)
+  } catch (err) {
+    console.error('deleteCurrentSlide failed', err)
+    alert('فشل حذف السلايد')
+  }
+}
+const onNewImageSelected = async (e) => {
+  const file = e.target.files[0]
+  if (file) {
+    const url = await uploadImage(file)
+    if (url) newSlide.value.imageUrl = url
+  }
+}
+const addSlide = async () => {
+  if (!selectedStory.value?.id) return
+  try {
+    await axios.post(`${API_BASE}/api/CustomStoryItems/Add`, {
+      customStoryId: selectedStory.value.id,
+      title: newSlide.value.title,
+      description: newSlide.value.description,
+      imageUrl: newSlide.value.imageUrl || ''
+    }, { headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} })
+    showAddModal.value = false
+    newSlide.value = { title: '', description: '', imageUrl: '', image: null }
+    // reload last page to show new slide (backendTotalPages updated on reload)
+    await loadStory(selectedStory.value.id, backendTotalPages.value + 1)
+  } catch (err) {
+    console.error('addSlide failed', err)
+    alert('فشل إضافة السلايد')
+  }
 }
 
-// animations & UI
-const toggleTheme = () => { isDarkMode.value = !isDarkMode.value; document.documentElement.classList.toggle('dark') }
-const toggleAnimations = () => { animationsEnabled.value = !animationsEnabled.value }
-const onPageEnter = (el) => { if (animationsEnabled.value) { el.style.animation = 'none'; setTimeout(()=> el.style.animation = '', 10) } }
-const onPageLeave = (el) => {}
-
 // lifecycle
-onMounted(() => {
+onMounted(async () => {
+  await checkAdminStatus()
   const id = route.query.templateId || route.query.story || route.query.id || route.query.template
   const page = Number(route.query.page) || 1
   loadStory(id, page)
