@@ -1,5 +1,5 @@
 <template>
-  <div dir="rtl" class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-purple-100 transition-colors duration-300">
+  <div dir="rtl" class="min-h-screen bg-gradient-to-br from-purple-300 via-pink-400 to-purple-400 transition-colors duration-300">
     
     <main class="flex-1 py-8">
       <div class="container mx-auto px-4">
