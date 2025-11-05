@@ -150,12 +150,12 @@
                   <div class="relative h-48 bg-gradient-to-br from-purple-300 to-pink-400 rounded-xl mb-4 overflow-hidden flex items-center justify-center">
                     <div class="absolute inset-0 flex items-center justify-center">
                       <div class="relative w-32 h-32">
-                        <img 
+                        <!-- <img 
                           :src="selectedStory.image" 
                           :alt="selectedStory.title"
                           class="max-w-full max-h-full object-contain rounded-full border-4 border-white"
-                        >
-                        <img v-if="childImage" :src="childImage" alt="وجه الطفل" class="absolute top-0 left-0 w-full h-full object-cover rounded-full child-face-mask">
+                        > -->
+                        <img v-if="childImage" :src="childImage" alt="وجه الطفل" class="absolute top-0 left-0 w-full h-full  rounded child-face-mask">
                       </div>
                     </div>
                   </div>
@@ -386,7 +386,7 @@ export default {
         }
         
         router.push({
-          path: '/story-viewer',
+          path: '/StoryViewer',
           query: {
             name: storyData.childName,
             image: storyData.childImage,
@@ -458,9 +458,7 @@ video {
 }
 
 .child-face-mask {
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='35' r='25'/%3E%3C/svg%3E");
   mask-repeat: no-repeat;
   mask-position: center;
-  mask-size: contain;
 }
 </style>
