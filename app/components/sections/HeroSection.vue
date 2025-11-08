@@ -64,7 +64,9 @@ const triggerImageInput = () => {
     <div class="container mx-auto px-4 relative z-10">
       <div class="max-w-4xl mx-auto text-center">
         <h1 class="text-5xl md:text-6xl font-extrabold text-gray-800  mb-6 custom-fade-in-down">
-          مكتبة <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">قصص الأطفال</span> التفاعلية
+          مكتبة 
+          <br class="md:hidden"/>
+           <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">قصص الأطفال</span> التفاعلية
         </h1>
         <p class="text-xl text-gray-700  mb-10 custom-fade-in-down delay-200 font-bold">
           اكتشف آلاف القصص التي تنمي الخيال والقيم بأمان ومرح.
