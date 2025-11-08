@@ -27,17 +27,6 @@ let recognition = null; // لأجل Web Speech API
 // ----------------------------------------------------
 // 2. البيانات الثابتة (يتم تمريرها كمُدخلات للمكونات)
 // ----------------------------------------------------
-const featuredCategories = [
-  // ... (نفس بيانات الفئات من الجزء الخامس) ...
-  { id: 1, name: 'المغامرات', icon: 'explore', description: 'رحلات مثيرة لاكتشاف عوالم جديدة', count: 156 },
-  { id: 2, name: 'الحيوانات', icon: 'pets', description: 'عالم الحيوان بأسلوب شيق وممتع', count: 89 },
-  { id: 3, name: 'التعليمية', icon: 'school', description: 'تعلم مع المتعة في كل محتوى', count: 203 },
-  { id: 4, name: 'الدينية', icon: 'mosque', description: 'قيم إسلامية بأسلوب مبسط', count: 134 },
-  { id: 5, name: 'الخيال', icon: 'auto_awesome', description: 'عوالم سحرية وخيالية رائعة', count: 78 },
-  { id: 6, name: 'التاريخية', icon: 'history', description: 'رحلة عبر الزمن إلى الماضي', count: 67 },
-  { id: 7, name: 'العلمية', icon: 'science', description: 'اكتشافات علمية مبسطة', count: 92 },
-  { id: 8, name: 'الاجتماعية', icon: 'diversity_3', description: 'تعزيز القيم والسلوكيات', count: 145 }
-];
 
 const featuredHeroes = [
   // ... (نفس بيانات الأبطال من الجزء الخامس) ...
@@ -323,13 +312,12 @@ onUnmounted(() => {
         @selectSuggestion="selectSuggestion"
         data-aos="fade-up" data-aos-once="false" />
 
-        
+   <!-- @searchByCategory="searchByCategory" -->
         <SectionsCategoriesSection 
           :featuredCategories="featuredCategories"
-          @searchByCategory="searchByCategory"
           data-aos="fade-right" data-aos-delay="100"
         />
-        
+
         <SectionsHeroMakerSection 
           :featuredHeroes="featuredHeroes"
           @goToCustomStory="goToCustomStory"

@@ -1,108 +1,153 @@
-<script setup>
+<!-- <script setup>
 import { onMounted, onUnmounted, ref } from 'vue';
 import * as THREE from 'three';
 
 const canvasContainer = ref(null);
-let scene, camera, renderer, particles, containerWidth, containerHeight, animationFrameId;
+let scene, camera, renderer, planetsGroup, animationFrameId;
 
-// **القيمة الثابتة لكائن Three.js لمجموعة الكواكب/النجوم**
-const PLANET_COUNT = 50; 
+// 🟢 عدد الكواكب
+const PLANET_COUNT = 50; // قللت العدد قليلاً لتجنب الازدحام مع الحلقات
 
+// 🟢 قائمة الألوان الممكنة للكواكب والحلقات
+const PLANET_COLORS = [
+    0x8A2BE2, // بنفسجي أزرق (BlueViolet)
+    0x40E0D0, // تركواز (Turquoise)
+    0xDA70D6, // أرجواني (Orchid)
+    0xFF6347, // برتقالي طماطم (Tomato)
+    0x6A5ACD, // أزرق أردوازي (SlateBlue)
+    0xADD8E6, // أزرق فاتح (LightBlue)
+    0xF08080, // مرجاني فاتح (LightCoral)
+    0x9ACD32  // أخضر أصفر (YellowGreen)
+];
+
+// 🟢 إعداد المشهد ثلاثي الأبعاد
 const initThree = () => {
     if (!canvasContainer.value) return;
 
     // 1. إعداد المشهد (Scene)
-    containerWidth = canvasContainer.value.clientWidth;
-    containerHeight = canvasContainer.value.clientHeight;
+    const containerWidth = canvasContainer.value.clientWidth;
+    const containerHeight = canvasContainer.value.clientHeight;
     
     scene = new THREE.Scene();
-    scene.background = null; 
+    scene.background = null; // خلفية شفافة للحفاظ على الخلفية الأصلية للموقع
     
-    // إضافة إضاءة محيطية
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); 
+    // إضافة إضاءة محيطية (Ambient Light)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); 
     scene.add(ambientLight); 
 
+    // 🟢 إضافة إضاءة نقطية (Point Light) لمحاكاة ضوء الشمس أو نجم
+    const pointLight = new THREE.PointLight(0xffffff, 1.5, 100);
+    pointLight.position.set(10, 10, 10);
+    scene.add(pointLight);
+    
     // 2. إعداد الكاميرا (Camera)
     camera = new THREE.PerspectiveCamera(75, containerWidth / containerHeight, 0.1, 1000);
-    camera.position.z = 5;
+    camera.position.z = 10; // زيادة مسافة الكاميرا لرؤية المشهد أوسع
+    camera.lookAt(0, 0, 0); // جعل الكاميرا تنظر إلى مركز المشهد
 
     // 3. إعداد الرسام (Renderer)
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(containerWidth, containerHeight);
     canvasContainer.value.appendChild(renderer.domElement);
     
-    // 4. إعداد الأشكال الفضائية (Spheres/Planets)
-    particles = new THREE.Group(); // استخدم Group لتجميع الأشكال
+    // 4. إعداد الكواكب والحلقات
+    planetsGroup = new THREE.Group(); // مجموعة رئيسية للكواكب والحلقات
     
-    // تعريف الشكل الأساسي (كرة بسيطة)
-    const geometry = new THREE.SphereGeometry(0.1, 16, 16); 
-
     for (let i = 0; i < PLANET_COUNT; i++) {
-        // مادة مضيئة (BasicMaterial) لتشبه التوهج أو النجم
-        const material = new THREE.MeshBasicMaterial({ 
-            color: 0x8A2BE2, 
-            transparent: true,
-            opacity: 0.9,
+        const planetColor = PLANET_COLORS[Math.floor(Math.random() * PLANET_COLORS.length)];
+        const planetSize = Math.random() * 0.4 + 0.2; // حجم الكوكب بين 0.2 و 0.6
+        const ringInnerRadius = planetSize * 1.2; // الحلقات تبدأ بعد الكوكب
+        const ringOuterRadius = planetSize * (1.2 + Math.random() * 0.8); // عرض الحلقات عشوائي
+        const ringSegments = 32;
+
+        // 🟢 الكوكب (Sphere Geometry)
+        const planetGeometry = new THREE.SphereGeometry(planetSize, 32, 32); 
+        // 🟢 مادة قياسية (MeshStandardMaterial) تتفاعل مع الضوء
+        const planetMaterial = new THREE.MeshStandardMaterial({ 
+            color: planetColor,
+            roughness: 0.7, // نعومة السطح
+            metalness: 0.1  // معدنية قليلة
         });
+        const planetMesh = new THREE.Mesh(planetGeometry, planetMaterial);
         
-        const mesh = new THREE.Mesh(geometry, material);
-        
+        // 🟢 الحلقات (Ring Geometry)
+        const ringGeometry = new THREE.RingGeometry(ringInnerRadius, ringOuterRadius, ringSegments);
+        // 🟢 مادة BasicMaterial للحلقات الشفافة
+        const ringMaterial = new THREE.MeshBasicMaterial({ 
+            color: planetColor, 
+            side: THREE.DoubleSide, // لتظهر الحلقات من الجانبين
+            transparent: true,
+            opacity: Math.random() * 0.5 + 0.2 // شفافية عشوائية
+        });
+        const ringMesh = new THREE.Mesh(ringGeometry, ringMaterial);
+        ringMesh.rotation.x = Math.PI / 2; // تدوير الحلقات لتكون أفقية
+
+        // 🟢 مجموعة لكل كوكب وحلقاته
+        const planetContainer = new THREE.Group();
+        planetContainer.add(planetMesh);
+        planetContainer.add(ringMesh);
+
         // وضع عشوائي ثلاثي الأبعاد
-        mesh.position.x = (Math.random() - 0.5) * 15; // توسيع النطاق
-        mesh.position.y = (Math.random() - 0.5) * 15;
-        mesh.position.z = (Math.random() - 0.5) * 15;
+        planetContainer.position.x = (Math.random() - 0.5) * 20; // توسيع نطاق الانتشار
+        planetContainer.position.y = (Math.random() - 0.5) * 20;
+        planetContainer.position.z = (Math.random() - 0.5) * 20;
         
-        // تغيير حجم عشوائي
-        const scale = Math.random() * 0.7 + 0.3; // حجم بين 0.3 و 1.0
-        mesh.scale.set(scale, scale, scale);
-        
-        // تخزين بيانات الحركة الدائرية
-        mesh.userData.orbitSpeed = Math.random() * 0.005 + 0.001; 
-        mesh.userData.orbitRadius = Math.random() * 5 + 2; 
-        
-        particles.add(mesh);
+        // تخزين بيانات الحركة الدائرية لكل كوكب
+        planetContainer.userData.orbitSpeed = Math.random() * 0.005 + 0.001; 
+        planetContainer.userData.rotationSpeed = Math.random() * 0.01 + 0.005; // سرعة دوران حول نفسه
+        planetContainer.userData.orbitRadius = Math.random() * 8 + 3; // نصف قطر المدار حول المركز
+        planetContainer.userData.orbitAngle = Math.random() * Math.PI * 2; // زاوية بداية المدار
+
+        planetsGroup.add(planetContainer);
     }
 
-    scene.add(particles);
+    scene.add(planetsGroup);
 };
 
+// 🟢 حلقة الرسوم المتحركة
 const animate = () => {
     animationFrameId = requestAnimationFrame(animate);
 
-    const time = Date.now() * 0.0005;
+    const time = Date.now() * 0.0001; // بطء الحركة الكلية قليلاً
 
-    // 1. حركة المجموعة الرئيسية (تدوير)
-    particles.rotation.y += 0.0005;
+    // تدوير المجموعة الكلية للكواكب
+    planetsGroup.rotation.y += 0.0003;
+    planetsGroup.rotation.x += 0.0001;
 
-    // 2. حركة الكواكب الفردية (دوران حول نقطة محورية)
-    particles.children.forEach((mesh, index) => {
-        // حركة دورانية بسيطة
-        mesh.position.x += Math.sin(time + index) * 0.005;
-        mesh.position.y += Math.cos(time + index) * 0.005;
+    // حركة الكواكب الفردية
+    planetsGroup.children.forEach(planetContainer => {
+        // دوران الكوكب والحلقات حول نفسه
+        planetContainer.rotation.y += planetContainer.userData.rotationSpeed;
+        planetContainer.rotation.x += planetContainer.userData.rotationSpeed / 2;
 
-        // تدوير الكوكب حول نفسه
-        mesh.rotation.x += mesh.userData.orbitSpeed / 2;
-        mesh.rotation.y += mesh.userData.orbitSpeed;
+        // حركة مدارية حول مركز المشهد
+        planetContainer.userData.orbitAngle += planetContainer.userData.orbitSpeed;
+        planetContainer.position.x = Math.cos(planetContainer.userData.orbitAngle) * planetContainer.userData.orbitRadius;
+        planetContainer.position.z = Math.sin(planetContainer.userData.orbitAngle) * planetContainer.userData.orbitRadius;
+        // يمكن إضافة حركة على محور Y لجعل المدارات ليست مسطحة تمامًا
+        // planetContainer.position.y = Math.sin(planetContainer.userData.orbitAngle * 0.5) * (planetContainer.userData.orbitRadius / 4);
     });
 
-    // 3. حركة الكاميرا
-    camera.position.x = Math.sin(time * 0.1) * 0.5;
-    camera.position.y = Math.cos(time * 0.1) * 0.5;
+    // حركة الكاميرا بسيطة
+    camera.position.x = Math.sin(time * 0.2) * 2;
+    camera.position.y = Math.cos(time * 0.1) * 2;
+    camera.lookAt(scene.position); // جعل الكاميرا دائما تنظر إلى مركز المشهد
 
     renderer.render(scene, camera);
 };
 
-// ... (بقية الدوال onResize, onMounted, onUnmounted لم تتغير)
-
+// 🟢 التعامل مع تغيير حجم النافذة
 const onResize = () => {
-    containerWidth = canvasContainer.value.clientWidth;
-    containerHeight = canvasContainer.value.clientHeight;
+    if (!canvasContainer.value || !camera || !renderer) return;
+    const containerWidth = canvasContainer.value.clientWidth;
+    const containerHeight = canvasContainer.value.clientHeight;
     
     camera.aspect = containerWidth / containerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(containerWidth, containerHeight);
 };
 
+// 🟢 دورة حياة المكون (Vue Lifecycle Hooks)
 onMounted(() => {
     initThree();
     animate();
@@ -112,16 +157,27 @@ onMounted(() => {
 onUnmounted(() => {
     cancelAnimationFrame(animationFrameId);
     window.removeEventListener('resize', onResize);
-    if (renderer) {
-        // تنظيف ذاكرة GPU
-        particles.children.forEach(mesh => {
-            mesh.geometry.dispose();
-            mesh.material.dispose();
+    if (renderer && planetsGroup) {
+        // تنظيف ذاكرة GPU بشكل أفضل
+        planetsGroup.children.forEach(planetContainer => {
+            planetContainer.children.forEach(mesh => {
+                if (mesh.geometry) mesh.geometry.dispose();
+                if (mesh.material) mesh.material.dispose();
+            });
         });
         renderer.dispose();
+        // إزالة العناصر من الـ DOM
+        if (canvasContainer.value && renderer.domElement) {
+            canvasContainer.value.removeChild(renderer.domElement);
+        }
     }
+    // مسح الـ scene والكاميرا لتجنب تسرب الذاكرة
+    scene = null;
+    camera = null;
+    renderer = null;
+    planetsGroup = null;
 });
-</script>
+</script> -->
 
 <template>
   <div 

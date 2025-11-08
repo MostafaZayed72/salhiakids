@@ -60,7 +60,7 @@ const triggerImageInput = () => {
 </script>
 
 <template>
-  <section class="py-20    relative overflow-hidden">
+  <section class="py-20    relative overflow-hidden bg-gradient-to-br from-purple-100 via-pink-200 to-purple-400">
     <div class="container mx-auto px-4 relative z-10">
       <div class="max-w-4xl mx-auto text-center">
         <h1 class="text-5xl md:text-6xl font-extrabold text-gray-800  mb-6 custom-fade-in-down">
@@ -71,7 +71,7 @@ const triggerImageInput = () => {
         </p>
 
         <div class="relative w-full shadow-2xl rounded-2xl custom-fade-in-down delay-400">
-          <div class="flex items-center  rounded-2xl border-2 border-transparent focus-within:border-indigo-500 transition-all duration-300">
+          <div class="flex items-center  rounded-2xl border-2 border-indigo-500 focus-within:border-red-500 transition-all duration-300">
             
             <span class="material-icons text-gray-400 text-2xl sm:text-3xl mx-2 sm:mx-4">search</span>
             
@@ -109,7 +109,7 @@ const triggerImageInput = () => {
             <button 
               @click="emit('toggleVoiceSearch')"
               class="p-1 md:p-2 mr-1 sm:mr-2 rounded-xl transition-all duration-300"
-              :class="{'bg-red-500 hover:bg-red-600 text-white': isListening, 'bg-indigo-500 hover:bg-indigo-600 text-white': !isListening}"
+              :class="{'bg-red-500 hover:bg-red-600 text-white': isListening, ' text-indigo-500': !isListening}"
               :title="isListening ? 'إيقاف البحث الصوتي' : 'البحث بالصوت'"
             >
               <span class="material-icons text-2xl sm:text-3xl mt-1" :class="{'animate-ping-slow': isListening}">mic</span>
@@ -175,9 +175,9 @@ const triggerImageInput = () => {
           <div 
             v-for="(stat, index) in stats" 
             :key="index" 
-            class="text-center p-4 bg-gray-800 rounded-xl shadow-lg border-b-4 border-purple-600 transform hover:scale-105 transition-transform duration-300"
+            class="text-center p-4 bg-purple-700 rounded-xl shadow-lg border-b-4 border-purple-600 transform hover:scale-105 transition-transform duration-300"
           >
-            <div class="text-3xl font-extrabold text-indigo-400 mb-1">{{ stat.value }}</div>
+            <div class="text-3xl font-extrabold text-slate-200 mb-1">{{ stat.value }}</div>
             <div class="text-sm text-gray-300">{{ stat.label }}</div>
           </div>
         </div>

@@ -34,23 +34,21 @@
           </div>
 
           <div class="flex items-center gap-3">
-            <button @click="shareStory"
-              class="p-2 text-gray-500 hover:text-purple-600 transition-all duration-300 transform hover:scale-110 hover:rotate-12"
-              title="مشاركة القصة">
+
+            <!-- <button
+              @click="printFullStory"
+              class="p-2 text-gray-500 hover:text-purple-600 transition-all duration-300 transform hover:scale-110 download-button"
+              title="تحميل القصة">
+              <span class="material-icons text-xl">file_download</span>
+            </button>
+ -->
+            <button
+              @click="shareStory"
+              class="p-2 text-gray-500 hover:text-purple-600 transition-all duration-300 transform hover:scale-110">
               <span class="material-icons text-xl">share</span>
             </button>
 
-            <button @click="toggleAudio"
-              class="p-2 text-gray-500 hover:text-purple-600 transition-all duration-300 transform hover:scale-110"
-              :class="{ 'text-purple-600': isAudioPlaying }" title="تشغيل/إيقاف المؤثرات الصوتية">
-              <span class="material-icons text-xl" v-if="isAudioPlaying">volume_up</span>
-              <span class="material-icons text-xl" v-else>volume_off</span>
-            </button>
 
-            <button @click="showSettings = !showSettings"
-              class="p-2 text-gray-500 hover:text-purple-600 transition-all duration-300 transform hover:scale-110 hover:rotate-90">
-              <span class="material-icons text-xl">settings</span>
-            </button>
           </div>
         </div>
 
@@ -98,7 +96,7 @@
               <div class="relative w-32 h-32 mx-auto mb-4 transform hover:scale-110 transition-transform duration-500">
                 <div class="relative w-full h-full">
                   <img v-if="childImage" :src="childImage" alt="وجه الطفل"
-                    class="absolute top-0 left-0 w-full h-full child-face-mask animate-pulse-gentle">
+                    class="absolute top-0 left-0 w-full h-full rounded-xl  animate-pulse-gentle">
                 </div>
               </div>
 
@@ -117,7 +115,6 @@
             <transition :name="pageTransition" mode="out-in" @enter="onPageEnter" @leave="onPageLeave">
               <div :key="pageKey" class="text-center w-full">
                 <div class="mb-6 transform hover:scale-105 transition-transform duration-500">
-                  <!-- make slide image span full width and show entirely (no crop) -->
                   <div
                     class="relative w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-blue-100 to-purple-100">
                     <div v-if="!currentPageData.image"
@@ -135,12 +132,30 @@
                   </div>
                 </div>
 
-                <div class="mb-8">
-                  <h3 class="text-2xl font-bold text-gray-800 mb-4 animate-fade-in-up">{{ currentPageData.title }}</h3>
-                  <p class="text-lg text-gray-700 leading-relaxed max-w-2xl mx-auto animate-fade-in-up-delay"
-                    v-html="formatStoryText(currentPageData.content)"></p>
-                </div>
+                <div :class="{ 'print-content-only': isPrintingAll }">
+                  
+                    <div v-if="!isPrintingAll">
+                        <h2 class="text-3xl font-bold">{{ currentPageData.title }}</h2>
+                        <div class="story-content-text" v-html="formatStoryText(currentPageData.content)"></div>
+                    </div>
 
+                    <div v-else class="print-only-container">
+                        <div v-for="(slide, index) in selectedStory.items" :key="index" class="story-slide-for-print">
+                            <h1 v-if="index === 0" class="text-4xl font-bold mb-8 text-center text-gray-800">
+                                {{ storyTitle }}
+                                <p class="text-xl font-normal text-gray-600 mt-2">مغامرة البطل: {{ childName }}</p>
+                            </h1>
+
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4 mt-8">صفحة {{ index + 1 }} - {{ slide.title || 'بدون عنوان' }}</h3>
+                            
+                            <img v-if="slide.image" :src="slide.image" :alt="slide.title" class="w-full h-auto object-contain mb-4 border rounded-lg shadow-md" style="max-height: 50vh;">
+                            
+                            <div class="text-lg text-gray-700 story-content-text" v-html="slide.content"></div> 
+                            
+                            <div v-if="index < selectedStory.items.length - 1" class="page-break-after"></div>
+                        </div>
+                    </div>
+                </div>
                 <div v-if="isAdmin" class="flex justify-center gap-2 mt-4">
                   <button @click="editCurrentSlide"
                     class="px-3 py-1 bg-blue-500 text-white rounded flex items-center gap-1">
@@ -204,7 +219,7 @@
           </div>
         </div>
 
-        <div v-if="suggestions.length" class="max-w-4xl mx-auto mt-16 animate-fade-in-up">
+        <!-- <div v-if="suggestions.length" class="max-w-4xl mx-auto mt-16 animate-fade-in-up">
           <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">قصص أخرى قد تعجبك</h3>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div v-for="(sug, idx) in suggestions" :key="sug.id" @click="openSuggestion(sug)"
@@ -224,7 +239,7 @@
               <p class="text-gray-600 text-sm text-center">{{ sug.createdByUserName || sug.createdBy }}</p>
             </div>
           </div>
-        </div>
+        </div> -->
 
       </div>
     </main>
@@ -392,6 +407,8 @@ const route = useRoute()
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
 
+
+
 // admin & modals
 const isAdmin = ref(false)
 const showEditModal = ref(false)
@@ -405,7 +422,6 @@ const childImage = ref('')
 const selectedStory = ref(null)
 const storyAuthor = ref('')
 const storyTitle = computed(() => selectedStory.value?.title || '')
-const currentPage = ref(1)
 const isAudioPlaying = ref(false)
 const showCompletion = ref(false)
 const showSettings = ref(false)
@@ -620,16 +636,195 @@ const playSoundEffect = (effect) => {
   }
 }
 const triggerInteraction = (interaction) => { console.log('interaction', interaction) }
+// Add these methods in the script section:
+
+// Download story function
+import { jsPDF } from 'jspdf'; // تأكد من استيرادها في بداية ملف <script setup>
+
+// ... (بقية الأكواد)
+
+const downloadStory = async () => {
+    if (!selectedStory.value) return;
+
+    try {
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        let y = 10; // موضع البداية Y
+        const margin = 10;
+        const lineHeight = 7;
+        
+        // ضبط الخط العربي
+        // 💡 ملاحظة: يتطلب jspdf تحميل خط يدعم اللغة العربية. 
+        // سنفترض مؤقتاً أن خطاً افتراضياً موجود، وإلا يجب تحميله.
+        doc.setFont('Amiri', 'normal'); // مثال لخط يدعم العربية (تحتاج لـ jspdf-autotable أو إضافة خط مخصص)
+        doc.setFontSize(14);
+        
+        // إضافة عنوان القصة (إذا كان هناك مجال)
+        doc.text(storyTitle.value, pageWidth / 2, y, { align: 'center' });
+        y += lineHeight;
+        doc.text(`الكاتب: ${storyAuthor.value}`, pageWidth / 2, y, { align: 'center' });
+        y += lineHeight * 2;
+        
+        doc.setFontSize(12);
+
+        // جلب جميع الصفحات
+        for (let i = 1; i <= backendTotalPages.value; i++) {
+            const pageData = await fetchStoryPage(selectedStory.value.id, i);
+            const pageContent = pageData?.items?.[0];
+
+            if (pageContent) {
+                // 1. استخدام دالة تنسيق النص لضمان استبدال "اسم_البطل"
+                const text = formatStoryText(pageContent.content || pageContent.description)
+                                .replace(/<br>/g, '\n'); // تحويل <br> لسطر جديد في PDF
+
+                // 2. إذا لم يعد هناك مساحة، نبدأ صفحة جديدة
+                if (y + 100 > pageHeight) { // 100 ارتفاع تقريبي للصورة والنص
+                    doc.addPage();
+                    y = margin;
+                }
+                
+                // 3. إضافة الصورة (مهم جداً!)
+                const imageUrl = pageContent.image;
+                if (imageUrl) {
+                    const imgWidth = pageWidth - (margin * 2);
+                    const imgHeight = imgWidth / 1.5; // نسبة 3:2 تقريبًا
+                    
+                    // استخدام try/catch لضمان عدم توقف التحميل بسبب فشل جلب الصورة
+                    try {
+                        const response = await fetch(imageUrl);
+                        const blob = await response.blob();
+                        const reader = new FileReader();
+                        
+                        await new Promise((resolve) => {
+                            reader.onloadend = () => {
+                                const base64Image = reader.result;
+                                const imageFormat = imageUrl.split('.').pop() === 'png' ? 'PNG' : 'JPEG';
+                                
+                                doc.addImage(base64Image, imageFormat, margin, y, imgWidth, imgHeight);
+                                y += imgHeight + 5; // تحريك موضع Y بعد الصورة
+                                resolve();
+                            };
+                            reader.readAsDataURL(blob);
+                        });
+                        
+                    } catch (e) {
+                        console.warn(`Failed to fetch image for page ${i}: ${e}`);
+                        doc.text(`[تعذر تحميل الصورة للصفحة ${i}]`, pageWidth / 2, y, { align: 'center' });
+                        y += 10;
+                    }
+                }
+                
+                // 4. إضافة النص المنسق
+                const lines = doc.splitTextToSize(text, pageWidth - (margin * 2));
+                doc.text(lines, margin, y);
+                y += lines.length * lineHeight + 10; // تحريك Y بعد النص
+                
+                // إضافة فاصل بين الصفحات في ملف PDF
+                doc.setFontSize(8);
+                doc.text(`--- نهاية صفحة القصة ${i} ---`, pageWidth / 2, y, { align: 'center' });
+                y += 10;
+                doc.setFontSize(12);
+            }
+        }
+
+        // حفظ الملف
+        doc.save(`${storyTitle.value || 'قصة'}.pdf`);
+        
+    } catch (err) {
+        console.error('Download PDF failed', err);
+        alert('فشل تحميل القصة كملف PDF');
+    }
+}
+
+// ... (داخل قسم state)
+
+const currentPage = ref(1)
+// 💡 الحالة الجديدة: للتحكم في عرض جميع السلايدات
+const isPrintingAll = ref(false) 
+
+// ... (بقية الأكواد)
+
+// 💡 الدالة الجديدة: لجلب جميع الصفحات مؤقتاً والطباعة
+const printFullStory = async () => {
+    if (!selectedStory.value?.id) return
+
+    // 1. جلب بيانات القصة كاملة
+    // بما أن الـ API الخاص بك يجلب صفحة واحدة فقط، نحتاج إلى جلب كل صفحة بالترتيب
+    // هذا الجزء سيعتمد على `fetchStoryPage` ولكن يجب تعديله لجلب كل الصفحات بشكل صحيح.
+
+    // 💡 ملاحظة هامة: يجب أن تكون لديك طريقة لجلب جميع السلايدات دفعة واحدة 
+    // أو سنكرر النداء لـ fetchStoryPage. بما أن `fetchStoryPage` تعتمد على 
+    // رقم الصفحة، سأستخدمها لجلب كل صفحة على حدة.
+
+    const allItems = []
+    let originalPage = currentPage.value // حفظ الصفحة الحالية
+
+    for (let i = 1; i <= backendTotalPages.value; i++) {
+        // نستخدم نفس المنطق تقريباً لجلب بيانات الصفحة
+        const full = await fetchStoryPage(selectedStory.value.id, i)
+        if (full?.items?.[0]) {
+            // ننسخ البيانات بعد معالجة اسم البطل
+            let content = full.items[0].content || ''
+            if (content) content = String(content).replace(/اسم_البطل/g, childName.value || '') 
+            
+            allItems.push({
+                ...full.items[0],
+                content: content // نستخدم المحتوى المنسق
+            })
+        }
+    }
+    
+    // 2. تحديث الـ selectedStory مؤقتاً لعرض جميع العناصر
+    // (هذا هو المفتاح الذي سيعرض جميع العناصر في الـ <template>)
+    const tempStory = selectedStory.value 
+    
+    // حفظ العناصر الأصلية لاستعادتها لاحقاً
+    const originalItems = tempStory.items
+    
+    // عرض جميع العناصر في الـ state
+    selectedStory.value = { ...tempStory, items: allItems } 
+    isPrintingAll.value = true // تفعيل وضع الطباعة الكاملة
+    
+    // 3. طباعة الصفحة
+    await new Promise(resolve => setTimeout(resolve, 50)); // انتظار DOM ليتحدث
+    window.print()
+    
+    // 4. إعادة الحالة الأصلية
+    isPrintingAll.value = false
+    selectedStory.value = { ...tempStory, items: originalItems }
+    await goToPage(originalPage) // العودة للصفحة الأصلية (أو مجرد تحديث)
+}
+
+// ...
+// 💡 لا تنس إضافة الدالة إلى الـ return إذا لم تكن تستخدم setup()
+// return { ..., printFullStory }
+// Enhanced share function
 const shareStory = async () => {
   try {
+    const shareData = {
+      title: storyTitle.value || 'قصة',
+      text: `شاهد قصة "${storyTitle.value}" من تأليف ${storyAuthor.value}`,
+      url: window.location.href
+    }
+
     if (navigator.share) {
-      await navigator.share({ title: storyTitle.value || '', text: selectedStory.value?.description || '', url: window.location.href })
+      // Use native share if available
+      await navigator.share(shareData)
     } else {
+      // Fallback to copy link
       await navigator.clipboard.writeText(window.location.href)
       alert('تم نسخ رابط القصة!')
     }
-  } catch (e) {
-    console.error(e)
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      console.error('Share failed', err)
+      alert('فشلت مشاركة القصة')
+    }
   }
 }
 const completeStory = () => {
@@ -981,5 +1176,44 @@ watch(route, (r) => {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+@media print {
+    /* 🛑 القاعدة الأولى والأهم: إخفاء كل شيء في الواجهة */
+    /* استبدل .story-reader-main باسم العنصر الأب الذي يحيط بكل محتوى الصفحة */
+    body * {
+        visibility: hidden; 
+    }
+
+    /* 2. جعل العنصر الذي يحتوي على محتوى القصة (السلايدات) مرئياً */
+    /* افترض أن هذا هو العنصر الذي يحيط بـ [v-for] لطباعة كل السلايدات */
+    .print-content-only, 
+    .print-content-only * { /* وجميع محتوياته الفرعية */
+        visibility: visible;
+    }
+
+    /* 3. وضع محتوى القصة (Print-Content-Only) في وضع الطباعة */
+    .print-content-only {
+        position: absolute; /* وضعه في المقدمة */
+        left: 0;
+        top: 0;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        background-color: white !important; /* خلفية بيضاء للطباعة */
+    }
+
+    /* 4. تطبيق فاصل الصفحات بين السلايدات */
+    .page-break-after {
+        page-break-after: always;
+    }
+
+    /* 5. ضبط محاذاة الخطوط العربية */
+    .print-content-only {
+        direction: rtl !important;
+        text-align: right !important;
+    }
 }
 </style>
