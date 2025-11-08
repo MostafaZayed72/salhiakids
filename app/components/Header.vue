@@ -23,8 +23,7 @@
         
         <div class="flex items-center gap-3">
           
-          <NotificationsIcon v-if="isAuthenticated" />
-
+          
           <div class="w-px h-8 bg-gradient-to-b from-purple-300 to-pink-300 dark:from-purple-600 dark:to-pink-600 mx-2"></div>
           
           <div v-if="isAuthenticated" class="relative">
