@@ -378,7 +378,7 @@ onMounted(async () => {
           v-for="story in stories"
           :key="story.id"
           class="group relative p-4 rounded-2xl bg-gradient-to-br from-purple-300 via-pink-300 to-purple-600 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 shadow-md border border-gray-200 cursor-pointer overflow-hidden"
-          @click="$emit('viewStory', story.id)"
+          @click="navigateTo(`/stories/${story.id}`)"
         >
           <div v-if="isAdmin" class="absolute top-3 left-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100 transition">
             <button @click.stop="openEdit(story)" class="p-2 bg-blue-500/80 hover:bg-blue-600 rounded-full text-white shadow-lg" title="تعديل">
