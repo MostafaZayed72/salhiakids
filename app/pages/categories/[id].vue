@@ -321,19 +321,19 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section class="py-12 bg-gray-100 min-h-screen">
+  <section class="py-12 bg-gradient-to-br from-purple-300 via-pink-400 to-purple-400 min-h-screen">
     <div class="container mx-auto px-4">
       <div class="text-center mb-12">
         <h2 class="text-4xl font-bold text-gray-800 mb-3">
           قصص <span class="text-purple-600">هذه الفئة</span>
         </h2>
-        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        <p class="text-lg text-gray-100 max-w-2xl mx-auto">
           تصفح القصص المتاحة في هذه الفئة وابدأ مغامرة جديدة.
         </p>
 
         <div class="flex flex-col md:flex-row justify-center items-center gap-4 mt-6">
           
-          <div class="relative w-full max-w-2xl shadow-lg rounded-2xl mx-auto">
+          <div class="relative w-full max-w-2xl shadow-lg rounded-2xl mx-auto ">
             <div class="flex items-center rounded-2xl border-2 border-indigo-400 focus-within:border-red-500 transition-all duration-300 bg-white">
               
               <span class="material-icons text-gray-400 text-2xl sm:text-3xl mx-2 sm:mx-4">search</span>
@@ -377,7 +377,7 @@ onMounted(async () => {
         <div
           v-for="story in stories"
           :key="story.id"
-          class="group relative p-4 rounded-2xl bg-white hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 shadow-md border border-gray-200 cursor-pointer overflow-hidden"
+          class="group relative p-4 rounded-2xl bg-gradient-to-br from-purple-300 via-pink-300 to-purple-600 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 shadow-md border border-gray-200 cursor-pointer overflow-hidden"
           @click="$emit('viewStory', story.id)"
         >
           <div v-if="isAdmin" class="absolute top-3 left-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100 transition">
@@ -396,8 +396,8 @@ onMounted(async () => {
             </div>
           </div>
 
-          <h3 class="text-xl font-bold text-gray-800 mb-1 truncate">{{ story.title }}</h3>
-          <p class="text-gray-500 text-sm line-clamp-3 leading-relaxed" v-html="story.content"></p>
+          <h3 class="text-xl font-bold text-gray-800 text-center mb-1 truncate">{{ story.title }}</h3>
+          <p class="text-gray-100 text-center text-sm line-clamp-3 leading-relaxed" v-html="story.content"></p>
         </div>
       </div>
 

@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* تعريف الخط */
+@font-face {
+  font-family: 'ManchetteFine Heavy';
+  src: url('/fonts/ManchetteFine-Heavy.woff2') format('woff2'),
+       url('/fonts/ManchetteFine-Heavy.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* تطبيق الخط على الموقع */
+html, body {
+  font-family: 'ManchetteFine Heavy';
+  font-weight: 700;
+  overflow-x: hidden;
+  width: 100%;
+}
