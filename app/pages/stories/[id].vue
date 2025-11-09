@@ -555,12 +555,11 @@ watch(
     
     
   
-<div class="mt-6 flex flex-wrap items-center justify-center gap-6 bg-white/70 backdrop-blur-sm p-5 rounded-2xl shadow-2xl border border-white/90 max-w-xl mx-auto">
+<div class="mt-6 flex flex-wrap items-center justify-center gap-6 bg-gradient-to-br from-purple-300 via-pink-300 to-purple-600 backdrop-blur-sm p-5 rounded-2xl shadow-2xl border border-white/90 max-w-xl mx-auto">
     
     <div class="flex items-center gap-3 p-2 rounded-full transition duration-300">
         <h1 
-            :class="[isFavorite ? 'text-red-600 font-bold' : 'text-gray-700 font-medium', 
-                     'text-lg sm:text-xl transition-colors']"
+            class="text-lg sm:text-xl transition-colors text-gray-700 font-medium"
         >
             {{ isFavorite ? 'إزالة من المفضلة' : 'إضافة للمفضلة' }}
         </h1> 
