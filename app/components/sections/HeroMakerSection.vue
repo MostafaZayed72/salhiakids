@@ -11,7 +11,7 @@ const emit = defineEmits(['goToCustomStory']);
 
 <template>
   <section class="py-20 bg-gradient-to-br from-yellow-900 via-orange-900 to-red-900 relative overflow-hidden">
-    <!-- <DynamicHeroBackground /> -->
+    <DynamicHeroBackground />
 
     <div class="absolute top-10 right-10 w-20 h-20 rounded-full opacity-30 custom-ping-slow"></div>
     <div class="absolute bottom-5 left-5 w-16 h-16 rounded-xl opacity-30 custom-float-slow"></div>

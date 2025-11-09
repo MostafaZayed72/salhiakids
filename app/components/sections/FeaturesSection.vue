@@ -9,7 +9,7 @@ const props = defineProps({
 
 <template>
   <section class="py-20 bg-gradient-to-br  from-green-900 via-blue-900 to-purple-900">
-    <!-- <DynamicHeroBackground /> -->
+    <DynamicHeroBackground />
 
     <div class="container mx-auto px-4">
       <div class="text-center mb-16">

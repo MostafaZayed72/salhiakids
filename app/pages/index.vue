@@ -288,9 +288,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen   relative">
+  <div class="min-h-screen   relative bg-gradient-to-br from-purple-100 via-pink-200 to-purple-400">
     
-    
+         <DynamicHeroBackground />
+
     <main class="relative z-10"> 
 
       <SectionsHeroSection 

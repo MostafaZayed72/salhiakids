@@ -60,7 +60,7 @@ const triggerImageInput = () => {
 </script>
 
 <template>
-  <section class="py-20    relative overflow-hidden bg-gradient-to-br from-purple-100 via-pink-200 to-purple-400">
+  <section class="py-20    relative overflow-hidden ">
     <div class="container mx-auto px-4 relative z-10">
       <div class="max-w-4xl mx-auto text-center">
         <h1 class="text-5xl md:text-6xl font-extrabold text-gray-800  mb-6 custom-fade-in-down">

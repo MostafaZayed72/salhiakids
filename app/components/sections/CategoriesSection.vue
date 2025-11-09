@@ -156,13 +156,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section class="py-20 bg-gradient-to-br from-purple-200 via-pink-400 to-purple-400">
+  <section class="py-20 ">
     <div class="container mx-auto px-4">
       <div class="text-center mb-12">
-        <h2 class="text-4xl font-bold text-white mb-3">
-          اكتشف حسب <span class="text-indigo-400">الموضوع</span>
+        <h2 class="text-4xl font-bold text-gray-600 mb-3">
+          اكتشف حسب <span class="text-purple-600">الموضوع</span>
         </h2>
-        <p class="text-lg text-gray-100 max-w-2xl mx-auto">
+        <p class="text-lg text-gray-600 max-w-2xl mx-auto">
           اختر من مجموعتنا الواسعة من الموضوعات الممتعة والمفيدة.
         </p>
 
@@ -205,7 +205,7 @@ onMounted(async () => {
           </div>
 
           <h3 class="text-xl font-semibold text-white mb-1 truncate">{{ category.title }}</h3>
-          <p class="text-gray-300 text-sm mb-2">{{ category.storiesCount || 0 }} قصة</p>
+          <p class="text-gray-300 text-sm mb-2">{{ category.masterStoriesCount || 0 }} قصة</p>
           <!-- <p class="text-gray-400 text-xs line-clamp-3">{{ category.description }}</p> -->
         </div>
       </div>

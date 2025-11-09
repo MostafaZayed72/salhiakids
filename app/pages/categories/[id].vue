@@ -321,7 +321,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section class="py-12 bg-gradient-to-br from-purple-300 via-pink-400 to-purple-400 min-h-screen">
+  <section class="py-12 bg-gradient-to-br from-purple-300 via-pink-400 to-purple-400 ">
     <div class="container mx-auto px-4">
       <div class="text-center mb-12">
         <h2 class="text-4xl font-bold text-gray-800 mb-3">
