@@ -258,18 +258,18 @@ const stopVoiceSearch = () => {
 // ----------------------------------------------------
 // 6. جلب البيانات (Data Fetching)
 // ----------------------------------------------------
-const loadContents = async () => {
-  // هذا هو المكان الذي يجب أن يتم فيه استبدال البيانات التجريبية باستدعاء API حقيقي
-  allContents.value = [
-    { id: 1, title: 'الأسد الشجاع', author: 'أحمد محمد', category: 'الحيوانات', age_group: '3-6 سنوات', content_type: 'صوت', status: 'published', emoji: '🦁', summary: 'محتوى تعليمي عن الشجاعة والصداقة في الغابة', rating: 4.8, views: 1245, created_at: new Date().toISOString() },
-    { id: 2, title: 'مغامرات في الفضاء', author: 'سارة أحمد', category: 'العلمية', age_group: '7-9 سنوات', content_type: 'فيديو', status: 'published', emoji: '🚀', summary: 'رحلة فضائية لاكتشاف الكواكب والمجرات', rating: 4.9, views: 892, created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
-    { id: 3, title: 'الحروف العربية', author: 'فاطمة علي', category: 'التعليمية', age_group: '3-6 سنوات', content_type: 'صوت', status: 'published', emoji: '📚', summary: 'تعلم الحروف العربية بطريقة ممتعة', rating: 4.7, views: 1567, created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
-    { id: 4, title: 'الحديقة السحرية', author: 'محمد حسن', category: 'الخيال', age_group: '7-9 سنوات', content_type: 'فيديو', status: 'published', emoji: '🌳', summary: 'مغامرة في حديقة مليئة بالأسرار', rating: 4.9, views: 2034, created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString() }
-  ];
-};
+// const loadContents = async () => {
+//   // هذا هو المكان الذي يجب أن يتم فيه استبدال البيانات التجريبية باستدعاء API حقيقي
+//   allContents.value = [
+//     { id: 1, title: 'الأسد الشجاع', author: 'أحمد محمد', category: 'الحيوانات', age_group: '3-6 سنوات', content_type: 'صوت', status: 'published', emoji: '🦁', summary: 'محتوى تعليمي عن الشجاعة والصداقة في الغابة', rating: 4.8, views: 1245, created_at: new Date().toISOString() },
+//     { id: 2, title: 'مغامرات في الفضاء', author: 'سارة أحمد', category: 'العلمية', age_group: '7-9 سنوات', content_type: 'فيديو', status: 'published', emoji: '🚀', summary: 'رحلة فضائية لاكتشاف الكواكب والمجرات', rating: 4.9, views: 892, created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+//     { id: 3, title: 'الحروف العربية', author: 'فاطمة علي', category: 'التعليمية', age_group: '3-6 سنوات', content_type: 'صوت', status: 'published', emoji: '📚', summary: 'تعلم الحروف العربية بطريقة ممتعة', rating: 4.7, views: 1567, created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
+//     { id: 4, title: 'الحديقة السحرية', author: 'محمد حسن', category: 'الخيال', age_group: '7-9 سنوات', content_type: 'فيديو', status: 'published', emoji: '🌳', summary: 'مغامرة في حديقة مليئة بالأسرار', rating: 4.9, views: 2034, created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString() }
+//   ];
+// };
 
 onMounted(() => {
-  loadContents();
+  // loadContents();
   AOS.init({
     offset: 50, // نقطة البداية للحركة (بالبيكسل)
     duration: 800, // مدة الحركة (بالميلي ثانية)
