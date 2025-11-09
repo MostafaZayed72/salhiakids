@@ -93,7 +93,7 @@
                 v-model="form.accountType" 
                 class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 appearance-none transition-all duration-200"
               >
-                <option value="admin">أدمن</option>
+                <!-- <option value="admin">أدمن</option> -->
                 <option value="teacher">معلم</option>
                 <option value="student">طالب</option>
               </select>
@@ -222,7 +222,6 @@ const REGISTER_ENDPOINT = '/api/identity/register'
 // 2. تعيين User Type Mapping حسب متطلبات الـ API
 // ----------------------------------------------------
 const USER_TYPE_MAP = {
-  admin: 1, 
   teacher: 2,
   student: 3
 }
@@ -242,7 +241,7 @@ export default {
       email: '',
       password: '',
       confirmPassword: '',
-      accountType: 'admin', 
+      accountType: 'teacher', 
       phone: '', 
       agreeTerms: false
     })
