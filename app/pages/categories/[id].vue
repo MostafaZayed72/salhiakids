@@ -148,7 +148,7 @@ const fetchStories = async () => {
       storyCategoryId: catId,
       searchPhrase: searchPhrase.value,
       createdBy: '',
-      isApproved: false,
+      isApproved: true,
       orderBy: 'title',
       descending: false,
       pageNumber: currentPage.value,
@@ -357,15 +357,30 @@ onMounted(async () => {
             </div>
           </div>
           
-          <button
+         
+        </div>
+         
+      <div class="flex flex-col md:flex-row gap-4 justify-center">
+<button
             v-if="isAdmin"
             @click="showAddModal = true"
-            class="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 shadow-xl transition transform hover:scale-105"
+            class="w-full md:w-auto inline-flex items-center mt-4 justify-center gap-2 px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 shadow-xl transition transform hover:scale-105"
           >
-            <span class="material-icons">add</span>
             إضافة قصة جديدة
           </button>
-        </div>
+
+<button
+            v-if="isAdmin"
+            @click="navigateTo(`/unpublishedStories/${effectiveCategoryId}`)"
+            class="w-full md:w-auto inline-flex items-center mt-4 justify-center gap-2 px-6 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 shadow-xl transition transform hover:scale-105"
+          >
+            القصص غير المنشورة
+          </button>
+
+      </div>
+
+
+
       </div>
 
       <div v-if="isLoading" class="text-center text-gray-700 py-20">
@@ -373,7 +388,7 @@ onMounted(async () => {
         <p class="mt-4">جاري تحميل القصص...</p>
       </div>
 
-      <div v-else-if="stories.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
+      <div v-else-if="stories.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto ">
         <div
           v-for="story in stories"
           :key="story.id"
