@@ -169,7 +169,7 @@
       <div class="text-center mt-6">
         <router-link to="/" class="inline-flex items-center gap-2 text-[#1B3C53] hover:text-[#234C6A] transition-colors duration-200">
           <span class="material-icons">arrow_back</span>
-          <span>الرجوع إلى الرئيسية</span>
+          <span>الرجوع إلى تسجيل الدخول</span>
         </router-link>
       </div>
 

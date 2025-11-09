@@ -20,11 +20,13 @@ const emit = defineEmits(['viewStory'])
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
 
+
 // ------------------------------------
 // State
 // ------------------------------------
 const stories = ref([])
 const isAdmin = ref(false)
+const currentUserId = ref(null)
 const isLoading = ref(true)
 const showAddModal = ref(false)
 const showEditModal = ref(false)
@@ -32,7 +34,7 @@ const isUploading = ref(false)
 
 const newStory = ref({ title: '', content: '', imageUrl: '' })
 const editingStory = ref(null)
-
+const showReviewModal = ref(false)
 const totalPages = ref(0)
 const currentPage = ref(1)
 const searchPhrase = ref('')
@@ -114,21 +116,27 @@ watch(
 // ------------------------------------
 // 2. التحقق من صلاحيات المشرف
 // ------------------------------------
-const checkAdminStatus = async () => {
-  try {
-    if (!API_BASE) { isAdmin.value = false; return }
-    const response = await axios.get(`${API_BASE}/api/identity/users/me`, {
-      headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {}
-    })
-    const data = response.data || {}
-    isAdmin.value = Array.isArray(data.roles) ? data.roles.includes('Admin') : (data.userTypeName === 'Admin' || data.userTypeValue === 1)
-  } catch (err) {
-    console.warn('Admin check failed:', err)
-    isAdmin.value = false
-  }
-}
-
 // ------------------------------------
+// 2. التحقق من صلاحيات المشرف وتخزين ID المستخدم
+// ------------------------------------
+const checkAdminStatus = async () => {
+ try {
+  // ... (استدعاء الـ API) ...
+  const response = await axios.get(`${API_BASE}/api/identity/users/me`, {
+   headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {}
+  })
+  const data = response.data || {}
+    
+  // التحقق من المشرف (صحيح)
+  isAdmin.value = Array.isArray(data.roles) ? data.roles.includes('Admin') : (data.userTypeName === 'Admin' || data.userTypeValue === 1)
+    
+    // ✅ تأكيد أننا نستخدم الحقل 'id' لتخزين معرف المستخدم
+    currentUserId.value = data.id || null; 
+    
+ } catch (err) {
+  // ... (معالجة الأخطاء) ...
+ }
+}// ------------------------------------
 // 3. جلب القصص (READ) — مُحسّن
 // ------------------------------------
 const fetchStories = async () => {
@@ -253,7 +261,8 @@ const addStory = async () => {
     newStory.value = { title: '', content: '', imageUrl: '' }
     currentPage.value = 1
     await fetchStories()
-    alert('تم إضافة القصة بنجاح!')
+
+showReviewModal.value = true
   } catch (err) {
     console.error('Add story failed:', err.response?.data || err)
     alert('فشلت عملية الإضافة: ' + (err.response?.data?.message || 'خطأ غير معروف. راجع Console.'))
@@ -362,7 +371,7 @@ onMounted(async () => {
          
       <div class="flex flex-col md:flex-row gap-4 justify-center">
 <button
-            v-if="isAdmin"
+            
             @click="showAddModal = true"
             class="w-full md:w-auto inline-flex items-center mt-4 justify-center gap-2 px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 shadow-xl transition transform hover:scale-105"
           >
@@ -395,7 +404,7 @@ onMounted(async () => {
           class="group relative p-4 rounded-2xl bg-gradient-to-br from-purple-300 via-pink-300 to-purple-600 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 shadow-md border border-gray-200 cursor-pointer overflow-hidden"
           @click="navigateTo(`/stories/${story.id}`)"
         >
-          <div v-if="isAdmin" class="absolute top-3 left-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100 transition">
+          <div v-if="isAdmin || (currentUserId && currentUserId.toString() === story.createdBy.toString())" class="absolute top-3 left-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100 transition">
             <button @click.stop="openEdit(story)" class="p-2 bg-blue-500/80 hover:bg-blue-600 rounded-full text-white shadow-lg" title="تعديل">
               <span class="material-icons text-sm">edit</span>
             </button>
@@ -419,7 +428,7 @@ onMounted(async () => {
       <div v-else class="text-center py-10 bg-white rounded-xl shadow-lg border-2 border-dashed border-purple-300">
         <span class="material-icons text-6xl text-purple-400">sentiment_dissatisfied</span>
         <p class="mt-4 text-xl font-medium text-gray-700">لا توجد قصص حالياً في هذا القسم.</p>
-        <p v-if="isAdmin" class="mt-2 text-sm text-gray-500">بصفتك مشرف، يمكنك البدء بإضافة قصة جديدة باستخدام الزر البنفسجي في الأعلى.</p>
+        <p v-if="isAdmin || (currentUserId && currentUserId.toString() === story.createdBy.toString())" class="mt-2 text-sm text-gray-500">بصفتك مشرف، يمكنك البدء بإضافة قصة جديدة باستخدام الزر البنفسجي في الأعلى.</p>
         <p v-else class="mt-2 text-sm text-gray-500">حاول البحث في قسم آخر أو عد لاحقاً.</p>
       </div>
       
@@ -529,7 +538,36 @@ onMounted(async () => {
         </form>
       </div>
     </div>
-    
+    <Transition name="modal">
+    <div 
+        v-if="showReviewModal" 
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" 
+        @click.self="showReviewModal = false"
+    >
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4 transform transition-all duration-300">
+            
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-full flex items-center justify-center bg-yellow-100 text-yellow-600 mx-auto mb-4 shadow-md">
+                    <span class="material-icons text-3xl">rate_review</span> </div>
+                <h3 class="text-xl font-bold text-gray-800">شكراً لك!</h3>
+            </div>
+            
+            <p class="text-center text-gray-600 mb-8">
+                ✅ تم استلام قصتك بنجاح.
+                <br>
+                **قصتك قيد المراجعة حالياً من قبل المشرفين، وسيتم نشرها قريباً.**
+            </p>
+            
+            <button 
+                @click="showReviewModal = false" 
+                class="w-full bg-yellow-500 text-white py-3 rounded-xl hover:bg-yellow-600 transition-colors duration-200 font-semibold shadow-lg"
+            >
+                فهمت (إغلاق)
+            </button>
+            
+        </div>
+    </div>
+</Transition>
   </section>
 </template>
 
