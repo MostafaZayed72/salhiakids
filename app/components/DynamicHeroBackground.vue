@@ -1,4 +1,4 @@
-<!-- <script setup>
+<script setup>
 import { onMounted, onUnmounted, ref } from 'vue';
 import * as THREE from 'three';
 
@@ -178,7 +178,7 @@ onUnmounted(() => {
     renderer = null;
     planetsGroup = null;
 });
-</script> -->
+</script>
 
 <template>
   <!-- الآن عنصر الخلفية ثابت ويغطي الشاشة كاملة ويعمل على كل أحجام الشاشات -->
