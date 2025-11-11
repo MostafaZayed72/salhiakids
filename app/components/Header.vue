@@ -458,7 +458,7 @@ const updateAuthState = () => {
   font-weight: 600;
   cursor: pointer;
   text-align: right;
-  color: #6b7280;
+  color: white;
   text-decoration: none;
   margin-bottom: 0.25rem;
 }
