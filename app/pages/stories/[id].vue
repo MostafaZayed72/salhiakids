@@ -672,8 +672,8 @@ watch(
    </button>
   </div>
 
-  <h3 class="text-2xl font-bold text-gray-800 mb-2 text-center">{{ item.title }}</h3>
-  <p class="text-white mb-4 text-center">{{ item.description || 'لا يوجد وصف.' }}</p>
+  <h3 class="text-2xl font-bold text-purple-600 mb-2 text-center">{{ item.title }}</h3>
+  <p class="text-gray-800 mb-4 text-center">{{ item.description || 'لا يوجد وصف.' }}</p>
 
   <div class="w-full bg-gray-100 rounded-lg overflow-hidden border border-gray-300 relative">
    
