@@ -185,14 +185,7 @@ export default {
             window.dispatchEvent(new Event('auth-change')); 
             
             // 5. التوجيه بناءً على الدور
-            let redirectPath = '/'
-            if (primaryRole === 'admin') {
-              redirectPath = '/admin'
-            } else if (primaryRole === 'employee') {
-              redirectPath = '/employee/stories'
-            }
-            
-            router.push(redirectPath)
+            navigateTo('/profile')
 
           } else {
              errorMessage.value = 'تم تسجيل الدخول بنجاح، ولكن لم يتم استقبال التوكن!'

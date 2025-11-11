@@ -76,11 +76,11 @@
                 
                 <div class="p-3 bg-gradient-to-b from-white to-purple-50 dark:from-gray-800 dark:to-purple-900 rounded-b-2xl">
                   <template v-if="user?.role === 'admin'">
-                    <router-link to="/admin" class="custom-dropdown-item group" @click="showMenu = false">
+                    <router-link to="/profile" class="custom-dropdown-item group" @click="showMenu = false">
                       <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
                         <span class="material-icons">dashboard</span>
                       </div>
-                      <span>لوحة التحكم</span>
+                      <span>حسابي</span>
                       <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
                     </router-link>
                     <router-link to="/addCustomStory" class="custom-dropdown-item group" @click="showMenu = false">
@@ -89,34 +89,11 @@
         <span>تخصيص قصة</span>
         <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
     </router-link>
-                    <router-link to="/admin/stories" class="custom-dropdown-item group" @click="showMenu = false">
-                      <div class="custom-dropdown-icon bg-gradient-to-r from-blue-500 to-cyan-500">
-                        <span class="material-icons">library_books</span>
-                      </div>
-                      <span>إدارة المحتوى</span>
-                      <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-                    </router-link>
-                    <router-link to="/admin/users" class="custom-dropdown-item group" @click="showMenu = false">
-                      <div class="custom-dropdown-icon bg-gradient-to-r from-green-500 to-emerald-500">
-                        <span class="material-icons">people</span>
-                      </div>
-                      <span>المستفيدين</span>
-                      <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-                    </router-link>
-                    <router-link to="/admin/messages" class="custom-dropdown-item group" @click="showMenu = false">
-                      <div class="custom-dropdown-icon bg-gradient-to-r from-indigo-500 to-purple-500">
-                        <span class="material-icons">mail</span>
-                      </div>
-                      <span>الرسائل</span>
-                      <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-                    </router-link>
-                    <router-link to="/admin/settings" class="custom-dropdown-item group" @click="showMenu = false">
-                      <div class="custom-dropdown-icon bg-gradient-to-r from-gray-500 to-gray-700">
-                        <span class="material-icons">settings</span>
-                      </div>
-                      <span>إعدادات النظام</span>
-                      <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-                    </router-link>
+                  
+                   
+    
+                    
+                  
                   </template>
                   
                   <template v-else-if="user?.role === 'employee'">
@@ -127,13 +104,7 @@
                       <span>إدارة المحتوى</span>
                       <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
                     </router-link>
-                    <router-link to="/employee/messages" class="custom-dropdown-item group" @click="showMenu = false">
-                      <div class="custom-dropdown-icon bg-gradient-to-r from-indigo-500 to-purple-500">
-                        <span class="material-icons">mail</span>
-                      </div>
-                      <span>الرسائل</span>
-                      <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-                    </router-link>
+                   
                     <router-link to="/employee/profile" class="custom-dropdown-item group" @click="showMenu = false">
                       <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
                         <span class="material-icons">person</span>
@@ -145,24 +116,18 @@
                   </template>
                   
                   <template v-else>
-    <router-link to="/" class="custom-dropdown-item group" @click="showMenu = false">
+    <router-link to="/favorite" class="custom-dropdown-item group" @click="showMenu = false">
         <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
             <span class="material-icons">dashboard</span>
         </div>
-        <span>لوحة النشاط</span>
-        <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-    </router-link>
-    <router-link to="/messages" class="custom-dropdown-item group" @click="showMenu = false">
-        <div class="custom-dropdown-icon bg-gradient-to-r from-indigo-500 to-purple-500">
-            <span class="material-icons">mail</span>
-        </div>
-        <span>الرسائل</span>
+        <span>القصص المفضلة</span>
         <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
     </router-link>
     
+    
    
 
-    <router-link to="/user/profile" class="custom-dropdown-item group" @click="showMenu = false">
+    <router-link to="/profile" class="custom-dropdown-item group" @click="showMenu = false">
         <div class="custom-dropdown-icon bg-gradient-to-r from-blue-500 to-cyan-500">
             <span class="material-icons">person</span>
         </div>
@@ -354,30 +319,33 @@ const updateAuthState = () => {
     })
 
     // دالة تسجيل الخروج (حذف الكوكيز والتوجيه للمسار /)
-    const handleLogout = () => {
-      Cookies.remove('authToken')
-      localStorage.removeItem('userData')
-      localStorage.removeItem('userType')
-      showMenu.value = false
-      
-      // تحديث فوري للحالة
-      updateAuthState() 
-      
-      // التوجيه للمسار /
-      router.push('/')
-    }
-
+// داخل دالة handleLogout في كود AppHeader (في إجابتك السابقة)
+const handleLogout = () => {
+  Cookies.remove('authToken')
+  localStorage.removeItem('userData')
+  localStorage.removeItem('userType')
+  showMenu.value = false
+  
+  // ✅ أضف هذا السطر هنا أيضاً إذا لم يكن موجوداً
+  window.dispatchEvent(new Event('auth-change')); 
+  
+  // تحديث فوري للحالة
+  updateAuthState() 
+  
+  // التوجيه للمسار /
+  router.push('/')
+}
     // الحصول على نص دور المستخدم
     const getUserRoleText = (role) => {
       const roles = {
-        'admin': 'مدير النظام',
+        'admin': 'أدمن',
         'employee': 'موظف',
         'parent': 'ولي أمر',
         'teacher': 'معلم',
         'student': 'طالب',
-        'user': 'مستفيد'
+        'user': ''
       }
-      return roles[role] || 'مستفيد'
+      return roles[role] || ''
     }
     
     // مراقبة تغيير المسار لإغلاق القوائم
