@@ -140,11 +140,12 @@
  >
      <div 
    :class="{
-        'w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden': viewMode === 'list', 
+        'w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden ': viewMode === 'list', 
         // Fix: استخدام aspect-ratio و object-cover لضمان وضوح الصورة العمودية دون تشويه
         'relative w-full aspect-square overflow-hidden': viewMode === 'grid'
       }"
-   class="image-container"
+   class="image-container cursor-pointer"
+   @click="navigateTo(`/stories/${story.id}`)"
   >
    <img 
     :src="story.imageUrl || '/images/placeholder.jpg'" 
@@ -152,16 +153,16 @@
     class="w-full h-full object-cover"
    >
   </div>
- <div :class="{'p-0': viewMode === 'list'}" class="p-5 text-right flex-grow">
+ <div :class="{'p-0': viewMode === 'list'}" class="p-5 text-right flex-grow" >
  <h3 class="text-lg font-bold text-gray-900 mb-2 truncate">{{ story.title }}</h3>
  <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ story.content }}</p>
  <div class="text-xs text-purple-600 font-semibold bg-purple-100 px-2 py-0.5 rounded-full inline-block">
  {{ story.storyCategoryTitle }}
  </div>
- <NuxtLink :to="`/stories/${story.id}`" class="mt-4 inline-flex items-center text-purple-600 hover:text-purple-800 font-medium transition-colors duration-200 gap-1">
+ <!-- <NuxtLink :to="`/stories/${story.id}`" class="mt-4 inline-flex items-center text-purple-600 hover:text-purple-800 font-medium transition-colors duration-200 gap-1">
  <span>قراءة القصة</span>
  <span class="material-icons text-base">arrow_forward</span>
- </NuxtLink>
+ </NuxtLink> -->
  </div>
  </div>
 </div>

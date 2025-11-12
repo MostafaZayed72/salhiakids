@@ -352,6 +352,8 @@ onUnmounted(() => {
       /> -->
       
     </main>
+        <Footer />
+
   </div>
 </template>
 

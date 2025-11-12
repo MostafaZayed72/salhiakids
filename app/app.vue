@@ -5,7 +5,6 @@
     <DynamicHeroBackground />
 
     <LazyNuxtPage />
-    <Footer />
   </div>
 </template>
 <style>
