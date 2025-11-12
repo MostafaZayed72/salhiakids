@@ -739,8 +739,8 @@ watch(
         </div>
       </div>
 
-      <div class="lg:flex-1 order-2">
-        <div class="bg-white rounded-xl shadow-2xl p-6 border border-gray-200 content-area-light">
+      <div class="lg:flex-1 order-2 w-[90%] text-center mx-auto">
+        <div class="bg-white rounded-xl shadow-2xl p-6 border border-gray-200 ">
           
           <div class="text-center pb-4 mb-4 border-b border-gray-300">
             <h1 class="text-2xl font-bold text-gray-800 mb-4">{{ storyTitle }}</h1> 
@@ -771,7 +771,7 @@ watch(
           <div class="story-image-container-light mb-6 rounded-lg overflow-hidden border border-gray-300">
              <img :src="masterStory.imageUrl || '/default-story-placeholder.jpg'" :alt="storyTitle" class="w-full h-full object-contain bg-gray-50">
           </div>
-          <div class="prose max-w-none text-lg leading-relaxed text-gray-700 text-justify mb-8">
+          <div class="  text-lg leading-relaxed text-gray-700 text-justify mb-8  break-words whitespace-normal overflow-hidden">
               <div v-html="masterStory.content" class="story-content-text-light"></div>
           </div>
 
