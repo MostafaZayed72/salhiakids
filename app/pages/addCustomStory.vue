@@ -1,13 +1,13 @@
 <template>
   <div dir="rtl" class="min-h-screen bg-gradient-to-br  from-purple-500 to-pink-300 py-8">
     <main class="container mx-auto px-4 py-8 max-w-4xl">
-      
+
       <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-gray-800 mb-3">
           إضافة قصة جديدة
         </h1>
         <p class="text-lg text-gray-600">
-          أضف قصة جديدة للمكتبة الرقمية
+          أضف قصة جديدة للمنصة الرقمية
         </p>
       </div>
 
@@ -20,8 +20,7 @@
           <div class="w-full bg-gray-200 rounded-full h-2.5">
             <div
               class="bg-gradient-to-r from-[#1B3C53] to-[#234C6A] h-2.5 rounded-full transition-all duration-500 ease-out"
-              :style="{ width: progressPercentage + '%' }"
-            ></div>
+              :style="{ width: progressPercentage + '%' }"></div>
           </div>
         </div>
       </div>
@@ -38,33 +37,26 @@
 
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">عنوان القصة *</label>
-            <input 
-              v-model="form.title" 
-              type="text" 
-              required 
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] bg-white text-gray-900 transition-all duration-200" 
-              placeholder="أدخل عنوان القصة" 
-            />
+            <input v-model="form.title" type="text" required
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] bg-white text-gray-900 transition-all duration-200"
+              placeholder="أدخل عنوان القصة" />
           </div>
 
           <div>
             <label class="block text-sm font-bold text-gray-700 mb-2">وصف القصة *</label>
-            <textarea 
-              v-model="form.description" 
-              rows="4" 
-              required 
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] bg-white text-gray-900 transition-all duration-200 resize-none" 
-              placeholder="أدخل وصفاً مفصلاً للقصة..."
-            ></textarea>
+            <textarea v-model="form.description" rows="4" required
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-[#1B3C53] bg-white text-gray-900 transition-all duration-200 resize-none"
+              placeholder="أدخل وصفاً مفصلاً للقصة..."></textarea>
           </div>
 
           <div>
-            <label class="block text-sm font-bold text-gray-700 mb-3">صورة الغلاف / المحتوى <span class="text-red-500">*</span></label>
+            <label class="block text-sm font-bold text-gray-700 mb-3">صورة الغلاف / المحتوى <span
+                class="text-red-500">*</span></label>
 
-            <div @click="imageInputClick" 
-                 class="border-3 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer transition-all duration-300 hover:border-[#1B3C53] hover:bg-blue-50 h-40 flex flex-col items-center justify-center" 
-                 :class="{ 'border-green-500 bg-green-50': imagePreview }">
-              
+            <div @click="imageInputClick"
+              class="border-3 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer transition-all duration-300 hover:border-[#1B3C53] hover:bg-blue-50 h-40 flex flex-col items-center justify-center"
+              :class="{ 'border-green-500 bg-green-50': imagePreview }">
+
               <template v-if="!imagePreview">
                 <span class="material-icons text-4xl text-gray-400 mb-2">image</span>
                 <p class="text-sm font-medium text-gray-600">انقر لرفع صورة الغلاف</p>
@@ -74,7 +66,8 @@
               <template v-else>
                 <div class="relative w-full h-full">
                   <img :src="imagePreview" alt="صورة الغلاف" class="w-full h-full object-cover rounded-lg">
-                  <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                  <div
+                    class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                     <button type="button" @click.stop="removeImage" class="bg-red-500 text-white p-2 rounded-full">
                       <span class="material-icons text-sm">delete</span>
                     </button>
@@ -87,11 +80,13 @@
           </div>
 
           <div class="flex items-center justify-between pt-6 border-t border-gray-200">
-            <button type="button" @click="goBack" class="flex items-center gap-2 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
+            <button type="button" @click="goBack"
+              class="flex items-center gap-2 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-medium">
               <span class="material-icons">arrow_back</span>رجوع
             </button>
 
-            <button type="submit" :disabled="loading" class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#1B3C53] to-[#234C6A] text-white rounded-xl hover:from-[#234C6A] hover:to-[#1B3C53] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg">
+            <button type="submit" :disabled="loading"
+              class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#1B3C53] to-[#234C6A] text-white rounded-xl hover:from-[#234C6A] hover:to-[#1B3C53] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg">
               <span class="material-icons">{{ loading ? 'autorenew' : 'publish' }}</span>
               {{ loading ? 'جاري النشر...' : 'نشر القصة' }}
             </button>
@@ -106,10 +101,12 @@
         <h3 class="text-xl font-bold text-gray-800 mb-2">تم إضافة القصة بنجاح!</h3>
         <p class="text-gray-600 mb-6">ماذا تريد أن تفعل الآن؟</p>
         <div class="space-y-3">
-          <button @click="resetFormAndContinue" class="w-full py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2">
+          <button @click="resetFormAndContinue"
+            class="w-full py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium flex items-center justify-center gap-2">
             <span class="material-icons">add_box</span> إضافة قصة جديدة
           </button>
-          <button @click="goToHome" class="w-full py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2">
+          <button @click="goToHome"
+            class="w-full py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2">
             <span class="material-icons">home</span> العودة للرئيسية
           </button>
         </div>
@@ -171,7 +168,7 @@ const onImageSelected = (e) => {
   form.imageUrl = '' // Clear existing URL if a new file is selected
 }
 
-const removeImage = () => { form.image_file = null; form.imageUrl = ''; if(imageInput.value) imageInput.value.value = null; }
+const removeImage = () => { form.image_file = null; form.imageUrl = ''; if (imageInput.value) imageInput.value.value = null; }
 
 // read cookie helper (from previous code)
 const getCookie = (name) => {
@@ -189,7 +186,7 @@ const uploadImage = async (file) => {
 
   const res = await fetch(url, { method: 'POST', body: fd, headers })
   if (!res.ok) {
-    const text = await res.text().catch(()=>res.statusText)
+    const text = await res.text().catch(() => res.statusText)
     throw new Error(text || 'Upload failed')
   }
   const data = await res.json()
@@ -218,9 +215,9 @@ const submitForm = async () => {
       description: form.description,
       imageUrl: form.imageUrl
     }
-    
+
     // The endpoint should be /Add if not specified, let's assume /api/CustomStories/Add
-    const apiUrl = `${API_BASE}/api/CustomStories/Add` 
+    const apiUrl = `${API_BASE}/api/CustomStories/Add`
     const token = getCookie('authToken') || getCookie('token') || ''
     const headers = {
       'Content-Type': 'application/json',
@@ -230,13 +227,13 @@ const submitForm = async () => {
     const res = await fetch(apiUrl, { method: 'POST', headers, body: JSON.stringify(body) })
 
     if (!res.ok) {
-      const errText = await res.text().catch(()=>res.statusText)
+      const errText = await res.text().catch(() => res.statusText)
       throw new Error(errText || 'فشل إرسال القصة')
     }
 
     // Handle success
     // const result = await res.json() // If the API returns a response
-    
+
     showSuccessModal.value = true // Show success popup
 
   } catch (error) {
@@ -278,7 +275,16 @@ const goBack = () => {
 <style scoped>
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
-* { font-family: 'Tajawal', sans-serif; }
-.material-icons { font-family: 'Material Icons'; }
-.transition-all { transition: all 0.3s ease; }
+
+* {
+  font-family: 'Tajawal', sans-serif;
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+}
+
+.transition-all {
+  transition: all 0.3s ease;
+}
 </style>

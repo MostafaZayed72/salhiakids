@@ -48,7 +48,7 @@ const features = [
   // ... (نفس بيانات الميزات من الجزء الخامس) ...
   { icon: 'security', title: 'بيئة آمنة', description: 'جميع المحتويات مفحوصة ومناسبة للعمر تحت إشراف متخصصين في تربية الأطفال' },
   { icon: 'touch_app', title: 'تفاعل ممتع', description: 'تصميم تفاعلي يجذب انتباه الأطفال ويحفز خيالهم بطريقة مبتكرة' },
-  { icon: 'collections_bookmark', title: 'مكتبة شاملة', description: 'آلاف المحتويات المتنوعة تغطي جميع الاهتمامات والفئات العمرية' }
+  { icon: 'collections_bookmark', title: 'منصة شاملة', description: 'آلاف المحتويات المتنوعة تغطي جميع الاهتمامات والفئات العمرية' }
 ];
 
 // ----------------------------------------------------
@@ -57,7 +57,7 @@ const features = [
 const latestContents = computed(() => {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-  
+
   return allContents.value
     .filter(content => new Date(content.created_at) >= oneWeekAgo && content.status === 'published')
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -148,7 +148,7 @@ const generateSearchSuggestions = (query) => {
     return;
   }
   const suggestions = allContents.value
-    .filter(content => 
+    .filter(content =>
       content.title.toLowerCase().includes(query.toLowerCase()) ||
       content.author.toLowerCase().includes(query.toLowerCase()) ||
       content.category.toLowerCase().includes(query.toLowerCase())
@@ -205,37 +205,37 @@ const startVoiceSearch = () => {
       voiceTranscript.value = 'استمع...'
     }
 
-recognition.onresult = (event) => {
-    let interimTranscript = ''
-    let finalTranscript = ''
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      const transcript = event.results[i][0].transcript
-      if (event.results[i].isFinal) {
-        finalTranscript += transcript
-      } else {
-        interimTranscript += transcript
+    recognition.onresult = (event) => {
+      let interimTranscript = ''
+      let finalTranscript = ''
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript
+        } else {
+          interimTranscript += transcript
+        }
+      }
+
+      // يتم تحديث النص المرحلي أو النهائي في حقل البحث
+      voiceTranscript.value = interimTranscript || finalTranscript
+
+      if (finalTranscript) {
+        // 1. تحديث حقل البحث بالقيمة النهائية
+        searchQuery.value = finalTranscript.trim()
+
+        // 2. إزالة استدعاء performSearch() هنا.
+        // الآن، سيظل النص في الحقل، ولن يتم البحث حتى يضغط المستخدم على زر البحث.
       }
     }
-    
-    // يتم تحديث النص المرحلي أو النهائي في حقل البحث
-    voiceTranscript.value = interimTranscript || finalTranscript
-    
-    if (finalTranscript) {
-      // 1. تحديث حقل البحث بالقيمة النهائية
-      searchQuery.value = finalTranscript.trim()
-      
-      // 2. إزالة استدعاء performSearch() هنا.
-      // الآن، سيظل النص في الحقل، ولن يتم البحث حتى يضغط المستخدم على زر البحث.
-    }
-  }
 
-  recognition.onend = () => {
-    isListening.value = false
-    // عند الانتهاء، نقوم بإفراغ نص حالة الاستماع إذا لم يكن هناك نتيجة
-    if (voiceTranscript.value === 'استمع...' || voiceTranscript.value === 'لم يتم التعرف على كلام') {
+    recognition.onend = () => {
+      isListening.value = false
+      // عند الانتهاء، نقوم بإفراغ نص حالة الاستماع إذا لم يكن هناك نتيجة
+      if (voiceTranscript.value === 'استمع...' || voiceTranscript.value === 'لم يتم التعرف على كلام') {
         voiceTranscript.value = '' // إزالة رسالة الحالة
+      }
     }
-  }
     recognition.onerror = (event) => {
       console.error('خطأ في التعرف على الكلام:', event.error)
       isListening.value = false
@@ -288,61 +288,34 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen   relative bg-gradient-to-br from-purple-100 via-pink-200 to-purple-400">
-    
-         <DynamicHeroBackground />
+  <div class="min-h-screen   relative ">
 
-    <main class="relative z-10"> 
+    <DynamicHeroBackground />
 
-      <SectionsHeroSection 
-        v-model:searchQuery="searchQuery"
-        v-model:showSuggestions="showSuggestions"
-        v-model:showAdvancedSearch="showAdvancedSearch"
-        v-model:isListening="isListening"
-        :voiceTranscript="voiceTranscript"
-        :searchSuggestions="searchSuggestions"
-        :advancedFilters="advancedFilters"
-        :stats="stats"
-        @performSearch="performSearch"
-        @toggleVoiceSearch="toggleVoiceSearch"
-        @handleImageSearch="handleImageSearch"
-        @applyAdvancedSearch="applyAdvancedSearch"
-        @resetAdvancedFilters="resetAdvancedFilters"
-        @handleSearchInput="handleSearchInput"
-        @hideSuggestions="hideSuggestions"
-        @selectSuggestion="selectSuggestion"
-        data-aos="fade-up" data-aos-once="false" />
+    <main class="relative z-10">
 
-   <!-- @searchByCategory="searchByCategory" -->
-        <SectionsCategoriesSection 
-          :featuredCategories="featuredCategories"
-          data-aos="fade-right" data-aos-delay="100"
-          class="bg-gray-100"
-        />
+      <SectionsHeroSection v-model:searchQuery="searchQuery" v-model:showSuggestions="showSuggestions"
+        v-model:showAdvancedSearch="showAdvancedSearch" v-model:isListening="isListening"
+        :voiceTranscript="voiceTranscript" :searchSuggestions="searchSuggestions" :advancedFilters="advancedFilters"
+        :stats="stats" @performSearch="performSearch" @toggleVoiceSearch="toggleVoiceSearch"
+        @handleImageSearch="handleImageSearch" @applyAdvancedSearch="applyAdvancedSearch"
+        @resetAdvancedFilters="resetAdvancedFilters" @handleSearchInput="handleSearchInput"
+        @hideSuggestions="hideSuggestions" @selectSuggestion="selectSuggestion" data-aos="fade-up"
+        data-aos-once="false" />
 
-        <SectionsHeroMakerSection 
-          :featuredHeroes="featuredHeroes"
-          @goToCustomStory="goToCustomStory"
-          data-aos="zoom-in" data-aos-delay="200"
-        />
-        
-      
-      <SectionsFeaturesSection 
-        :features="features"
-        data-aos="fade-down"
-        class="bg-gray-100"
-      />
+      <!-- @searchByCategory="searchByCategory" -->
+      <SectionsCategoriesSection :featuredCategories="featuredCategories" data-aos="fade-right" data-aos-delay="100"
+        class="bg-gray-100" />
 
-      <SectionsLatestContentSection
-        :latestContents="latestContents"
-        :getContentTypeIcon="getContentTypeIcon"
-        :isNewContent="isNewContent"
-        :formatDate="formatDate"
-        @viewContent="viewContent"
-        @goToSearch="goToSearch"
-        class="py-16"
-        data-aos="fade-up"
-      />
+      <SectionsHeroMakerSection :featuredHeroes="featuredHeroes" @goToCustomStory="goToCustomStory" data-aos="zoom-in"
+        data-aos-delay="200" />
+
+
+      <SectionsFeaturesSection :features="features" data-aos="fade-down" class="bg-gray-100" />
+
+      <SectionsLatestContentSection :latestContents="latestContents" :getContentTypeIcon="getContentTypeIcon"
+        :isNewContent="isNewContent" :formatDate="formatDate" @viewContent="viewContent" @goToSearch="goToSearch"
+        class="py-16" data-aos="fade-up" />
 
       <!-- <SectionsFeaturedContentSection
         :featuredContents="featuredContents"
@@ -350,9 +323,9 @@ onUnmounted(() => {
         class="py-16"
         data-aos="fade-left"
       /> -->
-      
+
     </main>
-        <Footer />
+    <Footer />
 
   </div>
 </template>

@@ -75,17 +75,17 @@
           </div>
 
           <!-- التفاصيل -->
-          <div class="p-4 flex flex-col gap-2">
-            <h3 class="text-lg font-bold text-gray-800 truncate">
+          <div class="p-4 flex flex-col gap-2 bg-gradient-to-r from-purple-600 to-pink-500">
+            <h3 class="text-lg font-bold text-gray-100 truncate">
               {{ story.title || 'بدون عنوان' }}
             </h3>
 
-            <p class="text-sm text-gray-600 line-clamp-2 min-h-[2.5rem]">
+            <p class="text-sm text-gray-300 line-clamp-2 min-h-[2.5rem]">
               {{ story.content || 'لا يوجد وصف' }}
             </p>
 
             <div
-              class="flex items-center justify-between mt-3 text-sm text-gray-500"
+              class="flex items-center justify-between mt-3 text-sm text-gray-200"
             >
               <div class="flex items-center gap-2">
                 <span class="material-icons text-base text-purple-500"
@@ -99,7 +99,7 @@
             </div>
 
             <div
-              class="flex items-center justify-between mt-2 text-xs text-gray-400"
+              class="flex items-center justify-between mt-2 text-xs text-gray-200"
             >
               <span class="flex items-center gap-1">
                 <span class="material-icons text-sm text-yellow-500">star</span>

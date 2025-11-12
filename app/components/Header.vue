@@ -1,174 +1,183 @@
 <template>
-  <header class="bg-gradient-to-r from-white to-purple-50 dark:from-gray-900 dark:to-purple-900 shadow-2xl border-b border-purple-200 dark:border-purple-700 sticky top-0 z-50 transition-all duration-300 font-tajawal">
+  <header
+    class="bg-gradient-to-r from-white to-purple-50 dark:from-gray-900 dark:to-purple-900 shadow-2xl border-b border-purple-200 dark:border-purple-700 sticky top-0 z-50 transition-all duration-300 font-tajawal">
     <div class="container mx-auto px-6 py-4">
       <div class="flex items-center justify-between">
-        
-        <router-link to="/" class="flex items-center gap-3 hover:opacity-80 transition-all duration-300 transform hover:scale-105 group">
-          <div class="w-12 h-12 rounded-2xl flex items-center justify-center md:bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg overflow-hidden custom-rotate group-hover:rotate-12 transition-transform duration-500">
-            <img 
-              
-              src="/logo.jpeg" 
-              alt="شعار النظام"
-              class="w-full h-full object-cover"
-            >
+
+        <router-link to="/"
+          class="flex items-center gap-3 hover:opacity-80 transition-all duration-300 transform hover:scale-105 group">
+          <div
+            class="w-24 h-24 md:w-20 md:h-20 rounded-2xl flex items-center justify-center  md:bg-white shadow-lg overflow-hidden  group-hover:rotate-12 transition-transform duration-500">
+            <img src="/test.png" alt="شعار النظام" class="w-full h-full object-cover ">
           </div>
           <div class="text-right">
             <h1 class="text-xl font-bold text-purple-700 dark:text-white custom-text-pulse">
-             منصة الطفل الرقمية 
+              الجمعية الأهلية الصالحية بعنيزة
             </h1>
-            <!-- <p class="text-xs text-purple-500 dark:text-purple-300 mt-1 transform group-hover:translate-x-1 transition-transform duration-300">مكتبة الطفل الرقمية</p> -->
+            <!-- <p class="text-xs text-purple-500 dark:text-purple-300 mt-1 transform group-hover:translate-x-1 transition-transform duration-300">منصة الطفل الرقمية</p> -->
           </div>
         </router-link>
-        
+
         <div class="flex items-center gap-3">
-          
-          
-          <div class="w-px h-8 bg-gradient-to-b from-purple-300 to-pink-300 dark:from-purple-600 dark:to-pink-600 mx-2"></div>
-          
+
+
+          <div class="w-px h-8 bg-gradient-to-b from-purple-300 to-pink-300 dark:from-purple-600 dark:to-pink-600 mx-2">
+          </div>
+
           <div v-if="isAuthenticated" class="relative">
-            <button 
-              @click="showMenu = !showMenu"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-800 dark:hover:to-pink-800 transition-all duration-300 transform hover:scale-105 group"
-            >
-              <div class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg transform group-hover:rotate-12 transition-transform duration-500">
-                <img 
-                  v-if="user?.profileImage" 
-                  :src="user.profileImage" 
-                  :alt="user?.name"
-                  class="w-full h-full object-cover"
-                >
-<span v-else class="text-white text-base font-extrabold">
-    {{ user?.firstInitial || 'م' }} 
-</span>              </div>
-              <div class="text-right hidden sm:block">
-                <span class="text-sm font-bold text-purple-700 dark:text-purple-300 block transform group-hover:translate-x-1 transition-transform">{{ user?.name || 'المستخدم' }}</span>
-                <span class="text-xs text-purple-500 dark:text-purple-400 capitalize bg-purple-100 dark:bg-purple-800 px-2 py-1 rounded-full mt-1 inline-block">{{ getUserRoleText(user?.role) }}</span>
+            <button @click="showMenu = !showMenu"
+              class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-800 dark:hover:to-pink-800 transition-all duration-300 transform hover:scale-105 group">
+              <div
+                class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg transform group-hover:rotate-12 transition-transform duration-500">
+                <img v-if="user?.profileImage" :src="user.profileImage" :alt="user?.name"
+                  class="w-full h-full object-cover">
+                <span v-else class="text-white text-base font-extrabold">
+                  {{ user?.firstInitial || 'م' }}
+                </span>
               </div>
-              <span class="material-icons text-purple-600 dark:text-purple-400 text-xl transition-all duration-300 transform" :class="showMenu ? 'rotate-180 scale-110' : ''">
+              <div class="text-right hidden sm:block">
+                <span
+                  class="text-sm font-bold text-purple-700 dark:text-purple-300 block transform group-hover:translate-x-1 transition-transform">{{
+                    user?.name || 'المستخدم' }}</span>
+                <span
+                  class="text-xs text-purple-500 dark:text-purple-400 capitalize bg-purple-100 dark:bg-purple-800 px-2 py-1 rounded-full mt-1 inline-block">{{
+                    getUserRoleText(user?.role) }}</span>
+              </div>
+              <span
+                class="material-icons text-purple-600 dark:text-purple-400 text-xl transition-all duration-300 transform"
+                :class="showMenu ? 'rotate-180 scale-110' : ''">
                 expand_more
               </span>
             </button>
-            
+
             <transition name="custom-slide-down">
               <div v-if="showMenu" @click.away="showMenu = false"
                 class="absolute top-full left-0 mt-3 w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-purple-200 dark:border-purple-700 z-50 custom-fade-in-up">
-                
-                <div class="p-4 border-b border-purple-100 dark:border-purple-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900 rounded-t-2xl">
+
+                <div
+                  class="p-4 border-b border-purple-100 dark:border-purple-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900 rounded-t-2xl">
                   <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 shadow-md">
-                      <img 
-                        v-if="user?.profileImage" 
-                        :src="user.profileImage" 
-                        :alt="user?.name"
-                        class="w-full h-full object-cover"
-                      >
-<span v-else class="text-white font-bold text-lg">
-    {{ user?.firstInitial || 'م' }}
-</span>                    </div>
+                    <div
+                      class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 shadow-md">
+                      <img v-if="user?.profileImage" :src="user.profileImage" :alt="user?.name"
+                        class="w-full h-full object-cover">
+                      <span v-else class="text-white font-bold text-lg">
+                        {{ user?.firstInitial || 'م' }}
+                      </span>
+                    </div>
                     <div class="flex-1 text-right">
                       <p class="text-sm font-bold text-purple-700 dark:text-white">{{ user?.name || 'المستخدم' }}</p>
                       <p class="text-xs text-purple-500 dark:text-purple-300 mt-1">{{ user?.email }}</p>
-                      <p class="text-xs text-purple-500 dark:text-purple-300 capitalize bg-white dark:bg-purple-700 px-2 py-1 rounded-full mt-2 inline-block">{{ getUserRoleText(user?.role) }}</p>
+                      <p
+                        class="text-xs text-purple-500 dark:text-purple-300 capitalize bg-white dark:bg-purple-700 px-2 py-1 rounded-full mt-2 inline-block">
+                        {{ getUserRoleText(user?.role) }}</p>
                     </div>
                   </div>
                 </div>
-                
-                <div class="p-3 bg-gradient-to-b from-white to-purple-50 dark:from-gray-800 dark:to-purple-900 rounded-b-2xl">
+
+                <div
+                  class="p-3 bg-gradient-to-b from-white to-purple-50 dark:from-gray-800 dark:to-purple-900 rounded-b-2xl">
                   <template v-if="user?.role === 'admin'">
                     <router-link to="/profile" class="custom-dropdown-item group" @click="showMenu = false">
                       <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
                         <span class="material-icons">dashboard</span>
                       </div>
                       <span>حسابي</span>
-                      <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+                      <span
+                        class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
                     </router-link>
                     <router-link to="/favorite" class="custom-dropdown-item group" @click="showMenu = false">
-    <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
-        <span class="material-icons">favorite</span> 
-    </div>
-    <span>القصص المفضلة</span>
-    <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-</router-link>
+                      <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
+                        <span class="material-icons">favorite</span>
+                      </div>
+                      <span>القصص المفضلة</span>
+                      <span
+                        class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+                    </router-link>
                     <router-link to="/addCustomStory" class="custom-dropdown-item group" @click="showMenu = false">
-        <div class="custom-dropdown-icon bg-gradient-to-r from-green-500 to-teal-500">
-            <span class="material-icons">add_box</span> </div>
-        <span>تخصيص قصة</span>
-        <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-    </router-link>
-                  
-                   
-    
-                    
-                  
+                      <div class="custom-dropdown-icon bg-gradient-to-r from-green-500 to-teal-500">
+                        <span class="material-icons">add_box</span>
+                      </div>
+                      <span>تخصيص قصة</span>
+                      <span
+                        class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+                    </router-link>
+
+
+
+
+
                   </template>
-                  
+
                   <template v-else-if="user?.role === 'employee'">
                     <router-link to="/employee/stories" class="custom-dropdown-item group" @click="showMenu = false">
                       <div class="custom-dropdown-icon bg-gradient-to-r from-blue-500 to-cyan-500">
                         <span class="material-icons">library_books</span>
                       </div>
                       <span>إدارة المحتوى</span>
-                      <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+                      <span
+                        class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
                     </router-link>
-                   
+
                     <router-link to="/profile" class="custom-dropdown-item group" @click="showMenu = false">
                       <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
                         <span class="material-icons">person</span>
                       </div>
-                       
+
                       <span>حسابي</span>
-                      <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+                      <span
+                        class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
                     </router-link>
                   </template>
-                  
-                  <template v-else>
-                     <router-link to="/profile" class="custom-dropdown-item group" @click="showMenu = false">
-        <div class="custom-dropdown-icon bg-gradient-to-r from-blue-500 to-cyan-500">
-            <span class="material-icons">person</span>
-        </div>
-        <span>حسابي</span>
-        <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-    </router-link>
-    <router-link to="/favorite" class="custom-dropdown-item group" @click="showMenu = false">
-    <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
-        <span class="material-icons">favorite</span> 
-    </div>
-    <span>القصص المفضلة</span>
-    <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-</router-link>
-    
-    
-   
 
-   
-</template>
+                  <template v-else>
+                    <router-link to="/profile" class="custom-dropdown-item group" @click="showMenu = false">
+                      <div class="custom-dropdown-icon bg-gradient-to-r from-blue-500 to-cyan-500">
+                        <span class="material-icons">person</span>
+                      </div>
+                      <span>حسابي</span>
+                      <span
+                        class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+                    </router-link>
+                    <router-link to="/favorite" class="custom-dropdown-item group" @click="showMenu = false">
+                      <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
+                        <span class="material-icons">favorite</span>
+                      </div>
+                      <span>القصص المفضلة</span>
+                      <span
+                        class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+                    </router-link>
+
+
+
+
+
+                  </template>
                   <div class="custom-dropdown-divider"></div>
-                  
-                  <button @click="handleLogout" class="custom-dropdown-item group text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-red-900/20 dark:hover:to-pink-900/20">
+
+                  <button @click="handleLogout"
+                    class="custom-dropdown-item group text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-red-900/20 dark:hover:to-pink-900/20">
                     <div class="custom-dropdown-icon bg-gradient-to-r from-red-500 to-pink-500">
                       <span class="material-icons">logout</span>
                     </div>
                     <span>تسجيل الخروج</span>
-                    <span class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+                    <span
+                      class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
                   </button>
                 </div>
               </div>
             </transition>
           </div>
-          
+
           <div v-else class="flex items-center gap-3">
-            <router-link
-              to="/login"
-              class="flex items-center gap-2 px-5 py-3 border-2 border-purple-500 text-purple-600 dark:border-purple-400 dark:text-purple-300 rounded-xl hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-300 transform hover:scale-105 font-bold text-sm shadow-lg hover:shadow-xl"
-            >
+            <router-link to="/login"
+              class="flex items-center gap-2 px-5 py-3 border-2 border-purple-500 text-purple-600 dark:border-purple-400 dark:text-purple-300 rounded-xl hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-300 transform hover:scale-105 font-bold text-sm shadow-lg hover:shadow-xl">
               <span class="material-icons text-lg">login</span>
               <span class="hidden sm:block">تسجيل الدخول</span>
             </router-link>
-            
-            <router-link
-              to="/register"
-              class="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 font-bold text-sm shadow-lg hover:shadow-xl custom-pulse-slow"
-            >
+
+            <router-link to="/register"
+              class="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 font-bold text-sm shadow-lg hover:shadow-xl custom-pulse-slow">
               <span class="material-icons text-lg">person_add</span>
               <span class="hidden sm:block">إنشاء حساب</span>
             </router-link>
@@ -182,7 +191,7 @@
 <script>
 import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import Cookies from 'js-cookie' 
+import Cookies from 'js-cookie'
 import NotificationsIcon from './NotificationsIcon.vue'
 
 export default {
@@ -194,65 +203,65 @@ export default {
     const router = useRouter()
     const showMenu = ref(false)
     const isDarkMode = ref(false)
-    
+
     // **القيمة الافتراضية لكائن user لضمان عدم كونه null**
-const DEFAULT_USER_OBJECT = { 
-    fullName: 'مستخدم', // الاسم الكامل للعرض
-    email: null, 
-    role: 'user', 
-    profileImage: null,
-    firstInitial: 'م' // الحرف الأول للعرض في الدائرة
-}    
+    const DEFAULT_USER_OBJECT = {
+      fullName: 'مستخدم', // الاسم الكامل للعرض
+      email: null,
+      role: 'user',
+      profileImage: null,
+      firstInitial: 'م' // الحرف الأول للعرض في الدائرة
+    }
     const user = ref(DEFAULT_USER_OBJECT) // التهيئة بالقيمة الافتراضية
     const isAuthenticated = ref(false)
-    const systemLogo = ref(null) 
+    const systemLogo = ref(null)
 
     // تحديث حالة المستخدم (استخدام الكوكيز)
-// ... (داخل setup)
+    // ... (داخل setup)
 
-// تحديث حالة المستخدم (استخدام الكوكيز)
-// ... (داخل setup)
+    // تحديث حالة المستخدم (استخدام الكوكيز)
+    // ... (داخل setup)
 
-// تحديث حالة المستخدم (استخدام الكوكيز)
-const updateAuthState = () => {
-    const token = Cookies.get('authToken')
-    const userData = localStorage.getItem('userData')
+    // تحديث حالة المستخدم (استخدام الكوكيز)
+    const updateAuthState = () => {
+      const token = Cookies.get('authToken')
+      const userData = localStorage.getItem('userData')
 
-    isAuthenticated.value = !!(token && userData)
+      isAuthenticated.value = !!(token && userData)
 
-    if (userData) {
+      if (userData) {
         const parsedData = JSON.parse(userData);
 
         // 1. استخراج الدور وتحويله لأحرف صغيرة (lowercase) للتوافق
         // نستخدم حقل userTypeName أو roles أو نعود للقيمة الافتراضية 'user'
         const userRole = (
-            parsedData.userTypeName || 
-            (parsedData.roles && parsedData.roles[0]) || 
-            'user'
+          parsedData.userTypeName ||
+          (parsedData.roles && parsedData.roles[0]) ||
+          'user'
         ).toLowerCase(); // ✅ نحوله إلى lowercase: 'Admin' -> 'admin'
 
         // 2. تجميع الاسم الكامل
         const fullName = `${parsedData.firstName || ''} ${parsedData.lastName || ''}`.trim() || 'مستخدم';
-        
+
         // 3. الحصول على الحرف الأول
         const firstInitial = parsedData.firstName ? parsedData.firstName.charAt(0) : 'م';
 
         // 4. تعيين كائن المستخدم النهائي
         user.value = {
-            ...DEFAULT_USER_OBJECT,
-            ...parsedData, // نحافظ على جميع البيانات الأصلية
-            
-            // ✅ الحقول المصححة/المُنشأة
-            role: userRole, // ✅ القيمة المصححة للتوافق مع شروط القالب
-            name: fullName, // القالب يستخدم user?.name، لذا نستخدم الاسم الكامل
-            firstInitial: firstInitial,
-        }
-    } else {
-        user.value = DEFAULT_USER_OBJECT
-    }
-}
+          ...DEFAULT_USER_OBJECT,
+          ...parsedData, // نحافظ على جميع البيانات الأصلية
 
-// ... بقية الكود (loadSystemLogo، setupStorageListener، إلخ)// ...    // تحميل شعار النظام من الإعدادات
+          // ✅ الحقول المصححة/المُنشأة
+          role: userRole, // ✅ القيمة المصححة للتوافق مع شروط القالب
+          name: fullName, // القالب يستخدم user?.name، لذا نستخدم الاسم الكامل
+          firstInitial: firstInitial,
+        }
+      } else {
+        user.value = DEFAULT_USER_OBJECT
+      }
+    }
+
+    // ... بقية الكود (loadSystemLogo، setupStorageListener، إلخ)// ...    // تحميل شعار النظام من الإعدادات
     const loadSystemLogo = () => {
       const systemSettings = JSON.parse(localStorage.getItem('systemSettings') || '{}')
       systemLogo.value = systemSettings.logo || null
@@ -270,9 +279,9 @@ const updateAuthState = () => {
         }
       }
       window.addEventListener('storage', handleStorageChange)
-      
+
       const originalSetItem = localStorage.setItem
-      localStorage.setItem = function(key, value) {
+      localStorage.setItem = function (key, value) {
         originalSetItem.apply(this, arguments)
         if (key === 'userData' || key === 'systemSettings') {
           updateAuthState()
@@ -281,7 +290,7 @@ const updateAuthState = () => {
           }
         }
       }
-      
+
       const handleAuthChange = () => {
         updateAuthState();
       };
@@ -299,49 +308,49 @@ const updateAuthState = () => {
         // إغلاق القائمة المنسدلة للمستخدم
         const profileButton = event.target.closest('.relative')
         if (showMenu.value && profileButton && profileButton.contains(event.target)) {
-            // لا تفعل شيئاً إذا كان النقر داخل المنطقة النسبية (الزر أو القائمة)
-            return;
+          // لا تفعل شيئاً إذا كان النقر داخل المنطقة النسبية (الزر أو القائمة)
+          return;
         }
         if (showMenu.value && !profileButton) {
-            showMenu.value = false;
+          showMenu.value = false;
         }
       }
 
       document.addEventListener('click', handleClickOutside)
-      
+
       return () => {
         document.removeEventListener('click', handleClickOutside)
       }
     }
-    
+
     // الرسائل (الافتراضية)
     const messages = ref([
       { id: 1, sender: 'إدارة النظام', text: 'مرحباً بك في النظام الجديد! نتمنى لك تجربة ممتعة', time: 'منذ 2 ساعة', read: false, senderAvatar: null },
       { id: 2, sender: 'فريق الدعم', text: 'تم حل مشكلتك بنجاح، يمكنك متابعة استخدام النظام', time: 'منذ 5 ساعات', read: false, senderAvatar: null },
-      { id: 3, sender: 'مكتبة الطفل', text: 'تم إضافة قصص جديدة قد تعجبك', time: 'منذ يوم', read: true, senderAvatar: null }
+      { id: 3, sender: 'منصة الطفل', text: 'تم إضافة قصص جديدة قد تعجبك', time: 'منذ يوم', read: true, senderAvatar: null }
     ])
 
     const unreadMessages = computed(() => {
-      return messages.value.filter(m => !m.read).length 
+      return messages.value.filter(m => !m.read).length
     })
 
     // دالة تسجيل الخروج (حذف الكوكيز والتوجيه للمسار /)
-// داخل دالة handleLogout في كود AppHeader (في إجابتك السابقة)
-const handleLogout = () => {
-  Cookies.remove('authToken')
-  localStorage.removeItem('userData')
-  localStorage.removeItem('userType')
-  showMenu.value = false
-  
-  // ✅ أضف هذا السطر هنا أيضاً إذا لم يكن موجوداً
-  window.dispatchEvent(new Event('auth-change')); 
-  
-  // تحديث فوري للحالة
-  updateAuthState() 
-  
-  // التوجيه للمسار /
-  router.push('/')
-}
+    // داخل دالة handleLogout في كود AppHeader (في إجابتك السابقة)
+    const handleLogout = () => {
+      Cookies.remove('authToken')
+      localStorage.removeItem('userData')
+      localStorage.removeItem('userType')
+      showMenu.value = false
+
+      // ✅ أضف هذا السطر هنا أيضاً إذا لم يكن موجوداً
+      window.dispatchEvent(new Event('auth-change'));
+
+      // تحديث فوري للحالة
+      updateAuthState()
+
+      // التوجيه للمسار /
+      router.push('/')
+    }
     // الحصول على نص دور المستخدم
     const getUserRoleText = (role) => {
       const roles = {
@@ -354,19 +363,19 @@ const handleLogout = () => {
       }
       return roles[role] || ''
     }
-    
+
     // مراقبة تغيير المسار لإغلاق القوائم
-    watch(() => router.currentRoute.value.fullPath, () => { 
-      showMenu.value = false 
+    watch(() => router.currentRoute.value.fullPath, () => {
+      showMenu.value = false
     })
-    
+
     onMounted(() => {
       updateAuthState()
       loadSystemLogo()
-      
+
       const cleanupStorage = setupStorageListener()
       const cleanupClickOutside = setupClickOutsideListener()
-      
+
       const savedTheme = localStorage.getItem('theme')
       if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         isDarkMode.value = true
@@ -378,23 +387,23 @@ const handleLogout = () => {
         cleanupClickOutside()
       }
     })
-    
+
     const goToMessages = () => {
       const role = user.value?.role
-      const path = role === 'admin' ? '/admin/messages' : 
-                   role === 'employee' ? '/employee/messages' : '/messages'
+      const path = role === 'admin' ? '/admin/messages' :
+        role === 'employee' ? '/employee/messages' : '/messages'
       router.push(path)
       showMenu.value = false
     }
 
     return {
-      isDarkMode, 
-      isAuthenticated, 
-      user, 
+      isDarkMode,
+      isAuthenticated,
+      user,
       showMenu,
       systemLogo,
-      messages, 
-      unreadMessages, 
+      messages,
+      unreadMessages,
       handleLogout,
       getUserRoleText,
       goToMessages
@@ -491,38 +500,84 @@ const handleLogout = () => {
 
 /* حركات مخصصة */
 @keyframes custom-rotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes custom-text-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
 }
 
 @keyframes custom-bounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
 }
 
 @keyframes custom-fade-in-up {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes custom-pulse-slow {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
 }
 
 @keyframes custom-spin-slow {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes custom-ping-slow {
-  0% { transform: scale(1); opacity: 1; }
-  75%, 100% { transform: scale(2); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  75%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
 
 .custom-rotate {
@@ -569,9 +624,17 @@ const handleLogout = () => {
 }
 
 @keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* تحسينات للاستجابة */
@@ -580,16 +643,16 @@ const handleLogout = () => {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  
+
   .text-xl {
     font-size: 1.125rem;
   }
-  
+
   .px-5 {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  
+
   .py-3 {
     padding-top: 0.75rem;
     padding-bottom: 0.75rem;

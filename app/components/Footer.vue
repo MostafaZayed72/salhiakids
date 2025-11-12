@@ -1,11 +1,12 @@
 <template>
-  <footer class="bg-gradient-to-br from-purple-900 via-purple-800 to-pink-700 text-white py-12 relative overflow-hidden">
+  <footer
+    class="bg-gradient-to-br from-purple-900 via-purple-800 to-pink-700 text-white py-12 relative overflow-hidden">
     <div class="container mx-auto px-4 lg:px-6 z-10 relative">
-      
+
       <!-- المحتوى الرئيسي -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-        
-        <!-- معلومات المكتبة -->
+
+        <!-- معلومات المنصة -->
         <div class="lg:col-span-2">
           <div class="flex items-center gap-3 mb-6 transform hover:scale-105 transition-all duration-300">
             <div class="bg-white/20 rounded-2xl p-3 shadow-lg custom-rotate-slow">
@@ -16,9 +17,9 @@
               <p class="text-purple-200 text-lg">نحو جيل قارئ ومبدع</p>
             </div>
           </div>
-          
+
           <p class="text-purple-200 text-base leading-relaxed mb-6 max-w-xl">
-            مكتبة رقمية متخصصة في تقديم محتوى تعليمي وترفيهي متميز للأطفال، 
+            منصة رقمية متخصصة في تقديم محتوى تعليمي وترفيهي متميز للأطفال،
             تهدف إلى تنمية مهارات القراءة والإبداع لدى النشء.
           </p>
 
@@ -26,12 +27,10 @@
           <div>
             <h4 class="text-lg font-bold text-white mb-4">شركاؤنا</h4>
             <div class="flex flex-wrap gap-4">
-              <div 
-                v-for="partner in partners" 
-                :key="partner.name"
-                class="bg-white/10 rounded-2xl p-4 hover:bg-white/20 transition-all duration-300 cursor-pointer transform hover:scale-110 hover:-translate-y-1 shadow-lg"
-              >
-                <div class="w-24 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-lg flex items-center justify-center text-white font-bold text-xs">
+              <div v-for="partner in partners" :key="partner.name"
+                class="bg-white/10 rounded-2xl p-4 hover:bg-white/20 transition-all duration-300 cursor-pointer transform hover:scale-110 hover:-translate-y-1 shadow-lg">
+                <div
+                  class="w-24 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-lg flex items-center justify-center text-white font-bold text-xs">
                   {{ partner.name }}
                 </div>
               </div>
@@ -47,21 +46,19 @@
             </div>
             <h4 class="text-xl font-bold text-white">روابط سريعة</h4>
           </div>
-          
+
           <div class="space-y-3">
-            <router-link
-              v-for="link in quickLinks"
-              :key="link.name"
-              :to="link.path"
-              class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 hover:bg-gradient-to-r hover:from-purple-600/50 hover:to-pink-600/50 transition-all duration-300 group transform hover:translate-x-2"
-            >
-              <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-md">
+            <router-link v-for="link in quickLinks" :key="link.name" :to="link.path"
+              class="flex items-center gap-3 p-3 rounded-2xl bg-white/5 hover:bg-gradient-to-r hover:from-purple-600/50 hover:to-pink-600/50 transition-all duration-300 group transform hover:translate-x-2">
+              <div
+                class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-md">
                 <span class="material-icons text-white text-sm">{{ link.icon }}</span>
               </div>
               <span class="text-purple-200 group-hover:text-white transition-colors duration-300 font-medium">
                 {{ link.name }}
               </span>
-              <span class="material-icons text-purple-400 group-hover:text-white transform group-hover:-translate-x-1 transition-all duration-300 text-sm">
+              <span
+                class="material-icons text-purple-400 group-hover:text-white transform group-hover:-translate-x-1 transition-all duration-300 text-sm">
                 chevron_left
               </span>
             </router-link>
@@ -78,21 +75,17 @@
           </div>
 
           <div class="space-y-4">
-            <div 
-              v-for="contact in contacts" 
-              :key="contact.type"
-              class="flex items-start gap-3 group transform hover:translate-x-2 transition-transform duration-300"
-            >
-              <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-md mt-1 flex-shrink-0">
+            <div v-for="contact in contacts" :key="contact.type"
+              class="flex items-start gap-3 group transform hover:translate-x-2 transition-transform duration-300">
+              <div
+                class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-md mt-1 flex-shrink-0">
                 <span class="material-icons text-white text-sm">{{ contact.icon }}</span>
               </div>
               <div class="flex-1">
                 <p class="text-white font-bold text-sm mb-1">{{ contact.title }}</p>
-                <a 
-                  v-if="contact.type === 'email' || contact.type === 'phone'"
+                <a v-if="contact.type === 'email' || contact.type === 'phone'"
                   :href="contact.type === 'email' ? `mailto:${contact.value}` : `tel:${contact.value}`"
-                  class="text-purple-200 hover:text-white transition-all duration-300 text-sm hover:underline"
-                >
+                  class="text-purple-200 hover:text-white transition-all duration-300 text-sm hover:underline">
                   {{ contact.value }}
                 </a>
                 <p v-else class="text-purple-200 text-sm">{{ contact.value }}</p>
@@ -104,14 +97,9 @@
           <div class="mt-6">
             <h4 class="text-lg font-bold text-white mb-4">تابعنا</h4>
             <div class="flex gap-3">
-              <a
-                v-for="social in socialLinks"
-                :key="social.name"
-                :href="social.url"
-                target="_blank"
+              <a v-for="social in socialLinks" :key="social.name" :href="social.url" target="_blank"
                 class="w-12 h-12 rounded-full bg-white/10 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition-all duration-300 flex items-center justify-center transform hover:scale-110 hover:-translate-y-1 shadow-lg"
-                :title="social.name"
-              >
+                :title="social.name">
                 <span class="material-icons text-white text-lg">{{ social.icon }}</span>
               </a>
             </div>
@@ -122,16 +110,12 @@
       <!-- قسم حقوق النشر -->
       <div class="border-t border-white/20 pt-8 flex flex-col lg:flex-row items-center justify-between gap-4">
         <p class="text-purple-200 text-sm text-center lg:text-right">
-          منصة الطفل الرقمية للطفل © {{ currentYear }} جميع الحقوق محفوظة
+            الجمعية الأهلية الصالحية بعنيزة © {{ currentYear }} جميع الحقوق محفوظة
         </p>
-        
+
         <div class="flex flex-wrap justify-center gap-6">
-          <router-link
-            v-for="policy in policies"
-            :key="policy.name"
-            :to="policy.path"
-            class="text-purple-200 hover:text-white transition-all duration-300 text-sm hover:underline transform hover:scale-105"
-          >
+          <router-link v-for="policy in policies" :key="policy.name" :to="policy.path"
+            class="text-purple-200 hover:text-white transition-all duration-300 text-sm hover:underline transform hover:scale-105">
             {{ policy.name }}
           </router-link>
         </div>
@@ -142,7 +126,9 @@
     <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
       <div class="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-white/5 blur-3xl custom-float"></div>
       <div class="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-white/5 blur-3xl custom-float-delayed"></div>
-      <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full bg-white/5 blur-3xl custom-pulse-slow"></div>
+      <div
+        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full bg-white/5 blur-3xl custom-pulse-slow">
+      </div>
     </div>
   </footer>
 </template>
@@ -178,23 +164,23 @@ const quickLinks = [
 ]
 
 const contacts = [
-  { 
-    type: 'email', 
-    title: 'البريد الإلكتروني', 
-    value: 'salhia@salhia.org.sa', 
-    icon: 'email' 
+  {
+    type: 'email',
+    title: 'البريد الإلكتروني',
+    value: 'salhia@salhia.org.sa',
+    icon: 'email'
   },
-  { 
-    type: 'phone', 
-    title: 'الهاتف', 
-    value: '+966553647554', 
-    icon: 'phone' 
+  {
+    type: 'phone',
+    title: 'الهاتف',
+    value: '+966553647554',
+    icon: 'phone'
   },
-  { 
-    type: 'location', 
-    title: 'العنوان', 
-    value: 'القصيم - عنيزة - حي الهدا', 
-    icon: 'location_on' 
+  {
+    type: 'location',
+    title: 'العنوان',
+    value: 'القصيم - عنيزة - حي الهدا',
+    icon: 'location_on'
   }
 ]
 
@@ -223,28 +209,63 @@ footer {
 
 /* حركات مخصصة */
 @keyframes custom-rotate-slow {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes custom-text-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
 }
 
 @keyframes custom-float {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(-20px) translateX(10px); }
+
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+
+  50% {
+    transform: translateY(-20px) translateX(10px);
+  }
 }
 
 @keyframes custom-float-delayed {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(15px) translateX(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+
+  50% {
+    transform: translateY(15px) translateX(-10px);
+  }
 }
 
 @keyframes custom-pulse-slow {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.1; transform: scale(1.1); }
+
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.1;
+    transform: scale(1.1);
+  }
 }
 
 .custom-rotate-slow {
@@ -278,12 +299,12 @@ footer {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  
+
   .text-2xl {
     font-size: 1.5rem;
   }
-  
-  .space-y-4 > * {
+
+  .space-y-4>* {
     margin-bottom: 1rem;
   }
 }
@@ -304,9 +325,17 @@ footer {
 }
 
 @keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* تحسينات للخطوط */
@@ -319,11 +348,11 @@ footer {
 }
 
 /* تحسينات للتباعد */
-.space-y-3 > * + * {
+.space-y-3>*+* {
   margin-top: 0.75rem;
 }
 
-.space-y-4 > * + * {
+.space-y-4>*+* {
   margin-top: 1rem;
 }
 </style>

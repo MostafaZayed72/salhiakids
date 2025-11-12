@@ -696,7 +696,15 @@ watch(
 
 <template>
   <div class="story-page-container min-h-screen py-10 px-4 sm:px-6 lg:px-8 bg-gray-100">
-    
+    <NuxtLink to="/" class="w-full mb-4">
+      <button 
+        class="mb-4 flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white font-semibold rounded-full shadow-lg hover:bg-purple-700 transition-colors transform hover:scale-105 mx-auto text-center"
+        aria-label="العودة للصفحة الرئيسية"
+      >
+        <span class="material-icons text-xl">home</span>
+        <span class="hidden sm:inline">العودة للصفحة الرئيسية</span>
+      </button>
+    </NuxtLink>
     <div v-if="masterStoryId && isLoading" class="text-center py-20 text-xl text-gray-600">جاري تحميل محتوى القصة...</div>
     <div v-else-if="!masterStoryId || !masterStory.id" class="text-center py-20 text-xl text-red-500">عذراً، القصة غير متوفرة أو معرف القصة غير صحيح.</div>
     
