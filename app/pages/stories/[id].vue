@@ -695,267 +695,272 @@ watch(
 </script>
 
 <template>
-  <div class="story-page-container min-h-screen py-10 px-4 sm:px-6 lg:px-8 bg-gray-100">
-    <NuxtLink to="/" class="w-full mb-4">
-      <button 
-        class="mb-4 flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white font-semibold rounded-full shadow-lg hover:bg-purple-700 transition-colors transform hover:scale-105 mx-auto text-center"
-        aria-label="العودة للصفحة الرئيسية"
-      >
-        <span class="material-icons text-xl">home</span>
-        <span class="hidden sm:inline">العودة للصفحة الرئيسية</span>
-      </button>
-    </NuxtLink>
-    <div v-if="masterStoryId && isLoading" class="text-center py-20 text-xl text-gray-600">جاري تحميل محتوى القصة...</div>
-    <div v-else-if="!masterStoryId || !masterStory.id" class="text-center py-20 text-xl text-red-500">عذراً، القصة غير متوفرة أو معرف القصة غير صحيح.</div>
+ <div class="story-page-container min-h-screen py-10 px-4 sm:px-6 lg:px-8 bg-gray-100">
     
-    <div v-else class="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6">
-      
+  <div v-if="masterStoryId && isLoading" class="text-center py-20 text-xl text-gray-600">جاري تحميل محتوى القصة...</div>
+  <div v-else-if="!masterStoryId || !masterStory.id" class="text-center py-20 text-xl text-red-500">عذراً، القصة غير متوفرة أو معرف القصة غير صحيح.</div>
+  
+  <div v-else class="max-w-7xl mx-auto flex flex-col lg:flex-row-reverse gap-6">
+   
       <div class="lg:w-72 w-full flex-shrink-0 order-1">
+    
         <div class="bg-white rounded-xl shadow-xl p-4 border border-gray-200 sticky top-4 story-sidebar-light">
-          
-          <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2 text-center">تفاصيل القصة</h3>
-          
-          <div class="space-y-3 text-sm text-gray-700">
-            <div class="info-line-light">
-              <span class="font-semibold text-gray-800">المؤلف:</span> <span class="text-pink-600">{{ masterStory.authorName || 'غير معروف' }}</span>
-            </div>
-            <div class="info-line-light">
-              <span class="font-semibold text-gray-800">الفئة:</span> <span class="text-pink-600">{{ masterStory.storyCategoryTitle || 'غير مصنف' }}</span>
-            </div>
-            <div class="info-line-light">
-              <span class="font-semibold text-gray-800">النشر:</span> <span class="text-pink-600">{{ masterStory.createdAt ? new Date(masterStory.createdAt).toLocaleDateString('ar-EG') : 'غير متوفر' }}</span>
-            </div>
-          </div>
-          
-        </div>
+     
+          <NuxtLink to="/" class="w-full block mb-4">
+      <button 
+       class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white font-semibold rounded-full shadow-lg hover:bg-purple-700 transition-colors transform hover:scale-105"
+       aria-label="العودة للصفحة الرئيسية"
+      >
+       <span class="material-icons text-xl">home</span>
+       <span class="inline">العودة للصفحة الرئيسية</span>
+      </button>
+     </NuxtLink>
+
+     <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2 text-center">تفاصيل القصة</h3>
+     
+     <div class="space-y-3 text-sm text-gray-700">
+      <div class="info-line-light">
+       <span class="font-semibold text-gray-800">المؤلف:</span> <span class="text-pink-600">{{ masterStory.authorName || 'غير معروف' }}</span>
+      </div>
+      <div class="info-line-light">
+       <span class="font-semibold text-gray-800">الفئة:</span> <span class="text-pink-600">{{ masterStory.storyCategoryTitle || 'غير مصنف' }}</span>
+      </div>
+      <div class="info-line-light">
+       <span class="font-semibold text-gray-800">النشر:</span> <span class="text-pink-600">{{ masterStory.createdAt ? new Date(masterStory.createdAt).toLocaleDateString('ar-EG') : 'غير متوفر' }}</span>
+      </div>
+     </div>
+     
+    </div>
 
         <div class="bg-white rounded-xl shadow-xl p-4 mt-6 border border-gray-200 story-sidebar-light">
-            <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2 text-center">قصص مشابهة</h3>
-            <div v-if="relatedStories.length > 0" class="space-y-2">
-                <router-link
-                    v-for="story in relatedStories"
-                    :key="story.id"
-                    :to="`/stories/${story.id}`"
-                    class="bg-gray-100 p-2 rounded-lg text-sm text-gray-700 hover:bg-purple-100 hover:text-purple-700 transition block cursor-pointer"
-                >
-                    {{ story.title }}
-                </router-link>
-            </div>
-            <div v-else class="text-center text-sm text-gray-500 py-2">
-                لا توجد قصص أخرى في نفس الفئة.
-            </div>
-        </div>
+      <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2 text-center">قصص مشابهة</h3>
+      <div v-if="relatedStories.length > 0" class="space-y-2">
+        <router-link
+          v-for="story in relatedStories"
+          :key="story.id"
+          :to="`/stories/${story.id}`"
+          class="bg-gray-100 p-2 rounded-lg text-sm text-gray-700 hover:bg-purple-100 hover:text-purple-700 transition block cursor-pointer"
+        >
+          {{ story.title }}
+          <img :src="story.imageUrl" alt="">
+        </router-link>
       </div>
+      <div v-else class="text-center text-sm text-gray-500 py-2">
+        لا توجد قصص أخرى في نفس الفئة.
+      </div>
+    </div>
+   </div>
 
-      <div class="lg:flex-1 order-2 w-[90%] text-center mx-auto">
-        <div class="bg-white rounded-xl shadow-2xl p-6 border border-gray-200 ">
-          
+      <div class="lg:flex-1 order-2 w-[90%]  mx-auto">
+    <div class="bg-white rounded-xl shadow-2xl p-6 border border-gray-200 ">
+     
           <div class="text-center pb-4 mb-4 border-b border-gray-300">
-            <h1 class="text-2xl font-bold text-gray-800 mb-4">{{ storyTitle }}</h1> 
-          </div>
+      <h1 class="text-2xl font-bold text-gray-800 mb-4">{{ storyTitle }}</h1> 
+     </div>
 
-          <div class="flex items-center justify-around py-4 bg-gray-100 rounded-lg shadow-inner mb-6 border border-gray-200">
-              <div class="text-center">
-                  <span class="material-icons text-pink-500 text-2xl">star_half</span>
-                  <p class="text-gray-800 font-bold">{{ masterStory.averageRating?.toFixed(1) || 0 }}</p>
-                  <p class="text-xs text-gray-500">التقييم</p>
-              </div>
-             <button @click="shareStory" class="text-center transition-transform hover:scale-105">
+          
+     
+     
+     <div class="story-image-container-light mb-6 rounded-lg overflow-hidden border border-gray-300">
+      <img :src="masterStory.imageUrl || '/default-story-placeholder.jpg'" :alt="storyTitle" class="w-full h-full object-contain bg-gray-50">
+     </div>
+     <div class="flex items-center justify-around py-4 bg-gray-100 rounded-lg shadow-inner mb-6 border border-gray-200">
+       <div class="text-center">
+         <span class="material-icons text-pink-500 text-2xl">star_half</span>
+         <p class="text-gray-800 font-bold">{{ masterStory.averageRating?.toFixed(1) || 0 }}</p>
+         <p class="text-xs text-gray-500">التقييم</p>
+       </div>
+      <button @click="shareStory" class="text-center transition-transform hover:scale-105">
     <span class="material-icons text-green-500 text-2xl">share</span>
     <p class="text-xs text-gray-600">مشاركة</p>
-</button>
-              <button @click="toggleFavorite" class="text-center transition-transform hover:scale-105">
-                  <span class="material-icons text-2xl" :class="isFavorite ? 'text-red-500' : 'text-gray-400'">{{ isFavorite ? 'favorite' : 'favorite_border' }}</span>
-                  <p class="text-xs" :class="isFavorite ? 'text-red-500' : 'text-gray-600'">المفضلة</p>
-              </button>
-              <div class="text-center">
-                  <span class="material-icons text-blue-500 text-2xl">comment</span>
-                  <p class="text-gray-800 font-bold">{{ comments.length }}</p>
-                  <p class="text-xs text-gray-500">التعليقات</p>
-              </div>
-          </div>
-          
-          <h3 class="text-xl font-bold text-gray-800 mb-3">عن القصة</h3>
-          <div class="story-image-container-light mb-6 rounded-lg overflow-hidden border border-gray-300">
-             <img :src="masterStory.imageUrl || '/default-story-placeholder.jpg'" :alt="storyTitle" class="w-full h-full object-contain bg-gray-50">
-          </div>
-          <div class="  text-lg leading-relaxed text-gray-700 text-justify mb-8  break-words whitespace-normal overflow-hidden">
+    </button>
+       <button @click="toggleFavorite" class="text-center transition-transform hover:scale-105">
+         <span class="material-icons text-2xl" :class="isFavorite ? 'text-red-500' : 'text-gray-400'">{{ isFavorite ? 'favorite' : 'favorite_border' }}</span>
+         <p class="text-xs" :class="isFavorite ? 'text-red-500' : 'text-gray-600'">المفضلة</p>
+       </button>
+       <div >
+         <span class="material-icons text-blue-500 text-2xl">comment</span>
+         <p class="text-gray-800 font-bold">{{ comments.length }}</p>
+         <p class="text-xs text-gray-500">التعليقات</p>
+       </div>
+     </div>
+     <div class="text-lg leading-relaxed text-gray-700 text-justify mb-8 break-words whitespace-normal overflow-hidden">
               <div v-html="masterStory.content" class="story-content-text-light"></div>
-          </div>
+     </div>
 
           <h3 class="text-xl font-bold text-gray-800 mb-6 mt-8 border-t border-gray-200 pt-4">التعليقات والتقييمات</h3>
-          
+     
           <div class="p-4 bg-gray-100 rounded-xl mb-6 border border-gray-200">
-              <span class="block text-right text-sm font-semibold mb-3 text-gray-800">قيم القصة:</span>
-              <div class="flex justify-end text-3xl cursor-pointer">
-                  <span 
-                    v-for="star in 5" 
-                    :key="star" 
-                    @click="submitRating(star)"
-                    @mouseover="hoverRating = star"
-                    @mouseleave="hoverRating = 0"
-                    class="material-icons transition-colors duration-150"
-                    :class="{'text-yellow-500': star <= (hoverRating || userRating), 'text-gray-300': star > (hoverRating || userRating)}"
-                  >
-                    star
-                  </span>
-              </div>
-          </div>
-          
+       <span class="block text-right text-sm font-semibold mb-3 text-gray-800">قيم القصة:</span>
+       <div class="flex justify-end text-3xl cursor-pointer">
+         <span 
+          v-for="star in 5" 
+          :key="star" 
+          @click="submitRating(star)"
+          @mouseover="hoverRating = star"
+          @mouseleave="hoverRating = 0"
+          class="material-icons transition-colors duration-150"
+          :class="{'text-yellow-500': star <= (hoverRating || userRating), 'text-gray-300': star > (hoverRating || userRating)}"
+         >
+          star
+         </span>
+       </div>
+     </div>
+     
           <div class="mb-8 p-4 bg-gray-100 rounded-xl border border-gray-200">
-              <h4 class="text-gray-800 font-semibold mb-2">أضف تعليقك</h4>
-              <textarea 
-                  v-model="newCommentContent" 
-                  placeholder="اكتب تعليقك على القصة..." 
-                  rows="3"
-                  class="w-full p-3 border border-gray-300 bg-white text-gray-800 rounded-lg focus:ring-2 focus:ring-pink-500 transition-colors resize-none"
-              ></textarea>
-              <button 
-                  @click="addComment" 
-                  :disabled="!newCommentContent.trim()"
-                  class="mt-2 px-6 py-2 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors disabled:opacity-50 shadow-md"
-              >
-                  نشر التعليق
-              </button>
-          </div>
+       <h4 class="text-gray-800 font-semibold mb-2">أضف تعليقك</h4>
+       <textarea 
+         v-model="newCommentContent" 
+         placeholder="اكتب تعليقك على القصة..." 
+         rows="3"
+         class="w-full p-3 border border-gray-300 bg-white text-gray-800 rounded-lg focus:ring-2 focus:ring-pink-500 transition-colors resize-none"
+       ></textarea>
+       <button 
+         @click="addComment" 
+         :disabled="!newCommentContent.trim()"
+         class="mt-2 px-6 py-2 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors disabled:opacity-50 shadow-md"
+       >
+         نشر التعليق
+       </button>
+     </div>
 
           <div v-if="isCommentsLoading" class="text-center py-8 text-gray-500">جاري تحميل التعليقات...</div>
 <div v-else-if="comments.length === 0" class="text-center py-8 text-gray-500">لا توجد تعليقات بعد.</div>
 <div v-else class="space-y-4">
-    <div v-for="comment in comments" :key="comment.id" class="p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-        <div class="flex justify-between items-center mb-2">
-            <p class="font-semibold text-gray-800 flex items-center">
-                <span class="material-icons text-purple-600 text-lg ml-2">account_circle</span>
-                {{ comment.createdByUserName || 'مستخدم' }}
-            </p>
-            <span class="text-xs text-gray-500">{{ new Date(comment.createdAt).toLocaleDateString('ar-EG') }}</span>
-        </div>
-        <p class="mt-1 text-gray-700 whitespace-pre-wrap">{{ comment.content }}</p>
+  <div v-for="comment in comments" :key="comment.id" class="p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+    <div class="flex justify-between items-center mb-2">
+      <p class="font-semibold text-gray-800 flex items-center">
+        <span class="material-icons text-purple-600 text-lg ml-2">account_circle</span>
+        {{ comment.createdByUserName || 'مستخدم' }}
+      </p>
+      <span class="text-xs text-gray-500">{{ new Date(comment.createdAt).toLocaleDateString('ar-EG') }}</span>
+    </div>
+    <p class="mt-1 text-gray-700 whitespace-pre-wrap">{{ comment.content }}</p>
 
-        <div v-if="String(comment.createdBy) === String(currentUserId) || isAdmin"  class="mt-2 flex space-x-3 space-x-reverse text-sm">
-            <button 
-                @click="openEditComment(comment)" 
-                class="text-blue-500 hover:underline"
-            >
-                تعديل
-            </button>
-            <span class="text-gray-400">|</span>
-            <button 
-                @click="deleteComment(comment)" 
-                class="text-red-500 hover:underline"
-            >
-                حذف
-            </button>
-        </div>
-        </div>
+    <div v-if="String(comment.createdBy) === String(currentUserId) || isAdmin" class="mt-2 flex space-x-3 space-x-reverse text-sm">
+      <button 
+        @click="openEditComment(comment)" 
+        class="text-blue-500 hover:underline"
+      >
+        تعديل
+      </button>
+      <span class="text-gray-400">|</span>
+      <button 
+        @click="deleteComment(comment)" 
+        class="text-red-500 hover:underline"
+      >
+        حذف
+      </button>
+    </div>
+    </div>
 </div>
 
           <div v-if="commentsTotalPages > 1" class="flex justify-center mt-6 space-x-2">
-            <button 
-                @click="goToCommentPage(commentsCurrentPage - 1)" 
-                :disabled="commentsCurrentPage === 1"
-                class="px-3 py-1 text-sm bg-purple-500 text-white rounded-md hover:bg-purple-600 disabled:opacity-50"
-            >
-                السابق
-            </button>
-            <span class="px-3 py-1 text-sm text-gray-600">
-                صفحة {{ commentsCurrentPage }} من {{ commentsTotalPages }}
-            </span>
-            <button 
-                @click="goToCommentPage(commentsCurrentPage + 1)" 
-                :disabled="commentsCurrentPage === commentsTotalPages"
-                class="px-3 py-1 text-sm bg-purple-500 text-white rounded-md hover:bg-purple-600 disabled:opacity-50"
-            >
-                التالي
-            </button>
-          </div>
-        </div>
-      </div>
-      
+      <button 
+        @click="goToCommentPage(commentsCurrentPage - 1)" 
+        :disabled="commentsCurrentPage === 1"
+        class="px-3 py-1 text-sm bg-purple-500 text-white rounded-md hover:bg-purple-600 disabled:opacity-50"
+      >
+        السابق
+      </button>
+      <span class="px-3 py-1 text-sm text-gray-600">
+        صفحة {{ commentsCurrentPage }} من {{ commentsTotalPages }}
+      </span>
+      <button 
+        @click="goToCommentPage(commentsCurrentPage + 1)" 
+        :disabled="commentsCurrentPage === commentsTotalPages"
+        class="px-3 py-1 text-sm bg-purple-500 text-white rounded-md hover:bg-purple-600 disabled:opacity-50"
+      >
+        التالي
+      </button>
+     </div>
     </div>
-    <div v-if="editingComment" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4">
-        <h3 class="text-xl font-bold text-gray-800 mb-4">تعديل التعليق</h3>
-        
-        <textarea 
-            v-model="editingComment.newContent" 
-            placeholder="اكتب تعديلك هنا..." 
-            rows="4"
-            class="w-full p-3 border border-gray-300 bg-white text-gray-800 rounded-lg focus:ring-2 focus:ring-pink-500 transition-colors resize-none mb-4"
-        ></textarea>
-        
-        <div class="flex justify-end space-x-3 space-x-reverse">
-            <button 
-                @click="editingComment = null" 
-                class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors"
-            >
-                إلغاء
-            </button>
-            <button 
-                @click="updateComment" 
-                :disabled="!editingComment.newContent.trim()"
-                class="px-4 py-2 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors disabled:opacity-50"
-            >
-                حفظ التعديل
-            </button>
-        </div>
-    </div>
-</div>
+   </div>
+   
   </div>
+    <div v-if="editingComment" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg mx-4">
+    <h3 class="text-xl font-bold text-gray-800 mb-4">تعديل التعليق</h3>
+    
+    <textarea 
+      v-model="editingComment.newContent" 
+      placeholder="اكتب تعديلك هنا..." 
+      rows="4"
+      class="w-full p-3 border border-gray-300 bg-white text-gray-800 rounded-lg focus:ring-2 focus:ring-pink-500 transition-colors resize-none mb-4"
+    ></textarea>
+    
+    <div class="flex justify-end space-x-3 space-x-reverse">
+      <button 
+        @click="editingComment = null" 
+        class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-colors"
+      >
+        إلغاء
+      </button>
+      <button 
+        @click="updateComment" 
+        :disabled="!editingComment.newContent.trim()"
+        class="px-4 py-2 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 transition-colors disabled:opacity-50"
+      >
+        حفظ التعديل
+      </button>
+    </div>
+  </div>
+</div>
+ </div>
 </template>
 
 <style scoped>
 /* التنسيق للغة العربية وتحديد اتجاه الصفحة */
 .story-page-container {
- direction: rtl;
- text-align: right;
+direction: rtl;
+text-align: right;
 }
 
 /* تنسيق حاوية الصورة */
 .story-image-container-light {
- height: 350px; 
- display: flex;
- justify-content: center;
- align-items: center;
- background-color: #f9f9f9; 
+height: 350px; 
+display: flex;
+justify-content: center;
+align-items: center;
+background-color: #f9f9f9; 
 }
 .story-image-container-light img {
- object-fit: contain; 
- width: auto; 
- max-width: 100%;
+object-fit: contain; 
+width: auto; 
+max-width: 100%;
 }
 
 /* تنسيق خطوط المعلومات الجانبية */
 .info-line-light {
- background-color: #f3f4f6; 
- padding: 8px;
- border-radius: 6px;
- display: flex;
- justify-content: space-between;
+background-color: #f3f4f6; 
+padding: 8px;
+border-radius: 6px;
+display: flex;
+justify-content: space-between;
 }
 
 /* تثبيت اللوحة الجانبية عند التمرير */
 @media (min-width: 1024px) {
- .sticky {
- position: sticky;
- top: 2rem;
- }
+.sticky {
+position: sticky;
+top: 2rem;
+}
 }
 
 /* تحسين تنسيق محتوى القصة النصي */
 .story-content-text-light {
- line-height: 1.8;
- font-size: 1.1rem;
- color: #333; 
- text-align: justify; 
+line-height: 1.8;
+font-size: 1.1rem;
+color: #333; 
+text-align: justify; 
 }
 .story-content-text-light p {
- margin-bottom: 1.5em;
- text-indent: 1.5em;
+margin-bottom: 1.5em;
+text-indent: 1.5em;
 }
 
 /* تنسيق النجوم */
 .material-icons.text-yellow-500 {
- color: #f59e0b;
+color: #f59e0b;
 }
 </style>
