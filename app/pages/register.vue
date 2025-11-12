@@ -1,17 +1,15 @@
 <template>
-  <div class=" bg-gray-50 flex items-center justify-center p-4">
-    <div class="max-w-md w-full">
-      
-      <div class="bg-gradient-to-br from-pink-500 to-purple-300 rounded-2xl shadow-xl border border-gray-200 p-8">
+  <div class="bg-gray-50 flex items-center justify-center px-4 py-2 min-h-screen">
+    <div class="max-w-3xl w-full"> <div class="bg-gradient-to-br from-pink-500 to-purple-300 rounded-2xl shadow-xl border border-gray-200 p-8">
         
-        <div class="text-center mb-2">
+        <div class="text-center mb-6">
           <div class="w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#1B3C53] to-[#234C6A] mx-auto mb-4 shadow-lg">
             <span class="material-icons text-white text-2xl">person_add</span>
           </div>
-          <h2 class="text-2xl font-bold text-[#1B3C53] mb-2">أنشئ حسابك الجديد</h2>
+          <h2 class="text-2xl font-bold text-[#1B3C53]">أنشئ حسابك الجديد</h2>
         </div>
 
-        <form @submit.prevent="handleRegister" class="space-y-6">
+        <form @submit.prevent="handleRegister" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
           
           <div>
             <label class="block text-sm font-medium mb-2 text-[#1B3C53]">الاسم الكامل</label>
@@ -50,7 +48,7 @@
                 :type="showPassword ? 'text' : 'password'"
                 required
                 placeholder="اختر كلمة مرور قوية"
-                class="w-full px-4 py-3 pr-20 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 transition-all duration-200"
+                class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 transition-all duration-200"
               >
               <button 
                 type="button"
@@ -60,7 +58,6 @@
                 <span class="material-icons text-lg">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
               </button>
             </div>
-            <p class="text-xs mt-2 text-[#456882]">يجب أن تحتوي على 6 أحرف على الأقل</p>
           </div>
 
           <div>
@@ -72,7 +69,7 @@
                 :type="showConfirmPassword ? 'text' : 'password'"
                 required
                 placeholder="أعد إدخال كلمة المرور"
-                class="w-full px-4 py-3 pr-20 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 transition-all duration-200"
+                class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 transition-all duration-200"
               >
               <button 
                 type="button"
@@ -92,16 +89,14 @@
                 v-model="form.accountType" 
                 class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 appearance-none transition-all duration-200"
               >
-                <!-- <option value="admin">أدمن</option> -->
                 <option value="teacher">معلم</option>
                 <option value="student">طالب</option>
               </select>
             </div>
-            <p class="text-xs mt-2 text-[#456882]">ملاحظة: لا يمكن إنشاء حسابات مدير أو موظف من هنا</p>
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-2 text-[#1B3C53]">رقم الهاتف</label>
+            <label class="block text-sm font-medium mb-2 text-[#1B3C53]">رقم هاتف المعلم أو ولي الأمر</label>
             <div class="relative">
               <span class="material-icons absolute right-3 top-1/2 transform -translate-y-1/2 text-[#456882] text-lg">phone</span>
               <input 
@@ -112,8 +107,8 @@
               >
             </div>
           </div>
-
-          <div class="flex items-start gap-3">
+          
+          <div class="flex items-start gap-3 md:col-span-2">
             <input 
               type="checkbox" 
               v-model="form.agreeTerms"
@@ -128,14 +123,14 @@
             </label>
           </div>
 
-          <div v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm">
+          <div v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm md:col-span-2">
             {{ errorMessage }}
           </div>
 
           <button 
             type="submit"
             :disabled="loading || !form.agreeTerms"
-            class="w-full bg-gradient-to-r from-[#1B3C53] to-[#234C6A] text-white py-3 px-4 rounded-xl hover:from-[#234C6A] hover:to-[#1B3C53] transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center gap-2"
+            class="w-full bg-gradient-to-r from-[#1B3C53] to-[#234C6A] text-white py-3 px-4 rounded-xl hover:from-[#234C6A] hover:to-[#1B3C53] transition-all duration-200 font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center justify-center gap-2 md:col-span-2"
           >
             <span v-if="loading" class="flex items-center justify-center gap-2">
               <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -164,12 +159,7 @@
 
       </div>
 
-      <div class="text-center mt-6">
-        <router-link to="/" class="inline-flex items-center gap-2 text-[#1B3C53] hover:text-[#234C6A] transition-colors duration-200">
-          <span class="material-icons">arrow_back</span>
-          <span>الرجوع إلى تسجيل الدخول</span>
-        </router-link>
-      </div>
+     
 
     </div>
   </div>
@@ -190,14 +180,14 @@
         </div>
         
         <p class="text-center text-gray-600 mb-8">
-          تم إنشاء حسابك بنجاح. سيتم توجيهك إلى الصفحة الرئيسية الآن.
+          تم إنشاء حسابك بنجاح. سيتم توجيهك إلى صفحة تسجيل الدخول الآن.
         </p>
         
         <button 
           @click="closeModalAndRedirect" 
           class="w-full bg-green-500 text-white py-3 rounded-xl hover:bg-green-600 transition-colors duration-200 font-semibold shadow-lg"
         >
-          موافق (اذهب إلى الرئيسية)
+          موافق (اذهب إلى تسجيل الدخول)
         </button>
         
       </div>

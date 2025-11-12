@@ -183,7 +183,7 @@ const handleStopListening = () => {
 </script>
 
 <template>
-<section class="py-32 flex flex-col justify-center items-center relative bg-white overflow-hidden">
+<section class="pt-32 pb-10 flex flex-col justify-center items-center relative bg-white overflow-hidden">
     
     <div class="absolute top-10 left-10 w-4 h-4 bg-pink-300 rounded-full"></div>
     <div class="absolute top-20 right-10 w-6 h-6 bg-yellow-300 rounded-full"></div>

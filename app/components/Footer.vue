@@ -173,9 +173,7 @@ const partners = [
 const quickLinks = [
   { name: 'الرئيسية', path: '/', icon: 'home' },
   { name: 'من نحن', path: '/about', icon: 'info' },
-  { name: 'المكتبة الرقمية', path: '/library', icon: 'library_books' },
   { name: 'الفعاليات', path: '/events', icon: 'event' },
-  { name: 'المحتوى التعليمي', path: '/education', icon: 'school' },
   { name: 'اتصل بنا', path: '/contact', icon: 'contact_support' }
 ]
 

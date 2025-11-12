@@ -317,6 +317,7 @@ onUnmounted(() => {
         <SectionsCategoriesSection 
           :featuredCategories="featuredCategories"
           data-aos="fade-right" data-aos-delay="100"
+          class="bg-gray-100"
         />
 
         <SectionsHeroMakerSection 
@@ -329,6 +330,7 @@ onUnmounted(() => {
       <SectionsFeaturesSection 
         :features="features"
         data-aos="fade-down"
+        class="bg-gray-100"
       />
 
       <SectionsLatestContentSection
@@ -342,12 +344,12 @@ onUnmounted(() => {
         data-aos="fade-up"
       />
 
-      <SectionsFeaturedContentSection
+      <!-- <SectionsFeaturedContentSection
         :featuredContents="featuredContents"
         @viewContent="viewContent"
         class="py-16"
         data-aos="fade-left"
-      />
+      /> -->
       
     </main>
   </div>
