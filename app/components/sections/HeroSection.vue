@@ -1,255 +1,292 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-// ⚠️ ملاحظة: axios ليس ضرورياً هنا لأننا سننقل مسؤولية جلب البيانات إلى صفحة النتائج
+import axios from 'axios';
 
 const router = useRouter();
 
-// ------------------------------------------------------------------
-// 1. تحديد Base URL
-// ------------------------------------------------------------------
-// افترض أنك تعرف API_BASE_URL في ملف .env
+// -------------------
+// Base URL والأندبوينت
+// -------------------
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const CATEGORIES_ENDPOINT = `${API_BASE}/api/StoryCategories/GetAllMatching`;
 
+// -------------------
+// حالة الأقسام
+// -------------------
+const storyCategories = ref([]);
+const selectedCategory = ref('');
+const showFilterDropdown = ref(false);
+
+// -------------------
+// حالة البحث الصوتي
+// -------------------
+const isListening = ref(false);
+const voiceTranscript = ref('');
+let recognition = null; // متغير لحفظ كائن SpeechRecognition
+
+// -------------------
+// Props و Emits (تعديل: تم إضافة isListening و voiceTranscript إلى Emits)
+// -------------------
 const props = defineProps({
- // V-model bindings
- searchQuery: String,
- showSuggestions: Boolean,
- showAdvancedSearch: Boolean,
- isListening: Boolean,
- // Data props
- voiceTranscript: String,
- searchSuggestions: Array,
- advancedFilters: Object,
- stats: Array,
- // Function props (Events)
- performSearch: Function, // لن نستخدم هذه Props، بل سنستبدلها بالدوال الداخلية
- toggleVoiceSearch: Function,
- handleImageSearch: Function,
- applyAdvancedSearch: Function, // لن نستخدم هذه Props، بل سنستبدلها بالدوال الداخلية
- resetAdvancedFilters: Function,
- handleSearchInput: Function,
- hideSuggestions: Function,
- selectSuggestion: Function,
+    searchQuery: String,
+    showSuggestions: Boolean,
+    searchSuggestions: Array
 });
 
 const emit = defineEmits([
- 'update:searchQuery',
- 'update:showSuggestions',
- 'update:showAdvancedSearch',
- 'update:isListening',
- 'performSearch', // نتركها للمرونة ولكن لن نستخدمها محلياً
- 'toggleVoiceSearch',
- 'handleImageSearch',
- 'applyAdvancedSearch', // نتركها للمرونة ولكن لن نستخدمها محلياً
- 'resetAdvancedFilters',
- 'handleSearchInput',
- 'hideSuggestions',
- 'selectSuggestion'
+    'update:searchQuery',
+    'update:showSuggestions',
+    'handleSearchInput',
+    'hideSuggestions',
+    'selectSuggestion',
+    // ⭐️ يجب إزالة 'toggleVoiceSearch' من Emits إذا كنا سننفذه محليًا
 ]);
 
-// Helper for two-way binding (v-model)
+// -------------------
+// v-model helper
+// -------------------
 const searchQueryModel = computed({
- get: () => props.searchQuery,
- set: (val) => emit('update:searchQuery', val),
+    get: () => props.searchQuery,
+    set: val => emit('update:searchQuery', val)
 });
 
-const showAdvancedSearchModel = computed({
- get: () => props.showAdvancedSearch,
- set: (val) => emit('update:showAdvancedSearch', val),
-});
+// -------------------
+// جلب الأقسام باستخدام POST body
+// -------------------
+const fetchCategories = async () => {
+    try {
+        const body = {
+            searchPhrase: "",
+            orderBy: "title",
+            descending: false,
+            pageNumber: 1,
+            pageSize: 100
+        };
 
-const toggleAdvancedSearch = () => {
- showAdvancedSearchModel.value = !showAdvancedSearchModel.value;
+        const response = await axios.post(CATEGORIES_ENDPOINT, body);
+        if (response.data && response.data.items) {
+            storyCategories.value = response.data.items.map(item => ({
+                id: item.id,
+                title: item.title
+            }));
+        }
+    } catch (error) {
+        console.error("Error fetching categories:", error);
+    }
 };
 
-// Simplified image input click
-const triggerImageInput = () => {
- document.getElementById('image-search-input').click();
+onMounted(fetchCategories);
+
+// -------------------
+// التحكم بالفلتر Dropdown
+// -------------------
+const toggleFilterDropdown = () => {
+    showFilterDropdown.value = !showFilterDropdown.value;
 };
 
-// ----------------------------------------------------------------------
-// 2. منطق تنفيذ البحث والتوجيه (Perform Search Logic)
-// ----------------------------------------------------------------------
-const performSearchLogic = (useAdvancedFilters = false) => {
-    // 1. جمع معايير البحث
-    const query = {};
-
-    // إضافة نص البحث إذا وُجد
-    if (searchQueryModel.value && searchQueryModel.value.trim()) {
-        query.q = searchQueryModel.value.trim();
-    }
-
-    if (useAdvancedFilters) {
-        // إضافة فلاتر البحث المتقدم إلى الـ Query
-        if (props.advancedFilters.category) {
-            query.category = props.advancedFilters.category;
-        }
-        if (props.advancedFilters.ageGroup) {
-            query.ageGroup = props.advancedFilters.ageGroup;
-        }
-        if (props.advancedFilters.contentType) {
-            query.contentType = props.advancedFilters.contentType;
-        }
-    }
-    
-    // إذا لم يتم إدخال أي شيء، لا تقم بالبحث
-    if (Object.keys(query).length === 0) {
-        return;
-    }
-
-    // 2. التوجيه إلى صفحة نتائج البحث مع تمرير المعايير كـ Query Parameters
-    // سنوجه إلى صفحة /search-results
-    router.push({ 
-        path: '/searchResults', 
-        query: query 
-    }).catch(err => {
-        // تجنب خطأ التوجيه إذا كان المسار هو نفسه
-        if (err.name !== 'NavigationDuplicated') {
-            throw err;
-        }
-    });
-
-};
-
-// 3. الدوال المستخدمة في القالب
+// -------------------
+// منطق البحث
+// -------------------
 const performSearch = () => {
-    // نستخدم الفلاتر المتقدمة فقط إذا كانت مفتوحة
-    const useAdvanced = showAdvancedSearchModel.value;
-    performSearchLogic(useAdvanced);
+    const query = {};
+    if (searchQueryModel.value && searchQueryModel.value.trim()) query.q = searchQueryModel.value.trim();
+    if (selectedCategory.value) query.category = selectedCategory.value;
+
+    if (Object.keys(query).length === 0) return;
+
+    router.push({ path: '/searchResults', query }).catch(err => {
+        if (err.name !== 'NavigationDuplicated') throw err;
+    });
 };
 
-const applyAdvancedSearch = () => {
-    // إغلاق الفلترة المتقدمة بعد التطبيق
-    showAdvancedSearchModel.value = false;
-    performSearchLogic(true); // بحث يستخدم الفلاتر المتقدمة
+// -------------------
+// البحث الصوتي باستخدام Web Speech API
+// -------------------
+const startVoiceSearch = () => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'ar-SA';
+
+        recognition.onstart = () => {
+            isListening.value = true;
+            voiceTranscript.value = 'جاري الاستماع...';
+        };
+
+        recognition.onresult = (event) => {
+            let finalTranscript = '';
+            let interimTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            // يتم تحديث كل من النص الظاهر ومربع البحث
+            voiceTranscript.value = finalTranscript || interimTranscript;
+            searchQueryModel.value = finalTranscript || interimTranscript;
+        };
+
+        // ⭐️ الانتقال التلقائي هنا
+        recognition.onend = () => {
+            isListening.value = false;
+            // يتم استدعاء performSearch فقط إذا كان هناك نص حقيقي تم التقاطه
+            if (searchQueryModel.value && searchQueryModel.value.trim() && searchQueryModel.value !== 'جاري الاستماع...') {
+                performSearch(); 
+            }
+        };
+
+        recognition.onerror = (event) => {
+            console.error('خطأ في التعرف على الكلام:', event.error);
+            isListening.value = false;
+            voiceTranscript.value = 'حدث خطأ في التعرف على الكلام';
+        };
+
+        recognition.start();
+    } else {
+        alert('متصفحك لا يدعم التعرف على الكلام. يرجى استخدام Chrome أو Edge.');
+    }
 };
 
+// -------------------
+// وظيفة تشغيل/إيقاف البحث الصوتي
+// -------------------
+const toggleVoiceSearch = () => {
+    if (isListening.value) {
+        // إيقاف التسجيل يدوياً
+        if (recognition) {
+            recognition.stop();
+        }
+        isListening.value = false;
+    } else {
+        // بدء التسجيل
+        startVoiceSearch();
+    }
+};
+
+// -------------------
+// إيقاف البحث الصوتي يدوياً وزر 'إيقاف'
+// -------------------
+const handleStopListening = () => {
+    if (recognition) {
+        recognition.stop(); // سيؤدي هذا إلى تشغيل recognition.onend
+    }
+};
 </script>
 
 <template>
- <section class="py-20  relative overflow-hidden ">
-  <div class="container mx-auto px-4 relative z-10">
-   <div class="max-w-4xl mx-auto text-center">
-    <h1 class="text-5xl md:text-6xl font-extrabold text-gray-800 mb-6 custom-fade-in-down">
-     مكتبة 
-     <br class="md:hidden"/>
-     <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">قصص الأطفال</span> التفاعلية
-    </h1>
-    <p class="text-xl text-gray-700 mb-10 custom-fade-in-down delay-200 font-bold">
-     اكتشف آلاف القصص التي تنمي الخيال والقيم بأمان ومرح.
-    </p>
+<section class="py-32 flex flex-col justify-center items-center relative bg-white overflow-hidden">
+    
+    <div class="absolute top-10 left-10 w-4 h-4 bg-pink-300 rounded-full"></div>
+    <div class="absolute top-20 right-10 w-6 h-6 bg-yellow-300 rounded-full"></div>
 
-    <div class="relative w-full shadow-2xl rounded-2xl custom-fade-in-down delay-400">
-     <div class="flex items-center rounded-2xl border-2 border-indigo-500 focus-within:border-red-500 transition-all duration-300">
-      
-      <span class="material-icons text-gray-400 text-2xl sm:text-3xl mx-2 sm:mx-4">search</span>
-      
-      <input
-       type="text"
-       v-model="searchQueryModel"
-       @input="emit('handleSearchInput')"
-       @focus="emit('update:showSuggestions', true)"
-       @blur="emit('hideSuggestions')"
-       @keyup.enter="performSearch"        :placeholder="isListening ? voiceTranscript : 'ابحث بعنوان القصة أو المؤلف أو الموضوع...'"
-       class="flex-grow py-3 sm:py-4 bg-transparent text-gray-800 focus:outline-none placeholder-gray-500 text-base sm:text-lg"
-       :class="{'animate-pulse text-indigo-500': isListening}"
-       :disabled="isListening"
-      >
+    <div class="mb-4">
+        <img src="/hero.jpeg" alt="child" class="w-[80%] mx-auto md:w-full md:h-64 object-contain border-2 border-pink-500 rounded-lg">
+    </div>
 
-      <button 
-       @click="toggleAdvancedSearch"
-       class="p-2 sm:p-4 text-indigo-500 hover:text-indigo-700 transition-colors duration-300"
-       :class="{'bg-indigo-50 rounded-lg': showAdvancedSearch}"
-       title="البحث المتقدم"
-      >
-       <span class="material-icons text-xl sm:text-3xl">filter_alt</span>
-      </button>
+    <div class="text-center mb-6">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-green-600">منصة الطفل الرقمية</h2>
+        <p class="text-sm md:text-base text-pink-500">تعلم بمرح... واكتشف بذكاء</p>
+    </div>
 
-      <button 
-       @click="triggerImageInput" 
-       class="p-2 sm:p-4 text-green-500 hover:text-green-700 transition-colors duration-300"
-       title="البحث بالصورة"
-      >
-       <span class="material-icons text-xl sm:text-3xl">camera_alt</span>
-      </button>
-      <input type="file" id="image-search-input" accept="image/*" class="hidden" @change="emit('handleImageSearch', $event)">
-
-      <button 
-       @click="emit('toggleVoiceSearch')"
-       class="p-1 md:p-2 mr-1 sm:mr-2 rounded-xl transition-all duration-300"
-       :class="{'bg-red-500 hover:bg-red-600 text-white': isListening, ' text-indigo-500': !isListening}"
-       :title="isListening ? 'إيقاف البحث الصوتي' : 'البحث بالصوت'"
-      >
-       <span class="material-icons text-2xl sm:text-3xl mt-1" :class="{'animate-ping-slow': isListening}">mic</span>
-      </button>
-     </div>
-
-     <Transition name="custom-slide-down">
-      <div v-if="showSuggestions && searchSuggestions.length > 0" class="absolute top-full right-0 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl z-50 text-right">
-       <div 
-        v-for="suggestion in searchSuggestions" 
-        :key="suggestion.id"
-        @mousedown.prevent="emit('selectSuggestion', suggestion)"
-        class="flex items-center gap-3 p-3 cursor-pointer hover:bg-indigo-50 transition-colors duration-200 border-b border-gray-100 "
-       >
-        <span class="material-icons text-gray-500 text-xl">search</span>
-        <span class="text-gray-800 ">{{ suggestion.title }}</span>
-        <span class="mr-auto text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full">{{ suggestion.type }}</span>
-       </div>
-      </div>
-     </Transition>
+<div class="relative w-[95%] md:w-full max-w-lg">
+    <div class="flex items-center bg-white border border-gray-300 rounded-xl shadow-sm overflow-hidden h-12">
+        <span class="material-icons text-gray-400 px-3">search</span>
+        <input
+            type="text"
+            v-model="searchQueryModel"
+            @input="emit('handleSearchInput')"
+            @focus="emit('update:showSuggestions', true)"
+            @blur="emit('hideSuggestions')"
+            @keyup.enter="performSearch"
+            placeholder="ابحث بالموضوع، أو المؤلف، أو العنوان..."
+            class="flex-grow h-full px-2 text-gray-800 placeholder-gray-400 focus:outline-none"
+            :disabled="isListening"
+        >
+        
+        <div class="flex h-full divide-x divide-gray-200">
+            
+            <button 
+                @click="toggleVoiceSearch" 
+                class="flex flex-col items-center justify-center  text-red-500 hover:text-red-600 transition-colors duration-200" 
+                :class="{'animate-ping-slow': isListening}"
+            >
+                <span class="material-icons text-lg leading-none">mic</span>
+                <span class="text-[10px] font-medium leading-none mt-[1px]">صوت</span>
+            </button>
+            
+            <button 
+                @click="toggleFilterDropdown" 
+                class="flex flex-col items-center justify-center w-12 text-indigo-500 hover:text-indigo-600 transition-colors duration-200"
+            >
+                <span class="material-icons text-lg leading-none">filter_alt</span>
+                <span class="text-[10px] font-medium leading-none mt-[1px]">فلتر</span>
+            </button>
+        </div>
     </div>
 
     <Transition name="custom-slide-down">
-     <div v-if="showAdvancedSearch" class="mt-4 p-6 bg-gray-800 rounded-xl shadow-lg border border-indigo-900 text-right">
-      <h3 class="text-xl font-bold text-white mb-4 border-b pb-2">فلترة متقدمة</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-300 mb-1">الموضوع</label>
-          <select v-model="advancedFilters.category" class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700 text-white focus:ring-indigo-500 focus:border-indigo-500">
-            <option value="">كل الموضوعات</option>
-            <option value="المغامرات">المغامرات</option>
-            <option value="العلمية">العلمية</option>
-            <option value="الحيوانات">الحيوانات</option>
-          </select>
+        <div v-if="showSuggestions && searchSuggestions && searchSuggestions.length > 0" class="absolute top-full right-0 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl z-50 text-right">
+            <div v-for="suggestion in searchSuggestions" :key="suggestion.id" @mousedown.prevent="emit('selectSuggestion', suggestion)" class="flex items-center gap-3 p-3 cursor-pointer hover:bg-indigo-50 transition-colors duration-200 border-b border-gray-100">
+                <span class="material-icons text-gray-500 text-xl">search</span>
+                <span class="text-gray-800 ">{{ suggestion.title }}</span>
+                <span class="mr-auto text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full">{{ suggestion.type }}</span>
+            </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-300 mb-1">الفئة العمرية</label>
-          <select v-model="advancedFilters.ageGroup" class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700 text-white focus:ring-indigo-500 focus:border-indigo-500">
-            <option value="">جميع الأعمار</option>
-            <option value="3-6 سنوات">3-6 سنوات</option>
-            <option value="7-9 سنوات">7-9 سنوات</option>
-            <option value="10+ سنوات">10+ سنوات</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-300 mb-1">نوع المحتوى</label>
-          <select v-model="advancedFilters.contentType" class="w-full p-3 border border-gray-600 rounded-lg bg-gray-700 text-white focus:ring-indigo-500 focus:border-indigo-500">
-            <option value="">كل الأنواع</option>
-            <option value="صوت">صوت</option>
-            <option value="فيديو">فيديو</option>
-            <option value="pdf">ملف PDF</option>
-          </select>
-        </div>
-      </div>
-      <div class="flex justify-end gap-3 mt-4">
-        <button @click="emit('resetAdvancedFilters')" class="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors duration-300">مسح الفلاتر</button>
-        <button @click="applyAdvancedSearch" class="px-6 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition-colors duration-300">تطبيق البحث</button>       </div>
-     </div>
     </Transition>
 
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-16 max-w-2xl mx-auto custom-fade-in-up">
-     <div 
-      v-for="(stat, index) in stats" 
-      :key="index" 
-      class="text-center p-4 bg-purple-700 rounded-xl shadow-lg border-b-4 border-purple-600 transform hover:scale-105 transition-transform duration-300"
-     >
-      <div class="text-3xl font-extrabold text-slate-200 mb-1">{{ stat.value }}</div>
-      <div class="text-sm text-gray-300">{{ stat.label }}</div>
-     </div>
-    </div>
-   </div>
-  </div>
- </section>
+    <Transition name="custom-slide-down">
+        <div v-if="showFilterDropdown" class="absolute top-full right-0 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl z-50 text-right p-3">
+            <label class="block mb-2 font-semibold">اختر القسم:</label>
+            <select v-model="selectedCategory" @change="performSearch" class="w-full border rounded p-1">
+                <option value="">-- جميع الأقسام --</option>
+                <option v-for="cat in storyCategories" :key="cat.id" :value="cat.id">{{ cat.title }}</option>
+            </select>
+        </div>
+    </Transition>
+</div>
+    <Transition name="custom-fade">
+        <div v-if="isListening" class="mt-3 p-3 bg-yellow-100 rounded-xl shadow-lg border border-yellow-400 flex items-center justify-center text-center w-full max-w-lg">
+            <span class="text-sm font-bold text-gray-700">جارٍ الاستماع...</span>
+            <span class="text-sm text-gray-700 mx-2">{{ voiceTranscript }}</span>
+            <button @click="handleStopListening" class="px-3 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded-lg ml-2">إيقاف</button>
+        </div>
+    </Transition>
+
+</section>
 </template>
+<style scoped>
+.custom-slide-down-enter-active,
+.custom-slide-down-leave-active {
+    transition: all 0.3s ease-out;
+    transform-origin: top;
+}
+.custom-slide-down-enter-from,
+.custom-slide-down-leave-to {
+    opacity: 0;
+    transform: scaleY(0.9);
+}
+
+.custom-fade-enter-active,
+.custom-fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+.custom-fade-enter-from,
+.custom-fade-leave-to {
+    opacity: 0;
+}
+
+@keyframes ping-slow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+.animate-ping-slow { animation: ping-slow 1.5s cubic-bezier(0,0,0.2,1) infinite; }
+</style>

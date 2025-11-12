@@ -12,7 +12,7 @@
               <span class="material-icons text-white text-2xl">auto_stories</span>
             </div>
             <div>
-              <h3 class="text-2xl font-bold text-white custom-text-pulse">مكتبة مركز صالح بن صالح الرقمية</h3>
+              <h3 class="text-2xl font-bold text-white custom-text-pulse"></h3>
               <p class="text-purple-200 text-lg">نحو جيل قارئ ومبدع</p>
             </div>
           </div>
@@ -122,7 +122,7 @@
       <!-- قسم حقوق النشر -->
       <div class="border-t border-white/20 pt-8 flex flex-col lg:flex-row items-center justify-between gap-4">
         <p class="text-purple-200 text-sm text-center lg:text-right">
-          مكتبة مركز صالح بن صالح الرقمية للطفل © {{ currentYear }} جميع الحقوق محفوظة
+          منصة الطفل الرقمية للطفل © {{ currentYear }} جميع الحقوق محفوظة
         </p>
         
         <div class="flex flex-wrap justify-center gap-6">

@@ -101,7 +101,7 @@ const fetchUnpublishedStories = async () => {
    storyCategoryId: catId,
    searchPhrase: searchPhrase.value,
    createdBy: '',
-   isApproved: false, 
+   ApprovalStatus: 0, 
    orderBy: 'createdAt', 
    descending: true,
    pageNumber: currentPage.value,
@@ -148,7 +148,7 @@ try {
    // ✅ Body الجديد يتضمن فقط ID و isApproved: true
    const body = { 
         id: story.id, 
-        isApproved: true 
+        ApprovalStatus: 0 
     }
     
    // ✅ استخدام axios.patch والـ Endpoint الجديد: /api/MasterStories/Approve

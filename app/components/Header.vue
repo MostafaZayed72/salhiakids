@@ -6,18 +6,17 @@
         <router-link to="/" class="flex items-center gap-3 hover:opacity-80 transition-all duration-300 transform hover:scale-105 group">
           <div class="w-12 h-12 rounded-2xl flex items-center justify-center md:bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg overflow-hidden custom-rotate group-hover:rotate-12 transition-transform duration-500">
             <img 
-              v-if="systemLogo" 
-              :src="systemLogo" 
+              
+              src="/logo.jpeg" 
               alt="شعار النظام"
               class="w-full h-full object-cover"
             >
-            <span v-else class="material-icons text-white text-2xl">auto_stories</span>
           </div>
           <div class="text-right">
             <h1 class="text-xl font-bold text-purple-700 dark:text-white custom-text-pulse">
-              الجمعية الأهلية الصالحية بعنيزة
+             منصة الطفل الرقمية 
             </h1>
-            <p class="text-xs text-purple-500 dark:text-purple-300 mt-1 transform group-hover:translate-x-1 transition-transform duration-300">مكتبة الطفل الرقمية</p>
+            <!-- <p class="text-xs text-purple-500 dark:text-purple-300 mt-1 transform group-hover:translate-x-1 transition-transform duration-300">مكتبة الطفل الرقمية</p> -->
           </div>
         </router-link>
         

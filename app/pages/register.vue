@@ -9,7 +9,7 @@
             <span class="material-icons text-white text-2xl">person_add</span>
           </div>
           <h2 class="text-2xl font-bold text-[#1B3C53] mb-2">أنشئ حسابك الجديد</h2>
-          <p class="text-white">مركز صالح بن صالح - مكتبة الطفل الرقمية</p>
+          <p class="text-white">منصة الطفل الرقمية</p>
         </div>
 
         <form @submit.prevent="handleRegister" class="space-y-6">

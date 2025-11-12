@@ -1,21 +1,20 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+  <div class=" bg-gray-50 flex items-center justify-center px-4 py-1">
     <div class="max-w-md w-full">
       
       <div class="bg-gradient-to-br from-purple-500 to-pink-300 rounded-2xl shadow-xl border border-gray-200 p-8">
         
-        <div class="text-center mb-8">
+        <div class="text-center mb-2">
           <div class="w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#1B3C53] to-[#234C6A] mx-auto mb-4 shadow-lg">
             <span class="material-icons text-white text-2xl">login</span>
           </div>
-          <h2 class="text-2xl font-bold text-[#1B3C53] mb-2">تسجيل الدخول</h2>
-          <p class="text-white">أهلاً بك مجدداً في مكتبة الطفل الرقمية</p>
+          <h2 class="text-2xl font-bold text-[#1B3C53] mb-1">تسجيل الدخول</h2>
         </div>
 
         <form @submit.prevent="handleLogin" class="space-y-6">
           
           <div>
-            <label class="block text-sm font-medium mb-2 text-[#1B3C53]">البريد الإلكتروني</label>
+            <label class="block text-sm font-medium mb-1 text-[#1B3C53]">البريد الإلكتروني</label>
             <div class="relative">
               <span class="material-icons absolute right-3 top-1/2 transform -translate-y-1/2 text-[#456882] text-lg">email</span>
               <input 
@@ -78,7 +77,6 @@
         </div>
 
         <div class="text-center">
-          <p class="text-[#1B3C53]">ليس لديك حساب؟</p>
           <button @click="goToRegister" class="font-semibold mt-2 text-[#1B3C53] hover:underline transition-colors duration-200 flex items-center justify-center gap-2 mx-auto">
             <span class="material-icons text-lg">person_add</span>
             <span>أنشئ حسابك الآن</span>
