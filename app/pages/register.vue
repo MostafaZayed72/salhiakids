@@ -1,15 +1,14 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+  <div class=" bg-gray-50 flex items-center justify-center p-4">
     <div class="max-w-md w-full">
       
       <div class="bg-gradient-to-br from-pink-500 to-purple-300 rounded-2xl shadow-xl border border-gray-200 p-8">
         
-        <div class="text-center mb-8">
+        <div class="text-center mb-2">
           <div class="w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#1B3C53] to-[#234C6A] mx-auto mb-4 shadow-lg">
             <span class="material-icons text-white text-2xl">person_add</span>
           </div>
           <h2 class="text-2xl font-bold text-[#1B3C53] mb-2">أنشئ حسابك الجديد</h2>
-          <p class="text-white">منصة الطفل الرقمية</p>
         </div>
 
         <form @submit.prevent="handleRegister" class="space-y-6">
@@ -102,7 +101,7 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-2 text-[#1B3C53]">رقم الهاتف (اختياري)</label>
+            <label class="block text-sm font-medium mb-2 text-[#1B3C53]">رقم الهاتف</label>
             <div class="relative">
               <span class="material-icons absolute right-3 top-1/2 transform -translate-y-1/2 text-[#456882] text-lg">phone</span>
               <input 
@@ -157,7 +156,6 @@
         </div>
 
         <div class="text-center">
-          <p class="text-[#1B3C53]">لديك حساب بالفعل؟</p>
           <button @click="goToLogin" class="font-semibold mt-2 text-[#1B3C53] hover:underline transition-colors duration-200 flex items-center justify-center gap-2 mx-auto">
             <span class="material-icons text-lg">login</span>
             <span>سجل الدخول الآن</span>
