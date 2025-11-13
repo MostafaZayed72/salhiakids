@@ -114,35 +114,74 @@ const fetchStoryTitle = async (storyId) => {
 }
 
 // ⭐️ دالة جلب القصص المشابهة (المطلوبة)
+// ... داخل <script setup>
+
+// ⭐️ تعديل دالة جلب القصص المشابهة
 const fetchRelatedStories = async (storyCategoryId, currentStoryId) => {
-  if (!storyCategoryId) {
-    relatedStories.value = [];
-    return;
-  }
+    if (!storyCategoryId) {
+        relatedStories.value = [];
+        return;
+    }
 
-  try {
-    // Endpoint: api/MasterStories/GetAllMatching (صحيح)
-    const body = {
-      storyCategoryId: storyCategoryId,
-      ApprovalStatus: 0,
-      orderBy: "createdAt",
-      descending: true,
-      pageNumber: 1,
-      pageSize: 50 // جلب بحد أقصى 50 قصة كما طلبت
-    };
+    try {
+        const body = {
+            storyCategoryId: storyCategoryId,
+            ApprovalStatus: 0,
+            orderBy: "createdAt",
+            descending: true,
+            pageNumber: 1,
+            pageSize: 50 // جلب عدد كبير للتصفية المحلية وضمان وجود 5 قصص غير القصة الحالية
+        };
 
-    const response = await axios.post(`${API_BASE}/api/MasterStories/GetAllMatching`, body);
+        const response = await axios.post(`${API_BASE}/api/MasterStories/GetAllMatching`, body);
 
-    // تصفية القصة الحالية من القائمة وعرض أول 5 (للتصميم الجانبي)
-    const stories = Array.isArray(response.data?.items) ? response.data.items : [];
-    relatedStories.value = stories.filter(s => s.id !== currentStoryId).slice(0, 5); 
+        // تصفية القصة الحالية ثم عرض أول 5 قصص فقط
+        const stories = Array.isArray(response.data?.items) ? response.data.items : [];
+        
+        // ⭐️ دالة مساعدة لتوليد الرابط أو الأيقونة
+        const processStoryForDisplay = (story) => {
+             // 1. الأولوية لصورة الغلاف (Cover Image)
+            if (story.coverImageUrl) {
+                return story.coverImageUrl;
+            }
+            
+            // 2. معالجة الفيديو (YouTube) لعرض صورة مصغرة (Thumbnail)
+            if (story.mediaTypeName === 'Video' || story.mediaUrl?.includes('youtube.com')) {
+                const videoIdMatch = story.mediaUrl.match(/(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*)/);
+                if (videoIdMatch && videoIdMatch[2].length === 11) {
+                    // رابط الصورة المصغرة عالية الجودة ليوتيوب
+                    return `https://img.youtube.com/vi/${videoIdMatch[2]}/hqdefault.jpg`;
+                }
+            }
 
-  } catch (err) {
-    console.error('Error fetching related stories:', err);
-    relatedStories.value = [];
-  }
+            // 3. معالجة PDF/ملف (عرض أيقونة)
+            if (story.mediaTypeName === 'Document' || story.mediaUrl?.toLowerCase().endsWith('.pdf')) {
+                // نستخدم صورة أيقونة PDF محلية
+                return '/pdf-icon-placeholder.png'; // 👈 قم بتوفير هذا المسار في مشروعك
+            }
+
+            // 4. عرض رابط الميديا (في حالة صورة عادية)
+            if (story.mediaUrl) {
+                return story.mediaUrl;
+            }
+
+            // 5. في حالة عدم وجود أي شيء
+            return '/default-story-placeholder.jpg'; // 👈 صورة افتراضية للمشروع
+        };
+
+        relatedStories.value = stories
+            .filter(s => s.id !== currentStoryId)
+            .slice(0, 5) // ⭐️ نضمن عرض 5 قصص فقط
+            .map(story => ({
+                ...story,
+                displayImage: processStoryForDisplay(story) // إضافة خاصية جديدة لصورة العرض
+            }));
+
+    } catch (err) {
+        console.error('Error fetching related stories:', err);
+        relatedStories.value = [];
+    }
 }
-
 
 const openEditComment = (comment) => {
   // التأكد من أن المستخدم الحالي هو صاحب التعليق
@@ -544,24 +583,30 @@ await initializeData(newId)
   
   </div>
 
-    <div class="bg-white rounded-xl shadow-xl p-4 mt-6 border border-gray-200 story-sidebar-light">
-   <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2 text-center">قصص مشابهة</h3>
-   <div v-if="relatedStories.length > 0" class="space-y-2">
-    <router-link
-     v-for="story in relatedStories"
-     :key="story.id"
-     :to="`/stories/${story.id}`"
-     class="bg-gray-100 p-2 rounded-lg text-sm text-gray-700 hover:bg-purple-100 hover:text-purple-700 transition block cursor-pointer"
-    >
-     {{ story.title }}
-     <img :src="story.coverImageUrl" :alt="story.title" class="mt-2 w-full h-20 object-cover rounded-md">
-    </router-link>
-   </div>
-   <div v-else class="text-center text-sm text-gray-500 py-2">
-    لا توجد قصص أخرى في نفس الفئة.
-   </div>
-  </div>
- </div>
+<div class="bg-white rounded-xl shadow-xl p-4 mt-6 border border-gray-200 story-sidebar-light">
+    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2 text-center">قصص مشابهة</h3>
+    
+    <div v-if="relatedStories.length > 0" class="space-y-2">
+        <router-link
+            v-for="story in relatedStories"
+            :key="story.id"
+            :to="`/stories/${story.id}`"
+            class="bg-gray-100 p-2 rounded-lg text-sm text-gray-700 hover:bg-purple-100 hover:text-purple-700 transition block cursor-pointer"
+        >
+            {{ story.title }}
+            <img 
+                :src="story.displayImage" 
+                :alt="story.title" 
+                class="mt-2 w-full h-40 object-contain rounded-md border border-gray-300 shadow-sm"
+                >
+        </router-link>
+    </div>
+    
+    <div v-else class="text-center text-sm text-gray-500 py-2">
+        لا توجد قصص أخرى في نفس الفئة.
+    </div>
+</div>
+</div>
 
    <div class="lg:flex-1 order-2 w-[90%] mx-auto">
   <div class="bg-white rounded-xl shadow-2xl p-6 border border-gray-200 ">
