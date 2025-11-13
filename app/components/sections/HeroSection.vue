@@ -222,16 +222,16 @@ const handleStopListening = () => {
 </script>
 
 <template>
-<section class="py-32  flex flex-col justify-center items-center relative bg-white overflow-hidden">
+<section class="pb-32 pt-8 flex flex-col justify-center items-center relative bg-white overflow-hidden">
     
     <div class="absolute top-10 left-10 w-4 h-4 bg-pink-300 rounded-full"></div>
     <div class="absolute top-20 right-10 w-6 h-6 bg-yellow-300 rounded-full"></div>
 
-    <div class="mb-20">
+    <div >
         <img src="/hero.jpeg" alt="child" class="w-[80%] mx-auto md:w-full md:h-64 object-contain  rounded-lg">
     </div>
 
-    <div class="text-center mb-6">
+    <div class="text-center mb-16">
 <h2 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-purple-500 custom-text-pulse mb-4"> منصة <span
       class="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-purple-500 custom-text-pulse">الطفل
       الرقمية</span>
