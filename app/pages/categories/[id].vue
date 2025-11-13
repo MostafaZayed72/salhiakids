@@ -314,7 +314,7 @@ const addStory = async () => {
     let uploadedUrl = ''
     if (newStory.value.mediaType === 1) { // صورة ميديا
       uploadedUrl = await uploadImage(newStory.value.fileToUpload)
-    } else if (newStory.value.mediaType === 3) { // ملف PDF
+    } else if (newStory.value.mediaType === 4) { // ملف PDF
       uploadedUrl = await uploadFile(newStory.value.fileToUpload)
     }
     if (uploadedUrl) {
@@ -531,7 +531,7 @@ onMounted(async () => {
 
   <div v-else class="w-full h-full flex items-center justify-center text-gray-400 text-3xl font-semibold bg-gray-200">
     <span v-if="story.mediaType === 2" class="material-icons text-5xl text-red-500/80">play_circle_filled</span>
-    <span v-else-if="story.mediaType === 3" class="material-icons text-5xl text-blue-500/80">picture_as_pdf</span>
+    <span v-else-if="story.mediaType === 4" class="material-icons text-5xl text-blue-500/80">picture_as_pdf</span>
     <span v-else class="material-icons text-5xl">book</span>
   </div>
 
@@ -627,7 +627,7 @@ onMounted(async () => {
    <option :value="0">لا يوجد مرفق</option>
    <option :value="1">صورة</option>
    <option :value="2">رابط فيديو (يوتيوب)</option>
-   <option :value="3">ملف (PDF)</option>    </select>
+   <option :value="4">ملف (PDF)</option>    </select>
   </div>
 
      <div v-if="newStory.mediaType === 1 || newStory.mediaType === 3">
@@ -708,11 +708,11 @@ onMounted(async () => {
    <option :value="0">لا يوجد مرفق</option>
    <option :value="1">صورة</option>
    <option :value="2">رابط فيديو (يوتيوب)</option>
-   <option :value="3">ملف (PDF)</option>
+   <option :value="4">ملف (PDF)</option>
    </select>
   </div>
 
-     <div v-if="editingStory.mediaType === 1 || editingStory.mediaType === 3">
+     <div v-if="editingStory.mediaType === 1 || editingStory.mediaType === 4">
    <label class="block mb-1 text-sm font-medium text-gray-700">رفع {{ editingStory.mediaType === 1 ? 'صورة الميديا' : 'ملف PDF' }} (اختياري لتغيير الحالي)</label>
    <input type="file" 
    :accept="editingStory.mediaType === 1 ? 'image/*' : 'application/pdf'"
