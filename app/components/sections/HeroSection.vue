@@ -239,7 +239,7 @@ const handleStopListening = () => {
     </div>
 
 <div class="relative w-[50%]  ">
-    <div class="flex items-center bg-white border-2 border-purple-600 rounded-xl shadow-xl overflow-hidden h-12 w-full">
+    <div class="flex items-center bg-white border-2 border-purple-600 rounded-xl shadow-xl overflow-hidden h-20 w-full">
         <span class="material-icons text-gray-400 px-3">search</span>
         <input
             type="text"
@@ -249,7 +249,7 @@ const handleStopListening = () => {
             @blur="emit('hideSuggestions')"
             @keyup.enter="performSearch"
             placeholder="ابحث بالموضوع، أو المؤلف، أو العنوان..."
-            class="flex-grow w-full h-full px-2 text-gray-800 placeholder-gray-400 focus:outline-none"
+            class="flex-grow w-full h-full  px-2 text-gray-800 placeholder-gray-400 focus:outline-none"
             :disabled="isListening"
         >
         
