@@ -51,8 +51,8 @@
           @click="navigateTo(`/stories/${story.id}`)"
           class="relative h-48 bg-gray-100">
             <img
-              v-if="story.imageUrl"
-              :src="story.imageUrl"
+              v-if="story.coverImageUrl || story.mediaUrl"
+              :src="story.coverImageUrl || story.mediaUrl"
               :alt="story.title"
               class="object-cover w-full h-full"
               @error="onImageError"

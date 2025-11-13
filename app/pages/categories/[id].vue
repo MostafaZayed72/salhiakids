@@ -422,7 +422,7 @@ onMounted(async () => {
           </div>
 
           <div class="w-full h-40 mb-4 rounded-xl overflow-hidden bg-gray-100 shadow-inner">
-            <img v-if="story.imageUrl" :src="story.imageUrl" :alt="story.title"
+            <img v-if="story.coverImageUrl || story.mediaUrl" :src="story.coverImageUrl || story.mediaUrl" :alt="story.title"
               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
             <div v-else class="w-full h-full flex items-center justify-center text-gray-400 text-3xl font-semibold">
               <span class="material-icons text-5xl">book</span>
