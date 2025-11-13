@@ -437,13 +437,13 @@ onMounted(async () => {
 
 
 <template>
-<section class="py-12 bg-gradient-to-br from-purple-300 via-pink-400 to-purple-400 ">
+<section class="py-12 bg-white ">
  <div class="container mx-auto px-4">
  <div class="text-center mb-12">
   <h2 class="text-4xl font-bold text-gray-800 mb-3">
   قصص <span class="text-purple-600">هذه الفئة</span>
   </h2>
-  <p class="text-lg text-gray-100 max-w-2xl mx-auto">
+  <p class="text-lg text-gray-600 max-w-2xl mx-auto">
   تصفح القصص المتاحة في هذه الفئة وابدأ مغامرة جديدة.
   </p>
 
