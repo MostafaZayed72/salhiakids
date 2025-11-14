@@ -584,15 +584,17 @@ await initializeData(newId)
     
       <button 
       @click="toggleLike" 
-      class="text-center transition-transform hover:scale-105"
+      class="text-center transition-transform hover:scale-105 "
       v-if="masterStory.isLikedByCurrentUser !== null"
     >
       <span class="material-icons text-2xl" :class="isLiked ? 'text-blue-600' : 'text-gray-400'">{{ isLiked ? 'thumb_up_alt' : 'thumb_up_off_alt' }}</span>
       <p class="text-xs" :class="isLiked ? 'text-blue-600' : 'text-gray-600'">إعجاب</p>
+      
     </button>
       <div v-else class="text-center">
       <span class="material-icons text-2xl text-gray-400">thumb_up_off_alt</span>
       <p class="text-xs text-gray-400">إعجاب (تسجيل دخول)</p>
+      
     </div>
 
     <div >
