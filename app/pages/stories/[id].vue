@@ -450,7 +450,7 @@ await initializeData(newId)
 <div v-if="masterStoryId && isLoading" class="text-center py-20 text-xl text-gray-600">جاري تحميل محتوى القصة...</div>
 <div v-else-if="!masterStoryId || !masterStory.id" class="text-center py-20 text-xl text-red-500">عذراً، القصة غير متوفرة أو معرف القصة غير صحيح.</div>
 
-<div v-else class="max-w-7xl mx-auto flex flex-col lg:flex-row-reverse gap-6">
+<div v-else class="max-w-7xl mx-auto flex flex-col-reverse lg:flex-row-reverse gap-6">
 
   <div class="lg:w-72 w-full flex-shrink-0 order-1">
   
@@ -507,7 +507,7 @@ await initializeData(newId)
 </div>
 </div>
 
-  <div class="lg:flex-1 order-2 w-[90%] mx-auto">
+  <div class="lg:flex-1 order-2  mx-auto">
   <div class="bg-white rounded-xl shadow-2xl p-6 border border-gray-200 ">
   
     <div class="text-center pb-4 mb-4 border-b border-gray-300">
