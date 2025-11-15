@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # إذا كان هذا هو المجلد الذي يتم الوصول إليه عبر النطاق الفرعي
+  # غيّرها لتكون اسم المجلد الذي يحتوي على index.html
+  RewriteBase /newweb/oldweb/ 
+  
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  # أعد التوجيه إلى الملف الرئيسي ضمن المسار الأساسي
+  RewriteRule . /newweb/oldweb/index.html [L] 
+</IfModule>

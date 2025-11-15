@@ -238,7 +238,7 @@ const handleStopListening = () => {
     </h2>        <p class="text-sm md:text-base text-pink-500">تعلم بمرح... واكتشف بذكاء</p>
     </div>
 
-<div class="relative w-[50%]  ">
+<div class="relative md:w-[50%]  ">
     <div class="flex items-center bg-white border-2 border-purple-600 rounded-xl shadow-xl overflow-hidden h-20 w-full">
         <span class="material-icons text-gray-400 px-3">search</span>
         <input
