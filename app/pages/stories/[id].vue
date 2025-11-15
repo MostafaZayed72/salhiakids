@@ -403,28 +403,26 @@ fetchComments()
 // تهيئة البيانات والمراقبة
 // ----------------------
 const trackView = (storyId) => {
-    if (!storyId) return;
+  if (!storyId) return;
 
-    // 🕒 استخدام setTimeout لتأخير الريكويست 3 ثواني (3000 ملي ثانية)
-    setTimeout(async () => {
-        try {
-            // استخدام POST وإرسال ID في الرابط
-            await axios.post(`${API_BASE}/api/StoryViews/${storyId}/views`),
-                null, 
-                { withCredentials: true } 
-
-            console.log(`View tracked successfully for story ID: ${storyId}`);
-            
-          
-         
-            await fetchStoryTitle(storyId); 
-
-        } catch (err) {
-            // من الطبيعي ألا تتطلب هذه الـ API توكن، لكنها قد تفشل لأسباب أخرى
-            console.error('Failed to track story view:', err);
+  setTimeout(async () => {
+    try {
+      await axios.post(
+        `${API_BASE}/api/StoryViews/${storyId}/views`,
+        {},
+        {
+          withCredentials: true, // ✅ this is enough
         }
-    }, 3000); // 3000 ملي ثانية = 3 ثواني
-}
+      );
+
+      console.log(`View tracked successfully for story ID: ${storyId}`);
+
+      await fetchStoryTitle(storyId);
+    } catch (err) {
+      console.error("Failed to track story view:", err);
+    }
+  }, 3000);
+};
 const initializeData = async (id) => {
   isLoading.value = true;
   if (!id) return;
