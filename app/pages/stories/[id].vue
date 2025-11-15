@@ -402,7 +402,27 @@ fetchComments()
 // ----------------------
 // تهيئة البيانات والمراقبة
 // ----------------------
+const trackView = (storyId) => {
+    if (!storyId) return;
 
+    // 🕒 استخدام setTimeout لتأخير الريكويست 3 ثواني (3000 ملي ثانية)
+    setTimeout(async () => {
+        try {
+            // استخدام POST وإرسال ID في الرابط
+            await axios.post(`${API_BASE}/api/StoryViews/${storyId}/views`);
+
+            console.log(`View tracked successfully for story ID: ${storyId}`);
+            
+            // 💡 ملاحظة: يجب إعادة جلب بيانات القصة لتحديث totalViews
+            // هذا لضمان ظهور العداد المحدث دون تحديث الصفحة
+            await fetchStoryTitle(storyId); 
+
+        } catch (err) {
+            // من الطبيعي ألا تتطلب هذه الـ API توكن، لكنها قد تفشل لأسباب أخرى
+            console.error('Failed to track story view:', err);
+        }
+    }, 3000); // 3000 ملي ثانية = 3 ثواني
+}
 const initializeData = async (id) => {
   isLoading.value = true;
   if (!id) return;
@@ -425,6 +445,7 @@ const initializeData = async (id) => {
   // 5. جلب التعليقات (القائمة مع الصفحات)
   await fetchComments();
 
+  trackView(id);
   isLoading.value = false;
 };
 onMounted(async () => {
@@ -476,7 +497,10 @@ await initializeData(newId)
     <span class="font-semibold text-gray-800">الفئة:</span> <span class="text-pink-600">{{ masterStory.storyCategoryTitle || 'غير مصنف' }}</span>
     </div>
     <div class="info-line-light">
-    <span class="font-semibold text-gray-800">النشر:</span> <span class="text-pink-600">{{ masterStory.createdAt ? new Date(masterStory.createdAt).toLocaleDateString('ar-EG') : 'غير متوفر' }}</span>
+    <span class="font-semibold text-gray-800">تاريخ الرفع:</span> <span class="text-pink-600">{{ masterStory.createdAt ? new Date(masterStory.createdAt).toLocaleDateString('ar-EG') : 'غير متوفر' }}</span>
+    </div>
+    <div class="info-line-light" v-if="masterStory.publishYear">
+    <span class="font-semibold text-gray-800">سنة النشر:</span> <span class="text-pink-600">{{ masterStory.publishYear}}</span>
     </div>
     </div>
     
@@ -563,46 +587,56 @@ await initializeData(newId)
         </div>
 
       </div>
-          <div class="flex items-center justify-around py-4 bg-gray-100 rounded-lg shadow-inner mb-6 border border-gray-200">
+
+
+<div class="flex items-center justify-around py-4 bg-gray-100 rounded-lg shadow-inner mb-6 border border-gray-200">
+    
+    <div class="text-center">
+      <span class="material-icons text-purple-500 text-2xl">visibility</span> 
+      <p class="text-gray-800 font-bold">{{ masterStory.totalViews || 0 }}</p>
+      <p class="text-xs text-gray-500">مشاهدة</p>
+    </div>
     <div class="text-center">
       <span class="material-icons text-pink-500 text-2xl">star_half</span>
       <p class="text-gray-800 font-bold">{{ masterStory.averageRating?.toFixed(1) || 0 }}</p>
       <p class="text-xs text-gray-500">التقييم</p>
     </div>
     
-      <div class="text-center">
+    <div class="text-center">
       <span class="material-icons text-blue-500 text-2xl">thumb_up_off_alt</span>
       <p class="text-gray-800 font-bold">{{ masterStory.likesCount || 0 }}</p>
       <p class="text-xs text-gray-500">إعجاب</p>
     </div>
 
-      <button @click="shareStory" class="text-center transition-transform hover:scale-105">
-    <span class="material-icons text-green-500 text-2xl">share</span>
-    <p class="text-gray-800 font-bold">{{ masterStory.sharesCount || 0 }}</p>
-    <p class="text-xs text-gray-600">مشاركة</p>
+    <button @click="shareStory" class="text-center transition-transform hover:scale-105">
+      <span class="material-icons text-green-500 text-2xl">share</span>
+      <p class="text-gray-800 font-bold">{{ masterStory.sharesCount || 0 }}</p>
+      <p class="text-xs text-gray-600">مشاركة</p>
     </button>
     
-      <button 
+    <div 
       @click="toggleLike" 
-      class="text-center transition-transform hover:scale-105 "
+      class="text-center transition-transform hover:scale-105 cursor-pointer"
       v-if="masterStory.isLikedByCurrentUser !== null"
     >
       <span class="material-icons text-2xl" :class="isLiked ? 'text-blue-600' : 'text-gray-400'">{{ isLiked ? 'thumb_up_alt' : 'thumb_up_off_alt' }}</span>
       <p class="text-xs" :class="isLiked ? 'text-blue-600' : 'text-gray-600'">إعجاب</p>
-      
-    </button>
-      <div v-else class="text-center">
+    </div>
+    <div v-else class="text-center">
       <span class="material-icons text-2xl text-gray-400">thumb_up_off_alt</span>
       <p class="text-xs text-gray-400">إعجاب (تسجيل دخول)</p>
-      
     </div>
 
-    <div >
+    <div class="text-center">
       <span class="material-icons text-blue-500 text-2xl">comment</span>
       <p class="text-gray-800 font-bold">{{ masterStory.commentsCount || 0 }}</p>
       <p class="text-xs text-gray-500">التعليقات</p>
     </div>
-    </div>
+</div>
+        
+
+
+
     <div class="text-lg leading-relaxed text-gray-700 text-justify mb-8 break-words whitespace-normal overflow-hidden">
       <div v-html="masterStory.content" class="story-content-text-light"></div>
     </div>
