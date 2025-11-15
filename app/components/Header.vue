@@ -78,36 +78,39 @@
                 <div
                   class="p-3 bg-gradient-to-b from-white to-purple-50 dark:from-gray-800 dark:to-purple-900 rounded-b-2xl">
                   <template v-if="user?.role === 'admin'">
-                    <router-link to="/profile" class="custom-dropdown-item group" @click="showMenu = false">
-                      <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
-                        <span class="material-icons">dashboard</span>
-                      </div>
-                      <span>حسابي</span>
-                      <span
-                        class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-                    </router-link>
-                    <router-link to="/favorite" class="custom-dropdown-item group" @click="showMenu = false">
-                      <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
-                        <span class="material-icons">favorite</span>
-                      </div>
-                      <span>القصص المفضلة</span>
-                      <span
-                        class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-                    </router-link>
-                    <router-link to="/addCustomStory" class="custom-dropdown-item group" @click="showMenu = false">
-                      <div class="custom-dropdown-icon bg-gradient-to-r from-green-500 to-teal-500">
-                        <span class="material-icons">add_box</span>
-                      </div>
-                      <span>تخصيص قصة</span>
-                      <span
-                        class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-                    </router-link>
-
-
-
-
-
-                  </template>
+    
+    <router-link to="/dashboard" class="custom-dropdown-item group" @click="showMenu = false">
+        <div class="custom-dropdown-icon bg-gradient-to-r from-blue-500 to-cyan-500">
+            <span class="material-icons">dashboard</span> 
+        </div>
+        <span>لوحة التحكم</span>
+        <span
+            class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+    </router-link>
+    <router-link to="/profile" class="custom-dropdown-item group" @click="showMenu = false">
+        <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
+            <span class="material-icons">person</span> </div>
+        <span>حسابي</span>
+        <span
+            class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+    </router-link>
+    <router-link to="/favorite" class="custom-dropdown-item group" @click="showMenu = false">
+        <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
+            <span class="material-icons">favorite</span>
+        </div>
+        <span>القصص المفضلة</span>
+        <span
+            class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+    </router-link>
+    <router-link to="/addCustomStory" class="custom-dropdown-item group" @click="showMenu = false">
+        <div class="custom-dropdown-icon bg-gradient-to-r from-green-500 to-teal-500">
+            <span class="material-icons">add_box</span>
+        </div>
+        <span>تخصيص قصة</span>
+        <span
+            class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+    </router-link>
+</template>
 
                   <template v-else-if="user?.role === 'employee'">
                     <router-link to="/employee/stories" class="custom-dropdown-item group" @click="showMenu = false">
@@ -165,6 +168,9 @@
                       class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
                   </button>
                 </div>
+
+
+                
               </div>
             </transition>
           </div>

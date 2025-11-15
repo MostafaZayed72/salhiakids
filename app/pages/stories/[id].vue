@@ -409,12 +409,14 @@ const trackView = (storyId) => {
     setTimeout(async () => {
         try {
             // استخدام POST وإرسال ID في الرابط
-            await axios.post(`${API_BASE}/api/StoryViews/${storyId}/views`);
+            await axios.post(`${API_BASE}/api/StoryViews/${storyId}/views`),
+                null, 
+                { withCredentials: true } 
 
             console.log(`View tracked successfully for story ID: ${storyId}`);
             
-            // 💡 ملاحظة: يجب إعادة جلب بيانات القصة لتحديث totalViews
-            // هذا لضمان ظهور العداد المحدث دون تحديث الصفحة
+          
+         
             await fetchStoryTitle(storyId); 
 
         } catch (err) {
