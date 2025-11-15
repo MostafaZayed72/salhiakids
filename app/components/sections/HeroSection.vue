@@ -19,6 +19,16 @@ const selectedCategory = ref('');
 const showFilterDropdown = ref(false);
 
 // -------------------
+// حالة فلتر نوع المحتوى
+// -------------------
+const selectedMediaType = ref(''); // لحفظ القيمة المختارة (1, 2, 4)
+const mediaTypes = ref([
+    { value: '1', label: 'صورة' },
+    { value: '2', label: 'فيديو' },
+    { value: '4', label: 'مستند (PDF)' }
+]);
+
+// -------------------
 // حالة البحث الصوتي
 // -------------------
 const isListening = ref(false);
@@ -29,50 +39,50 @@ let recognition = null; // متغير لحفظ كائن SpeechRecognition
 // Props و Emits
 // -------------------
 const props = defineProps({
-  searchQuery: String,
-  showSuggestions: Boolean,
-  searchSuggestions: Array
+    searchQuery: String,
+    showSuggestions: Boolean,
+    searchSuggestions: Array
 });
 
 const emit = defineEmits([
-  'update:searchQuery',
-  'update:showSuggestions',
-  'handleSearchInput',
-  'hideSuggestions',
-  'selectSuggestion',
+    'update:searchQuery',
+    'update:showSuggestions',
+    'handleSearchInput',
+    'hideSuggestions',
+    'selectSuggestion',
 ]);
 
 // -------------------
 // v-model helper
 // -------------------
 const searchQueryModel = computed({
-  get: () => props.searchQuery,
-  set: val => emit('update:searchQuery', val)
+    get: () => props.searchQuery,
+    set: val => emit('update:searchQuery', val)
 });
 
 // -------------------
 // جلب الأقسام باستخدام POST body
 // -------------------
 const fetchCategories = async () => {
-  try {
-    const body = {
-      searchPhrase: "",
-      orderBy: "title",
-      descending: false,
-      pageNumber: 1,
-      pageSize: 100
-    };
+    try {
+        const body = {
+            searchPhrase: "",
+            orderBy: "title",
+            descending: false,
+            pageNumber: 1,
+            pageSize: 100
+        };
 
-    const response = await axios.post(CATEGORIES_ENDPOINT, body);
-    if (response.data && response.data.items) {
-      storyCategories.value = response.data.items.map(item => ({
-        id: item.id,
-        title: item.title
-      }));
+        const response = await axios.post(CATEGORIES_ENDPOINT, body);
+        if (response.data && response.data.items) {
+            storyCategories.value = response.data.items.map(item => ({
+                id: item.id,
+                title: item.title
+            }));
+        }
+    } catch (error) {
+        console.error("Error fetching categories:", error);
     }
-  } catch (error) {
-    console.error("Error fetching categories:", error);
-  }
 };
 
 onMounted(fetchCategories);
@@ -81,22 +91,27 @@ onMounted(fetchCategories);
 // التحكم بالفلتر Dropdown
 // -------------------
 const toggleFilterDropdown = () => {
-  showFilterDropdown.value = !showFilterDropdown.value;
+    showFilterDropdown.value = !showFilterDropdown.value;
 };
 
 // -------------------
 // منطق البحث
 // -------------------
 const performSearch = () => {
-  const query = {};
-  if (searchQueryModel.value && searchQueryModel.value.trim()) query.q = searchQueryModel.value.trim();
-  if (selectedCategory.value) query.category = selectedCategory.value;
+    const query = {};
+    if (searchQueryModel.value && searchQueryModel.value.trim()) query.q = searchQueryModel.value.trim();
+    if (selectedCategory.value) query.category = selectedCategory.value;
+    
+    // إضافة فلتر نوع المحتوى إلى الكويري
+    if (selectedMediaType.value) {
+        query.mediaType = selectedMediaType.value; 
+    }
 
-  if (Object.keys(query).length === 0) return;
+    if (Object.keys(query).length === 0) return;
 
-  router.push({ path: '/searchResults', query }).catch(err => {
-    if (err.name !== 'NavigationDuplicated') throw err;
-  });
+    router.push({ path: '/searchResults', query }).catch(err => {
+        if (err.name !== 'NavigationDuplicated') throw err;
+    });
 };
 
 // -------------------
@@ -105,7 +120,6 @@ const performSearch = () => {
 const normalizeArabicTranscript = (text) => {
     if (!text || typeof text !== 'string') return text;
     // قائمة الكلمات الشائعة التي تنتهي بهاء أصلية ولا يجب تغييرها
-    // هذه القائمة يمكن توسيعها أو تضييقها حسب الحاجة
     const exceptions = ['وجه', 'فيه', 'منه', 'عليه', 'إليه', 'الله', 'هذه', 'عنه', 'معه', 'نفسه', 'مياهه', 'نهاه', 'سماه', 'أباه', 'رآه'];
 
     let normalized = text.trim();
@@ -121,9 +135,7 @@ const normalizeArabicTranscript = (text) => {
         }
         
         // التصحيح: إذا انتهت الكلمة بالهاء (ه) أو الهاء المربوطة (ة) بدون نقاط، نصححها إلى تاء مربوطة (ة)
-        // نستخدم تعابير منتظمة للتعامل مع الفواصل وعلامات الترقيم المحتملة
         if (word.endsWith('ه')) {
-            // نتحقق من الحرف قبل الهاء للتأكد من أنها قد تكون تاء مربوطة (غالبًا ما يكون سكون أو فتحة)
              return word.substring(0, word.length - 1) + 'ة';
         }
         
@@ -138,107 +150,107 @@ const normalizeArabicTranscript = (text) => {
 // البحث الصوتي باستخدام Web Speech API
 // -------------------
 const startVoiceSearch = () => {
-  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
 
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.lang = 'ar-SA';
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'ar-SA';
 
-    recognition.onstart = () => {
-      isListening.value = true;
-      voiceTranscript.value = 'جاري الاستماع...';
-    };
+        recognition.onstart = () => {
+            isListening.value = true;
+            voiceTranscript.value = 'جاري الاستماع...';
+        };
 
-    recognition.onresult = (event) => {
-      let finalTranscript = '';
-      let interimTranscript = '';
+        recognition.onresult = (event) => {
+            let finalTranscript = '';
+            let interimTranscript = '';
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript;
-        } else {
-          interimTranscript += transcript;
-        }
-      }
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
 
-      // يتم تحديث كل من النص الظاهر ومربع البحث
-      voiceTranscript.value = finalTranscript || interimTranscript;
-      searchQueryModel.value = finalTranscript || interimTranscript;
-    };
+            // يتم تحديث كل من النص الظاهر ومربع البحث
+            voiceTranscript.value = finalTranscript || interimTranscript;
+            searchQueryModel.value = finalTranscript || interimTranscript;
+        };
 
-    // ⭐️ الانتقال التلقائي هنا
-    recognition.onend = () => {
-      isListening.value = false;
-            
-            // ⭐️⭐️ تطبيق التصحيح هنا ⭐️⭐️
+        // الانتقال التلقائي هنا
+        recognition.onend = () => {
+            isListening.value = false;
+                    
+            // تطبيق التصحيح هنا 
             const finalQuery = normalizeArabicTranscript(searchQueryModel.value);
             searchQueryModel.value = finalQuery; // تحديث النموذج بالقيمة المصححة
 
-      // يتم استدعاء performSearch فقط إذا كان هناك نص حقيقي تم التقاطه
-      if (finalQuery && finalQuery.trim() && finalQuery !== 'جاري الاستماع...') {
-        performSearch(); 
-      }
-    };
+            // يتم استدعاء performSearch فقط إذا كان هناك نص حقيقي تم التقاطه
+            if (finalQuery && finalQuery.trim() && finalQuery !== 'جاري الاستماع...') {
+                performSearch(); 
+            }
+        };
 
-    recognition.onerror = (event) => {
-      console.error('خطأ في التعرف على الكلام:', event.error);
-      isListening.value = false;
-      voiceTranscript.value = 'حدث خطأ في التعرف على الكلام';
-    };
+        recognition.onerror = (event) => {
+            console.error('خطأ في التعرف على الكلام:', event.error);
+            isListening.value = false;
+            voiceTranscript.value = 'حدث خطأ في التعرف على الكلام';
+        };
 
-    recognition.start();
-  } else {
-    alert('متصفحك لا يدعم التعرف على الكلام. يرجى استخدام Chrome أو Edge.');
-  }
+        recognition.start();
+    } else {
+        alert('متصفحك لا يدعم التعرف على الكلام. يرجى استخدام Chrome أو Edge.');
+    }
 };
 
 // -------------------
 // وظيفة تشغيل/إيقاف البحث الصوتي
 // -------------------
 const toggleVoiceSearch = () => {
-  if (isListening.value) {
-    // إيقاف التسجيل يدوياً
-    if (recognition) {
-      recognition.stop();
+    if (isListening.value) {
+        // إيقاف التسجيل يدوياً
+        if (recognition) {
+            recognition.stop();
+        }
+        isListening.value = false;
+    } else {
+        // بدء التسجيل
+        startVoiceSearch();
     }
-    isListening.value = false;
-  } else {
-    // بدء التسجيل
-    startVoiceSearch();
-  }
 };
 
 // -------------------
 // إيقاف البحث الصوتي يدوياً وزر 'إيقاف'
 // -------------------
 const handleStopListening = () => {
-  if (recognition) {
-    recognition.stop();
-  }
+    if (recognition) {
+        recognition.stop();
+    }
 };
 </script>
 
 <template>
-<section class="pb-32 pt-8 flex flex-col justify-center items-center relative bg-white overflow-hidden">
+<section class="py-8 flex flex-col justify-center items-center relative bg-white overflow-hidden">
     
     <div class="absolute top-10 left-10 w-4 h-4 bg-pink-300 rounded-full"></div>
     <div class="absolute top-20 right-10 w-6 h-6 bg-yellow-300 rounded-full"></div>
 
     <div >
-        <img src="/hero.jpeg" alt="child" class="w-[80%] mx-auto md:w-full md:h-64 object-contain  rounded-lg">
+        <img src="/hero.jpeg" alt="child" class="w-[80%] mx-auto md:w-full md:h-64 object-contain rounded-lg">
     </div>
 
     <div class="text-center mb-16">
 <h2 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-purple-500 custom-text-pulse mb-4"> منصة <span
-      class="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-purple-500 custom-text-pulse">الطفل
-      الرقمية</span>
-    </h2>        <p class="text-sm md:text-base text-pink-500">تعلم بمرح... واكتشف بذكاء</p>
+    class="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-purple-500 custom-text-pulse">الطفل
+    الرقمية</span>
+    </h2> 		<p class="text-sm md:text-base text-pink-500">تعلم بمرح... واكتشف بذكاء</p>
     </div>
 
-<div class="relative md:w-[50%]  ">
+<div class="relative md:w-[50%] ">
     <div class="flex items-center bg-white border-2 border-purple-600 rounded-xl shadow-xl overflow-hidden h-20 w-full">
         <span class="material-icons text-gray-400 px-3">search</span>
         <input
@@ -249,7 +261,7 @@ const handleStopListening = () => {
             @blur="emit('hideSuggestions')"
             @keyup.enter="performSearch"
             placeholder="ابحث بالموضوع، أو المؤلف، أو العنوان..."
-            class="flex-grow w-full h-full  px-2 text-gray-800 placeholder-gray-400 focus:outline-none"
+            class="flex-grow w-full h-full px-2 text-gray-800 placeholder-gray-400 focus:outline-none"
             :disabled="isListening"
         >
         
@@ -257,7 +269,7 @@ const handleStopListening = () => {
             
             <button 
                 @click="toggleVoiceSearch" 
-                class="flex flex-col items-center justify-center  text-red-500 hover:text-red-600 transition-colors duration-200" 
+                class="flex flex-col items-center justify-center text-red-500 hover:text-red-600 transition-colors duration-200" 
                 :class="{'animate-ping-slow': isListening}"
             >
                 <span class="material-icons text-lg leading-none">mic</span>
@@ -268,7 +280,7 @@ const handleStopListening = () => {
                 @click="toggleFilterDropdown" 
                 class="flex flex-col items-center justify-center w-12 text-indigo-500 hover:text-indigo-600 transition-colors duration-200"
             >
-      <span class="material-icons text-purple-600 text-xl">tune</span>
+            <span class="material-icons text-purple-600 text-xl">tune</span>
                 <span class="text-[10px] text-purple-600 font-medium leading-none mt-[1px]">فلتر</span>
             </button>
         </div>
@@ -284,13 +296,21 @@ const handleStopListening = () => {
         </div>
     </Transition>
 
-    <Transition name="custom-slide-down z-100">
-        <div v-if="showFilterDropdown" class="z-100 absolute top-full right-0 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl z-50 text-right p-3">
-            <label class="block mb-2 font-semibold">اختر القسم:</label>
-            <select v-model="selectedCategory" @change="performSearch" class="w-full border rounded p-1">
+    <Transition name="custom-slide-down z-50">
+        <div v-if="showFilterDropdown" class="z-50    mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl  text-right p-3">
+            
+            <label class="block mb-2 font-semibold">حسب القسم:</label>
+            <select v-model="selectedCategory" @change="performSearch" class="w-full border rounded p-1 mb-4">
                 <option value="">-- جميع الأقسام --</option>
                 <option v-for="cat in storyCategories" :key="cat.id" :value="cat.id">{{ cat.title }}</option>
             </select>
+
+            <label class="block mb-2 font-semibold z-50">حسب النوع:</label>
+            <select v-model="selectedMediaType" @change="performSearch" class="w-full border rounded p-1">
+                <option value="">-- جميع الأنواع --</option>
+                <option v-for="type in mediaTypes" :key="type.value" :value="type.value">{{ type.label }}</option>
+            </select>
+
         </div>
     </Transition>
 </div>

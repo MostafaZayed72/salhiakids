@@ -42,7 +42,7 @@
     </div>
 
     <Transition name="custom-fade">
-      <div v-if="isListening" class="mt-3 p-3 bg-yellow-100 rounded-xl shadow-lg border border-yellow-400 flex items-center justify-between text-center shadow-inner">
+      <div v-if="isListening" class="mt-3 p-3 bg-yellow-100 rounded-xl shadow-lg border border-yellow-400 flex items-center justify-between text-center ">
         <span class="text-sm font-bold text-gray-700">جارٍ الاستماع:</span>
         <span class="text-sm font-medium text-gray-800 mx-2 flex-grow text-right">{{ voiceTranscript }}</span>
         <button @click="handleStopListening" class="px-3 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded-lg ml-2 flex-shrink-0">إيقاف</button>
@@ -51,67 +51,80 @@
 
     <Transition name="custom-slide-down">
       <div v-if="showFilterDropdown" class="mt-4 bg-white border border-gray-200 rounded-xl shadow-xl text-right p-4">
-        <label for="category-select" class="block mb-2 font-bold text-gray-700">تصفية حسب القسم:</label>
+        
+        <label for="category-select" class="block mb-2 font-bold text-gray-700"> حسب القسم:</label>
         <select 
           id="category-select"
           v-model="selectedCategory" 
           @change="performSearch" 
-          class="w-full py-3 border border-gray-300 rounded-lg p-2 bg-white focus:ring-purple-500 focus:border-purple-500 transition-colors"
+          class="w-full py-3 border border-gray-300 rounded-lg p-2 bg-white focus:ring-purple-500 focus:border-purple-500 transition-colors mb-4"
         >
           <option value="">-- جميع الأقسام --</option>
           <option v-for="cat in storyCategories" :key="cat.id" :value="cat.id">{{ cat.title }}</option>
         </select>
+
+        <label for="media-type-select" class="block mb-2 font-bold text-gray-700"> حسب النوع:</label>
+        <select 
+          id="media-type-select"
+          v-model="selectedMediaType" 
+          @change="performSearch" 
+          class="w-full py-3 border border-gray-300 rounded-lg p-2 bg-white focus:ring-purple-500 focus:border-purple-500 transition-colors"
+        >
+          <option value="">-- جميع الأنواع --</option>
+          <option v-for="type in mediaTypes" :key="type.value" :value="type.value">{{ type.label }}</option>
+        </select>
+        
       </div>
     </Transition>
- </div>
-  
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-    <h2 class="text-3xl font-extrabold text-gray-900 mb-4 md:mb-0 flex items-center gap-3">
-      <span class="material-icons text-purple-600 text-4xl">inventory_2</span>
-      <span>نتائج البحث ({{ totalItemsCount }} قصة)</span>
-    </h2>
-    
-    <div class="flex items-center text-sm text-gray-600 gap-4 flex-wrap">
-      <div class="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-full">
-        <span class="material-icons text-base text-purple-500">timer</span>
-        <span class="mt-1">الوقت المستغرق: 0.5 ثانية</span>
-      </div>
-      
-            <!-- <div class="flex items-center gap-3 border-r pr-3 border-gray-300">
-        <span class="text-sm font-semibold text-gray-700">الكل ({{ totalItemsCount }})</span>
-        <span class="text-sm text-gray-500">فيديو ({{ totalVideosCount }})</span>
-        <span class="text-sm text-gray-500">صور ({{ totalImagesCount }})</span>
-        <span class="text-sm text-gray-500">PDF ({{ totalPdfsCount }})</span>
-      </div> -->
-    </div>
-  </div>
-  
-  <div class="flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
-    <div class="flex items-center gap-4">
-      <select 
-        v-model="orderBy" 
-        @change="performSearch"
-        class="px-4 py-3 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:border-purple-500"
-      >
-        <option value="createdAt">الأحدث</option>
-        <option value="title">العنوان</option>
-        <option value="averageRating">الأعلى تقييماً</option>
-      </select>
-      <button @click="toggleDescending" class="px-2 py-1 border border-gray-300 rounded-lg bg-white hover:bg-gray-100 transition-colors">
-        <span v-if="descending" class="material-icons text-gray-600 ">arrow_downward</span>
-        <span v-else class="material-icons text-gray-600 ">arrow_upward</span>
-      </button>
-    </div>
+   </div>
+   
+   <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+     <h2 class="text-3xl font-extrabold text-gray-900 mb-4 md:mb-0 flex items-center gap-3">
+       <span class="material-icons text-purple-600 text-4xl">inventory_2</span>
+       <span>نتائج البحث ({{ totalItemsCount }} قصة)</span>
+     </h2>
+     
+     <div class="flex items-center text-sm text-gray-600 gap-4 flex-wrap">
+       <div class="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-full">
+         <span class="material-icons text-base text-purple-500">timer</span>
+         <span class="mt-1">الوقت المستغرق: 0.5 ثانية</span>
+       </div>
+       
+       <div class="flex items-center gap-3 border-r pr-3 border-gray-300">
+         <span class="text-sm font-semibold text-gray-700">الكل ({{ totalItemsCount }})</span>
+         <span v-if="totalVideosCount > 0" class="text-sm text-gray-500">فيديو ({{ totalVideosCount }})</span>
+         <span v-if="totalImagesCount > 0" class="text-sm text-gray-500">صور ({{ totalImagesCount }})</span>
+         <span v-if="totalPdfsCount > 0" class="text-sm text-gray-500">PDF ({{ totalPdfsCount }})</span>
+       </div>
+     </div>
+   </div>
+   
+   <div class="flex justify-between items-center mb-8 pb-4 border-b border-gray-200">
+     <div class="flex items-center gap-4">
+       <select 
+         v-model="orderBy" 
+         @change="performSearch"
+         class="px-4 py-3 border border-gray-300 rounded-lg bg-white text-sm focus:outline-none focus:border-purple-500"
+       >
+         <option value="createdAt">الأحدث</option>
+         <option value="title">العنوان</option>
+         <option value="averageRating">الأعلى تقييماً</option>
+       </select>
+       <button @click="toggleDescending" class="px-2 py-1 border border-gray-300 rounded-lg bg-white hover:bg-gray-100 transition-colors">
+         <span v-if="descending" class="material-icons text-gray-600 ">arrow_downward</span>
+         <span v-else class="material-icons text-gray-600 ">arrow_upward</span>
+       </button>
+     </div>
 
-    <div class="flex items-center border border-gray-300 rounded-lg p-1 bg-white">
-      <button @click="viewMode = 'grid'" :class="{'bg-purple-500 text-white shadow-md': viewMode === 'grid', 'text-gray-600 hover:bg-gray-100': viewMode !== 'grid'}" class="p-2 rounded-lg transition-colors">
-        <span class="material-icons text-xl">grid_view</span>
-      </button>
-      <button @click="viewMode = 'list'" :class="{'bg-purple-500 text-white shadow-md': viewMode === 'list', 'text-gray-600 hover:bg-gray-100': viewMode !== 'list'}" class="p-2 rounded-lg transition-colors">
-        <span class="material-icons text-xl">view_list</span>
-      </button>
-    </div>
-  </div>
+     <div class="flex items-center border border-gray-300 rounded-lg p-1 bg-white">
+       <button @click="viewMode = 'grid'" :class="{'bg-purple-500 text-white shadow-md': viewMode === 'grid', 'text-gray-600 hover:bg-gray-100': viewMode !== 'grid'}" class="p-2 rounded-lg transition-colors">
+         <span class="material-icons text-xl">grid_view</span>
+       </button>
+       <button @click="viewMode = 'list'" :class="{'bg-purple-500 text-white shadow-md': viewMode === 'list', 'text-gray-600 hover:bg-gray-100': viewMode !== 'list'}" class="p-2 rounded-lg transition-colors">
+         <span class="material-icons text-xl">view_list</span>
+       </button>
+     </div>
+   </div>
 
  <div v-if="loading" class="text-center py-10">
  <div class="flex flex-col items-center justify-center">
@@ -140,15 +153,14 @@
  >
      <div 
    :class="{
-        'w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden ': viewMode === 'list', 
-        // Fix: استخدام aspect-ratio و object-cover لضمان وضوح الصورة العمودية دون تشويه
-        'relative w-full aspect-square overflow-hidden': viewMode === 'grid'
-      }"
+         'w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden ': viewMode === 'list', 
+         'relative w-full aspect-square overflow-hidden': viewMode === 'grid'
+       }"
    class="image-container cursor-pointer"
    @click="navigateTo(`/stories/${story.id}`)"
-  >
-   <img 
-    :src="story.imageUrl || '/images/placeholder.jpg'" 
+   >
+  <img 
+    :src="story.coverImageUrl || '/images/placeholder.jpg'" 
     :alt="story.title || 'صورة القصة'" 
     class="w-full h-full object-cover"
    >
@@ -159,50 +171,46 @@
  <div class="text-xs text-purple-600 font-semibold bg-purple-100 px-2 py-0.5 rounded-full inline-block">
  {{ story.storyCategoryTitle }}
  </div>
- <!-- <NuxtLink :to="`/stories/${story.id}`" class="mt-4 inline-flex items-center text-purple-600 hover:text-purple-800 font-medium transition-colors duration-200 gap-1">
- <span>قراءة القصة</span>
- <span class="material-icons text-base">arrow_forward</span>
- </NuxtLink> -->
  </div>
  </div>
 </div>
  
-  <div v-if="totalPages > 1 && stories.length > 0" class="flex justify-center mt-12">
+ <div v-if="totalPages > 1 && stories.length > 0" class="flex justify-center mt-12">
   <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination" dir="ltr">
-   <button
+    <button
     @click="goToPage(currentPage - 1)"
     :disabled="currentPage <= 1"
     :class="{'opacity-50 cursor-not-allowed': currentPage <= 1}"
     class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-   >
+    >
     <span class="sr-only">السابق</span>
     <span class="material-icons text-base">chevron_left</span>
-   </button>
+    </button>
 
-   <button
+    <button
     v-for="page in pagesToShow"
     :key="page"
     @click="goToPage(page)"
     :aria-current="page === currentPage ? 'page' : undefined"
     :class="{
-     'z-10 bg-purple-50 border-purple-500 text-purple-600': page === currentPage,
-     'bg-white border-gray-300 text-gray-700 hover:bg-gray-50': page !== currentPage,
-     'pointer-events-none': page === '...'
+      'z-10 bg-purple-50 border-purple-500 text-purple-600': page === currentPage,
+      'bg-white border-gray-300 text-gray-700 hover:bg-gray-50': page !== currentPage,
+      'pointer-events-none': page === '...'
     }"
     class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
-   >
+    >
     {{ page }}
-   </button>
+    </button>
 
-   <button
+    <button
     @click="goToPage(currentPage + 1)"
     :disabled="currentPage >= totalPages"
     :class="{'opacity-50 cursor-not-allowed': currentPage >= totalPages}"
     class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-   >
+    >
     <span class="sr-only">التالي</span>
     <span class="material-icons text-base">chevron_right</span>
-   </button>
+    </button>
   </nav>
  </div>
 
@@ -233,11 +241,21 @@ const pageSize = 8;
 // حالة البحث والفلترة (متغيرات محلية)
 const searchPhrase = ref(route.query.q || "");
 const selectedCategory = ref(route.query.category || "");
+// 🆕 إضافة حالة نوع المحتوى
+const selectedMediaType = ref(route.query.mediaType || ""); 
 const orderBy = ref(route.query.orderBy || "createdAt");
 const descending = ref(route.query.descending === 'false' ? false : true);
 
 // حالة الفلتر والصوت
 const storyCategories = ref([]);
+
+// 🆕 تعريف أنواع المحتوى
+const mediaTypes = ref([
+    { value: '1', label: 'صورة' },
+    { value: '2', label: 'فيديو' },
+    { value: '4', label: 'مستند (PDF)' }
+]);
+
 const showFilterDropdown = ref(false);
 const isListening = ref(false);
 const voiceTranscript = ref('');
@@ -281,6 +299,8 @@ ApprovalStatus: 0,
 
 searchPhrase: searchPhrase.value, 
 storyCategoryId: selectedCategory.value || null,
+// 🆕 إرسال فلتر نوع المحتوى
+mediaType: selectedMediaType.value ? parseInt(selectedMediaType.value) : null,
 };
 
 try {
@@ -296,7 +316,7 @@ if (data && Array.isArray(data.items)) {
 stories.value = data.items;
  totalPages.value = data.totalPages || 1;
  totalItemsCount.value = data.totalItemsCount || 0;
- // تحديث متغيرات الإحصائيات 
+ // تحديث متغيرات الإحصائيات (متاحة في الريسبونس الجديد)
  totalVideosCount.value = data.totalVideosCount || 0; 
  totalImagesCount.value = data.totalImagesCount || 0;
  totalPdfsCount.value = data.totalPdfsCount || 0;
@@ -338,6 +358,8 @@ const performSearch = () => {
   const query = {};
   if (searchPhrase.value && searchPhrase.value.trim()) query.q = searchPhrase.value.trim();
   if (selectedCategory.value) query.category = selectedCategory.value;
+  // 🆕 إضافة نوع المحتوى
+  if (selectedMediaType.value) query.mediaType = selectedMediaType.value;
   if (orderBy.value) query.orderBy = orderBy.value;
   if (descending.value !== true) query.descending = false; 
   
@@ -377,36 +399,36 @@ const startVoiceSearch = () => {
   recognition.lang = 'ar-SA';
 
   recognition.onstart = () => {
-   isListening.value = true;
-   voiceTranscript.value = 'جاري الاستماع...';
+    isListening.value = true;
+    voiceTranscript.value = 'جاري الاستماع...';
   };
 
   recognition.onresult = (event) => {
-   let finalTranscript = '';
-   let interimTranscript = '';
-   for (let i = event.resultIndex; i < event.results.length; i++) {
-    const transcript = event.results[i][0].transcript;
-    if (event.results[i].isFinal) {
-     finalTranscript += transcript;
-    } else {
-     interimTranscript += transcript;
+    let finalTranscript = '';
+    let interimTranscript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const transcript = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        finalTranscript += transcript;
+      } else {
+        interimTranscript += transcript;
+      }
     }
-   }
-   voiceTranscript.value = finalTranscript || interimTranscript;
-   searchPhrase.value = finalTranscript || interimTranscript; 
+    voiceTranscript.value = finalTranscript || interimTranscript;
+    searchPhrase.value = finalTranscript || interimTranscript; 
   };
 
   recognition.onend = () => {
-   isListening.value = false;
-   if (searchPhrase.value && searchPhrase.value.trim() && searchPhrase.value !== 'جاري الاستماع...') {
-    performSearch(); 
-   }
+    isListening.value = false;
+    if (searchPhrase.value && searchPhrase.value.trim() && searchPhrase.value !== 'جاري الاستماع...') {
+      performSearch(); 
+    }
   };
 
   recognition.onerror = (event) => {
-   console.error('خطأ في التعرف على الكلام:', event.error);
-   isListening.value = false;
-   voiceTranscript.value = 'حدث خطأ في التعرف على الكلام';
+    console.error('خطأ في التعرف على الكلام:', event.error);
+    isListening.value = false;
+    voiceTranscript.value = 'حدث خطأ في التعرف على الكلام';
   };
 
   recognition.start();
@@ -418,7 +440,7 @@ const startVoiceSearch = () => {
 const toggleVoiceSearch = () => {
  if (isListening.value) {
   if (recognition) {
-   recognition.stop();
+    recognition.stop();
   }
   isListening.value = false;
  } else {
@@ -440,6 +462,8 @@ const handleStopListening = () => {
 const updateStateFromRoute = () => {
   searchPhrase.value = route.query.q || "";
   selectedCategory.value = route.query.category || "";
+  // 🆕 قراءة نوع المحتوى من الـ URL
+  selectedMediaType.value = route.query.mediaType || "";
   orderBy.value = route.query.orderBy || "createdAt";
   descending.value = route.query.descending === 'false' ? false : true;
 };
