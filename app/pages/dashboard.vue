@@ -49,7 +49,29 @@
                 
                 <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
                     <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <span class="material-icons text-blue-600">group</span> إحصائيات المستخدمين
+                        <span class="material-icons text-blue-600">pie_chart</span> توزيع المستخدمين
+                    </h3>
+                    <div class="h-80">
+                        <UserDoughnutChart :userCounts="dashboardData.userCounts" />
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="material-icons text-red-600">stacked_bar_chart</span> مقارنة نسب الأداء
+                    </h3>
+                    <div class="h-80">
+                        <ComparisonBarChart :dashboardData="dashboardData" />
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">💖 مقاييس التفاعل والأرقام الإجمالية</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+                
+                <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <span class="material-icons text-blue-600">group</span> تفاصيل المستخدمين
                     </h3>
                     <StatsDetail title="إجمالي المستخدمين" :value="dashboardData.userCounts.total" unit="مستخدم" />
                     <StatsDetail title="نشطون في الفترة" :value="dashboardData.userCounts.activeInPeriod" unit="مستخدم" color="text-green-500" />
@@ -58,7 +80,7 @@
 
                 <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
                     <h3 class="text-xl font-bold text-pink-600 mb-4 flex items-center gap-2">
-                        <span class="material-icons text-pink-600">favorite_border</span> مقاييس التفاعل
+                        <span class="material-icons text-pink-600">favorite_border</span> الأرقام الإجمالية للتفاعل
                     </h3>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <EngagementStat title="إجمالي المشاهدات" :value="dashboardData.engagementMetrics.totalViews" icon="visibility" color="text-blue-500" />
@@ -68,8 +90,8 @@
                     </div>
                 </div>
             </div>
-
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">📊 التقييم والمعدلات</h2>
+            
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">⭐ التقييم والمعدلات</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 flex flex-col justify-center items-center">
@@ -108,6 +130,7 @@
 import { ref, onMounted, h } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+// استيراد مكونات الرسوم البيانية
 
 const router = useRouter();
 
@@ -124,8 +147,6 @@ const USER_ME_ENDPOINT = `${API_BASE}/api/identity/users/me`;
 const loading = ref(true);
 const error = ref(null);
 const dashboardData = ref(null);
-
-// 🆕 حالة الفترة الزمنية (افتراضياً 0 للكل)
 const selectedPeriod = ref("0"); 
 
 // -------------------
@@ -159,13 +180,11 @@ const checkUserRole = async () => {
             }
         });
 
-        // التحقق من نوع المستخدم (userTypeName)
         if (response.data && response.data.userTypeName === 'Admin') {
             return true;
         }
 
     } catch (err) {
-        // إذا فشل جلب بيانات المستخدم (مثل انتهاء صلاحية التوكن)
         console.error("User Role Check Failed:", err);
         return false;
     }
@@ -177,11 +196,9 @@ const checkUserRole = async () => {
 // جلب بيانات لوحة التحكم
 // -------------------
 const fetchDashboardData = async () => {
-    // نضع loading=true قبل كل محاولة جلب جديدة (بسبب التغيير في الفترة الزمنية)
     loading.value = true; 
     error.value = null;
 
-    // أولاً: التحقق من الصلاحيات
     const isUserAdmin = await checkUserRole();
 
     if (!isUserAdmin) {
@@ -193,17 +210,14 @@ const fetchDashboardData = async () => {
         return;
     }
 
-    // إذا كان مديراً، استمر في جلب بيانات لوحة التحكم
     try {
         const token = getToken();
-        if (!token) { return; } // يجب أن يكون موجوداً هنا
+        if (!token) { return; }
 
-        // 🆕 جسم الطلب: يحتوي على الفترة الزمنية
         const requestBody = {
             period: parseInt(selectedPeriod.value) 
         };
 
-        // 🆕 استخدام POST لجلب البيانات
         const response = await axios.post(DASHBOARD_ENDPOINT, requestBody, {
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -217,10 +231,8 @@ const fetchDashboardData = async () => {
             throw new Error("تنسيق بيانات لوحة التحكم غير صحيح.");
         }
     } catch (err) {
-        // إذا حدث خطأ 401 أو 403 هنا، يعني أن التوكن أصبح غير صالح أثناء الجلسة
         if (err.response && (err.response.status === 401 || err.response.status === 403)) {
             error.value = "انتهت صلاحية جلسة المدير. سيتم تسجيل الخروج.";
-            // يمكنك إضافة منطق حذف الكوكيز هنا
             setTimeout(() => {
                 router.push({ path: '/' }); 
             }, 3000);
@@ -228,7 +240,7 @@ const fetchDashboardData = async () => {
             error.value = err.message || 'فشل في الاتصال بالخادم. تحقق من اتصالك بالإنترنت.';
         }
         console.error("Dashboard Fetch Error:", err);
-        dashboardData.value = null; // تفريغ البيانات عند الخطأ
+        dashboardData.value = null; 
     } finally {
         loading.value = false;
     }
@@ -253,6 +265,7 @@ const DashboardCard = ({ title, value, icon, color }) => {
 };
 
 const StatsDetail = ({ title, value, unit, color = 'text-gray-700' }) => {
+  // تم إبقاء هذا المكون للاستخدام في قسم 'تفاصيل المستخدمين'
   return h('div', { class: 'flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0' }, [
     h('span', { class: `font-medium ${color}` }, title),
     h('span', { class: 'font-bold text-lg' }, `${value} ${unit}`),
