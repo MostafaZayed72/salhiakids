@@ -123,6 +123,13 @@
             <p class="text-gray-500">ستتم إعادتك للصفحة الرئيسية قريباً.</p>
         </div>
     </div>
+    <button 
+    @click="roles = true" 
+    class="mt-10 block mx-auto text-lg bg-purple-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-purple-700 transition-colors"
+>
+    تعديل أدوار المستخدمين
+</button>
+<UsersRoles v-if="roles"/>
 </div>
 </template>
 
@@ -133,7 +140,7 @@ import axios from 'axios';
 // استيراد مكونات الرسوم البيانية
 
 const router = useRouter();
-
+const roles = ref(false);
 // -------------------
 // الثوابت ونقاط النهاية
 // -------------------
