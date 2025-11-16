@@ -417,7 +417,6 @@ const trackView = (storyId) => {
 
       console.log(`View tracked successfully for story ID: ${storyId}`);
 
-      await fetchStoryTitle(storyId);
     } catch (err) {
       console.error("Failed to track story view:", err);
     }
