@@ -138,7 +138,7 @@ const fetchRelatedStories = async (storyCategoryId, currentStoryId) => {
   try {
     const body = {
       storyCategoryId: storyCategoryId,
-      ApprovalStatus: 0,
+      ApprovalStatus: 1,
       orderBy: "createdAt",
       descending: true,
       pageNumber: 1,

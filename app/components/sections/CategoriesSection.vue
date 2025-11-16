@@ -408,10 +408,6 @@ const fetchCategories = async () => {
 // منطق التنقل والـ CRUD
 // ----------------------------------------------------
 
-const navigateTo = (path) => {
-    // هذه دالة وهمية للتنقل، يجب استخدام Vue Router
-    console.log(`Navigating to: ${path}`);
-}
 
 const changePage = (page) => {
     if (page >= 1 && page <= totalPages.value && page !== currentPage.value && page !== '...') {

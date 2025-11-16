@@ -295,7 +295,7 @@ pageNumber: pageNumber,
 pageSize: pageSize, 
 orderBy: orderBy.value, 
 descending: descending.value,
-ApprovalStatus: 0, 
+ApprovalStatus: 1, 
 
 searchPhrase: searchPhrase.value, 
 storyCategoryId: selectedCategory.value || null,

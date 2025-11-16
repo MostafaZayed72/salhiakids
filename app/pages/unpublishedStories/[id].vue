@@ -148,7 +148,7 @@ try {
    // ✅ Body الجديد يتضمن فقط ID و isApproved: true
    const body = { 
         id: story.id, 
-        ApprovalStatus: 0 
+        ApprovalStatus: 1 
     }
     
    // ✅ استخدام axios.patch والـ Endpoint الجديد: /api/MasterStories/Approve

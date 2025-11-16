@@ -173,7 +173,7 @@ const fetchStories = async () => {
       storyCategoryId: catId,
       searchPhrase: searchPhrase.value,
       createdBy: '',
-      ApprovalStatus: 0,
+      ApprovalStatus: 1,
       orderBy: 'title',
       descending: false,
       pageNumber: currentPage.value,

@@ -171,7 +171,7 @@ const fetchLatestStories = async () => {
       storyCategoryId: null,
       searchPhrase: '',
       createdBy: null,
-      approvalStatus: 0,
+      approvalStatus: 1,
       orderBy: 'createdAt',
       descending: true,
       pageNumber: 1,
