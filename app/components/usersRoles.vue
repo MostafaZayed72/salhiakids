@@ -254,13 +254,13 @@ const fetchUsers = async (page = 1) => {
         pageSize: pageSize.value
     };
 
-    // 🚀 التحقق من الفلترة وإضافة userTypeValue و userTypeName معاً
+    // 🚀 التحقق من الفلترة وإضافة userType و userTypeName معاً
     if (selectedUserType.value !== "All") {
         const userType = parseInt(selectedUserType.value);
         const userTypeName = getUserTypeNameByValue(selectedUserType.value);
 
         // إرسال الحقلين معاً كما طلب
-        requestBody.userTypeValue = userType;
+        requestBody.userType = userType;
         requestBody.userTypeName = userTypeName; 
     }
 
@@ -308,7 +308,7 @@ const debouncedFetchUsers = () => {
 
 const openRoleModal = (user) => {
     currentEditingUser.value = user;
-    newRoleValue.value = user.userTypeValue; 
+    newRoleValue.value = user.userType; 
     roleChangeError.value = null;
     isRoleModalOpen.value = true;
 };
