@@ -66,10 +66,10 @@
             
             <h2 class="text-2xl font-bold text-gray-800 my-6">📝 نظرة عامة على القصص</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                <DashboardCard title="إجمالي القصص" :value="dashboardData.storyCounts.total" icon="book" color="bg-indigo-500" />
-                <DashboardCard title="قصص قيد المراجعة" :value="dashboardData.storyCounts.pending" icon="hourglass_empty" color="bg-yellow-500" />
-                <DashboardCard title="قصص معتمدة" :value="dashboardData.storyCounts.approved" icon="check_circle" color="bg-green-500" />
-                <DashboardCard title="قصص مرفوضة" :value="dashboardData.storyCounts.rejected" icon="cancel" color="bg-red-500" />
+                <DashboardCard title="إجمالي القصص" :value="dashboardData.storyCounts.totalInPeriod" icon="book" color="bg-indigo-500" />
+                <DashboardCard title="قصص قيد المراجعة" :value="dashboardData.storyCounts.pendingInPeriod" icon="hourglass_empty" color="bg-yellow-500" />
+                <DashboardCard title="قصص معتمدة" :value="dashboardData.storyCounts.approvedInPeriod" icon="check_circle" color="bg-green-500" />
+                <DashboardCard title="قصص مرفوضة" :value="dashboardData.storyCounts.rejectedInPeriod" icon="cancel" color="bg-red-500" />
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
