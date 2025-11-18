@@ -238,57 +238,60 @@ const checkUserRole = async () => {
 // جلب بيانات لوحة التحكم
 // -------------------
 const fetchDashboardData = async () => {
-    loading.value = true; 
-    error.value = null;
+  loading.value = true; 
+  error.value = null;
 
-    const isUserAdmin = await checkUserRole();
+  const isUserAdmin = await checkUserRole();
 
-    if (!isUserAdmin) {
-        error.value = "غير مصرح لك بالوصول لهذه الصفحة. سيتم توجيهك للصفحة الرئيسية.";
-        loading.value = false;
-        setTimeout(() => {
-            router.push({ path: '/' });
-        }, 3000);
-        return;
-    }
+  if (!isUserAdmin) {
+    error.value = "غير مصرح لك بالوصول لهذه الصفحة. سيتم توجيهك للصفحة الرئيسية.";
+    loading.value = false;
+    setTimeout(() => {
+      router.push({ path: '/' });
+    }, 3000);
+    return;
+  }
 
-    try {
-        const token = getToken();
-        if (!token) { return; }
+  try {
+    const token = getToken();
+    if (!token) { return; }
 
-        const requestBody = {
-            period: parseInt(selectedPeriod.value) 
-        };
-
-        const response = await axios.post(DASHBOARD_ENDPOINT, requestBody, {
+        // 💡 تم إعداد المتغيرات التي سيتم إرسالها في الرابط (Query Parameters)
+        const requestConfig = {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
+            },
+            // 🚀 التعديل الرئيسي: استخدام خاصية params لإرسال period في الـ URL
+            params: {
+                period: parseInt(selectedPeriod.value) 
             }
-        });
+        };
 
-        if (response.data && response.data.data) {
-            dashboardData.value = response.data.data;
-        } else {
-            throw new Error("تنسيق بيانات لوحة التحكم غير صحيح.");
-        }
-    } catch (err) {
-        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-            error.value = "انتهت صلاحية جلسة المدير. سيتم تسجيل الخروج.";
-            setTimeout(() => {
-                router.push({ path: '/' }); 
-            }, 3000);
-        } else {
-            error.value = err.message || 'فشل في الاتصال بالخادم. تحقق من اتصالك بالإنترنت.';
-        }
-        console.error("Dashboard Fetch Error:", err);
-        dashboardData.value = null; 
-    } finally {
-        loading.value = false;
+        // 🚀 إبقاء الطلب POST، وتمرير null كـ Request Body، واستخدام requestConfig لمتغيرات الرابط
+        // سيصبح الرابط: DASHBOARD_ENDPOINT?period=1
+    const response = await axios.post(DASHBOARD_ENDPOINT, null, requestConfig);
+
+    if (response.data && response.data.data) {
+      dashboardData.value = response.data.data;
+    } else {
+      throw new Error("تنسيق بيانات لوحة التحكم غير صحيح.");
     }
-};
-
-// -------------------
+  } catch (err) {
+    if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+      error.value = "انتهت صلاحية جلسة المدير. سيتم تسجيل الخروج.";
+      setTimeout(() => {
+        router.push({ path: '/' }); 
+      }, 3000);
+    } else {
+      error.value = err.message || 'فشل في الاتصال بالخادم. تحقق من اتصالك بالإنترنت.';
+    }
+    console.error("Dashboard Fetch Error:", err);
+    dashboardData.value = null; 
+  } finally {
+    loading.value = false;
+  }
+};// -------------------
 // وظائف التصدير والطباعة
 // -------------------
 
