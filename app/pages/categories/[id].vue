@@ -424,6 +424,103 @@ const deleteStory = async (id) => {
   }
 }
 
+
+// ------------------------------------
+// حالة البحث الصوتي
+// ------------------------------------
+const isListening = ref(false);
+const voiceTranscript = ref('');
+let recognition = null; 
+
+// ------------------------------------
+// 8. منطق البحث الصوتي الجديد
+// ------------------------------------
+
+// دالة لمعالجة النصوص العربية الناتجة عن التعرف على الكلام (تصحيح التاء المربوطة)
+const normalizeArabicTranscript = (text) => {
+    if (!text || typeof text !== 'string') return text;
+    // قائمة استثناءات شائعة لا يجب فيها تحويل 'ه' إلى 'ة'
+    const exceptions = ['وجه', 'فيه', 'منه', 'عليه', 'إليه', 'الله', 'هذه', 'عنه', 'معه', 'نفسه', 'مياهه', 'نهاه', 'سماه', 'أباه', 'رآه'];
+    let normalized = text.trim();
+    const words = normalized.split(/\s+/);
+    const correctedWords = words.map(word => {
+        const baseWord = word.replace(/['".,]/g, '');
+        if (exceptions.includes(baseWord)) { return word; }
+        // محاولة تصحيح التاء المربوطة في نهاية الكلمات
+        if (word.endsWith('ه')) { return word.substring(0, word.length - 1) + 'ة'; }
+        return word;
+    });
+    return correctedWords.join(' ');
+};
+
+const startVoiceSearch = () => {
+    // التحقق من دعم المتصفح
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false; // لا يتوقف تلقائياً
+        recognition.interimResults = true; // يعرض النتائج المؤقتة
+        recognition.lang = 'ar-SA'; // تعيين اللغة العربية
+
+        recognition.onstart = () => {
+            isListening.value = true;
+            voiceTranscript.value = 'جاري الاستماع...';
+        };
+
+        recognition.onresult = (event) => {
+            let finalTranscript = '';
+            let interimTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+            // تحديث شريط البحث بالنتيجة
+            voiceTranscript.value = finalTranscript || interimTranscript;
+            searchPhrase.value = finalTranscript || interimTranscript; 
+        };
+
+        recognition.onend = () => {
+            isListening.value = false;
+            const finalQuery = normalizeArabicTranscript(searchPhrase.value); 
+            searchPhrase.value = finalQuery; 
+            // بعد الانتهاء من الاستماع، يتم بدء البحث
+            if (finalQuery && finalQuery.trim() && finalQuery !== 'جاري الاستماع...') {
+                handleSearch(); 
+            }
+        };
+
+        recognition.onerror = (event) => {
+            console.error('خطأ في التعرف على الكلام:', event.error);
+            isListening.value = false;
+            voiceTranscript.value = 'حدث خطأ في التعرف على الكلام';
+        };
+
+        recognition.start();
+    } else {
+        alert('متصفحك لا يدعم التعرف على الكلام. يرجى استخدام Chrome أو Edge.');
+    }
+};
+
+const toggleVoiceSearch = () => {
+    if (isListening.value) {
+        if (recognition) {
+            recognition.stop();
+        }
+        isListening.value = false;
+    } else {
+        startVoiceSearch();
+    }
+};
+
+const handleStopListening = () => {
+    if (recognition) {
+        recognition.stop();
+    }
+};
 // ------------------------------------
 // Lifecycle
 // ------------------------------------
@@ -448,27 +545,41 @@ onMounted(async () => {
   </p>
 
   <div class="flex flex-col md:flex-row justify-center items-center gap-4 mt-6">
+    
+    <div class="relative max-w-2xl mx-auto w-full"> 
+        <div class="flex items-center bg-white border-2 border-purple-600 hover:border-pink-500 rounded-xl shadow-xl overflow-hidden h-14 sm:h-16 w-full">
+            <span class="material-icons text-gray-400 px-3 sm:px-4">search</span>
+            <input
+                type="text"
+                v-model="searchPhrase"
+                @keyup.enter="handleSearch"
+                placeholder="ابحث بعنوان القصة..."
+                class="flex-grow w-full h-full px-2 text-gray-800 placeholder-gray-400 focus:outline-white"
+                :disabled="isListening"
+            >
+            
+            <div class="flex h-full divide-x divide-gray-200" dir="ltr"> <button 
+                    @click="toggleVoiceSearch" 
+                    class="flex flex-col items-center justify-center w-12 text-red-500 hover:text-red-600 transition-colors duration-200" 
+                    :class="{'animate-ping-slow': isListening}"
+                >
+                    <span class="material-icons text-lg leading-none">{{ isListening ? 'mic_off' : 'mic' }}</span>
+                    <span class="text-[10px] font-medium leading-none mt-[1px] hidden sm:block">صوت</span>
+                </button>
+                
+             
+            </div>
+        </div>
 
-  <div class="relative w-full max-w-2xl shadow-lg rounded-2xl mx-auto ">
-   <div
-   class="flex items-center rounded-2xl border-2 border-indigo-400 focus-within:border-red-500 transition-all duration-300 bg-white">
-
-   <span class="material-icons text-gray-400 text-2xl sm:text-3xl mx-2 sm:mx-4">search</span>
-
-   <input type="text" v-model="searchPhrase" @keyup.enter="handleSearch" placeholder="ابحث بعنوان القصة..."
-    class="flex-grow py-3 sm:py-4 bg-transparent text-gray-800 focus:outline-none placeholder-gray-500 text-base sm:text-lg">
-
-   <button @click="handleSearch"
-    class="p-2 sm:p-4 text-indigo-500 hover:text-indigo-700 transition-colors duration-300"
-    title="تطبيق البحث">
-    <span class="material-icons text-xl sm:text-3xl">play_arrow</span>
-   </button>
-
-   </div>
-  </div>
-
-
-  </div>
+        <Transition name="custom-fade">
+            <div v-if="isListening" class="mt-3 p-3 bg-yellow-100 rounded-xl shadow-lg border border-yellow-400 flex items-center justify-between text-center max-w-full mx-auto">
+                <span class="text-sm font-bold text-gray-700">جارٍ الاستماع:</span>
+                <span class="text-sm font-medium text-gray-800 mx-2 flex-grow text-right">{{ voiceTranscript }}</span>
+                <button @click="handleStopListening" class="px-3 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded-lg ml-2 flex-shrink-0">إيقاف</button>
+            </div>
+        </Transition>
+    </div>
+     </div>
 
   <div class="flex flex-col md:flex-row gap-4 justify-center">
   <button @click="showAddModal = true"

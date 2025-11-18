@@ -10,6 +10,8 @@ const router = useRouter();
 // -------------------
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 const CATEGORIES_ENDPOINT = `${API_BASE}/api/StoryCategories/GetAllMatching`;
+// 💡 تم توحيد نقطة النهاية إلى GetAllMatching للبحث والاقتراحات
+const SUGGESTIONS_ENDPOINT = `${API_BASE}/api/MasterStories/GetAllMatching`; 
 
 // -------------------
 // حالة الأقسام
@@ -17,6 +19,13 @@ const CATEGORIES_ENDPOINT = `${API_BASE}/api/StoryCategories/GetAllMatching`;
 const storyCategories = ref([]);
 const selectedCategory = ref('');
 const showFilterDropdown = ref(false);
+
+// -------------------
+// حالة الاقتراحات (Autocomplete) - داخلي
+// -------------------
+const suggestions = ref([]);
+const showSuggestions = ref(false); 
+let debounceTimeout = null; // لأجل تأخير طلب الـ API
 
 // -------------------
 // حالة فلتر نوع المحتوى
@@ -40,16 +49,10 @@ let recognition = null; // متغير لحفظ كائن SpeechRecognition
 // -------------------
 const props = defineProps({
     searchQuery: String,
-    showSuggestions: Boolean,
-    searchSuggestions: Array
 });
 
 const emit = defineEmits([
     'update:searchQuery',
-    'update:showSuggestions',
-    'handleSearchInput',
-    'hideSuggestions',
-    'selectSuggestion',
 ]);
 
 // -------------------
@@ -59,6 +62,11 @@ const searchQueryModel = computed({
     get: () => props.searchQuery,
     set: val => emit('update:searchQuery', val)
 });
+
+// -------------------
+// جلب التوكن
+// -------------------
+const getToken = () => localStorage.getItem('authToken');
 
 // -------------------
 // جلب الأقسام باستخدام POST body
@@ -88,6 +96,88 @@ const fetchCategories = async () => {
 onMounted(fetchCategories);
 
 // -------------------
+// جلب الاقتراحات (Autocomplete)
+// -------------------
+const fetchSuggestions = async (query) => {
+    // 💡 الشرط الجديد: يجب إدخال 3 أحرف على الأقل
+    if (!query || query.trim().length < 3) {
+        suggestions.value = [];
+        showSuggestions.value = false;
+        return;
+    }
+
+    try {
+        const token = getToken();
+        // إعداد Body request لاستخدام GetAllMatching
+        const requestBody = { 
+            searchPhrase: query,
+            pageNumber: 1,
+            pageSize: 10, // 💡 طلب عدد قليل من النتائج لغرض الاقتراحات
+            orderBy: "createdAt", 
+            descending: true,
+            ApprovalStatus: 1, // نفترض أننا نبحث عن قصص معتمدة
+        };
+
+        const response = await axios.post(SUGGESTIONS_ENDPOINT, requestBody, {
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token && { Authorization: `Bearer ${token}` })
+            }
+        });
+
+        if (response.data && response.data.items) {
+            suggestions.value = response.data.items.slice(0, 10).map(item => ({
+                id: item.id,
+                title: item.title,
+                type: item.storyCategoryTitle || 'قصة', 
+            }));
+            showSuggestions.value = suggestions.value.length > 0;
+        } else {
+            suggestions.value = [];
+            showSuggestions.value = false;
+        }
+    } catch (error) {
+        console.error("Error fetching suggestions:", error);
+        suggestions.value = [];
+        showSuggestions.value = false;
+    }
+};
+
+// -------------------
+// معالجة إدخال البحث (Debouncing)
+// -------------------
+const handleSearchInput = () => {
+    // إخفاء القائمة عند مسح النص
+    if (!searchQueryModel.value) {
+        suggestions.value = [];
+        showSuggestions.value = false;
+    }
+
+    // تأخير الطلب لتجنب الإرسال مع كل ضغطة مفتاح
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+        fetchSuggestions(searchQueryModel.value);
+    }, 300); 
+};
+
+
+// -------------------
+// منطق التعامل مع الاقتراحات
+// -------------------
+
+const selectSuggestion = (suggestion) => {
+    // التوجيه إلى مسار القصة عند الضغط على الاقتراح
+    router.push({ path: `/stories/${suggestion.id}` });
+    showSuggestions.value = false;
+};
+
+const viewAllResults = () => {
+    // التوجيه إلى صفحة نتائج البحث بالكلمة المدخلة
+    performSearch();
+    showSuggestions.value = false;
+};
+
+// -------------------
 // التحكم بالفلتر Dropdown
 // -------------------
 const toggleFilterDropdown = () => {
@@ -108,6 +198,9 @@ const performSearch = () => {
     }
 
     if (Object.keys(query).length === 0) return;
+    
+    // إغلاق الاقتراحات عند البحث الكامل
+    showSuggestions.value = false;
 
     router.push({ path: '/searchResults', query }).catch(err => {
         if (err.name !== 'NavigationDuplicated') throw err;
@@ -115,7 +208,7 @@ const performSearch = () => {
 };
 
 // -------------------
-// وظيفة معالجة النص المُلتقط وتصحيح الهاء إلى تاء مربوطة
+// وظيفة معالجة النص المُلتقط وتصحيح الهاء إلى تاء مربوطة (كما هي)
 // -------------------
 const normalizeArabicTranscript = (text) => {
     if (!text || typeof text !== 'string') return text;
@@ -232,7 +325,6 @@ const handleStopListening = () => {
     }
 };
 </script>
-
 <template>
 <section class="py-8 flex flex-col justify-center items-center relative bg-white overflow-hidden">
     
@@ -243,25 +335,23 @@ const handleStopListening = () => {
         <img src="/hero.jpeg" alt="child" class="w-[80%] mx-auto md:w-full md:h-64 object-contain rounded-lg">
     </div>
 
-    <div class="text-center mb-16">
+    <div class="text-center mb-4">
 <h2 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-purple-500 custom-text-pulse mb-4"> منصة <span
     class="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-purple-500 custom-text-pulse">الطفل
     الرقمية</span>
-    </h2> 		<p class="text-sm md:text-base text-pink-500">تعلم بمرح... واكتشف بذكاء</p>
+    </h2>       <p class="text-sm md:text-base text-pink-500">تعلم بمرح... واكتشف بذكاء</p>
     </div>
 
 <div class="relative md:w-[50%] ">
-    <div class="flex items-center bg-white border-2 border-purple-600 rounded-xl shadow-xl overflow-hidden h-20 w-full">
+    <div class="flex items-center bg-white border-2 border-purple-600 hover:border-pink-500 rounded-xl shadow-xl overflow-hidden h-20 w-full">
         <span class="material-icons text-gray-400 px-3">search</span>
         <input
             type="text"
             v-model="searchQueryModel"
-            @input="emit('handleSearchInput')"
-            @focus="emit('update:showSuggestions', true)"
-            @blur="emit('hideSuggestions')"
-            @keyup.enter="performSearch"
+            @input="handleSearchInput" @focus="showSuggestions = true"
+            @blur="setTimeout(() => showSuggestions = false, 100)" @keyup.enter="performSearch"
             placeholder="ابحث بالموضوع، أو المؤلف، أو العنوان..."
-            class="flex-grow w-full h-full px-2 text-gray-800 placeholder-gray-400 focus:outline-none"
+            class="flex-grow w-full h-full px-2 text-gray-800 placeholder-gray-400 focus:outline-white"
             :disabled="isListening"
         >
         
@@ -287,17 +377,33 @@ const handleStopListening = () => {
     </div>
 
     <Transition name="custom-slide-down">
-        <div v-if="showSuggestions && searchSuggestions && searchSuggestions.length > 0" class="absolute top-full right-0 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl z-50 text-right">
-            <div v-for="suggestion in searchSuggestions" :key="suggestion.id" @mousedown.prevent="emit('selectSuggestion', suggestion)" class="flex items-center gap-3 p-3 cursor-pointer hover:bg-indigo-50 transition-colors duration-200 border-b border-gray-100">
+        <div v-if="showSuggestions && suggestions && suggestions.length > 0" 
+             class="mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl z-50 text-right">
+            
+            <div 
+                v-for="suggestion in suggestions" 
+                :key="suggestion.id" 
+                @mousedown.prevent="selectSuggestion(suggestion)" 
+                class="flex items-center gap-3 p-3 cursor-pointer hover:bg-indigo-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0"
+            >
                 <span class="material-icons text-gray-500 text-xl">search</span>
-                <span class="text-gray-800 ">{{ suggestion.title }}</span>
+                <span class="text-gray-800 truncate flex-grow">{{ suggestion.title }}</span>
                 <span class="mr-auto text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full">{{ suggestion.type }}</span>
+            </div>
+
+            <div class="p-2 border-t border-gray-200" v-if="searchQueryModel.trim().length > 0">
+                <button 
+                    @click="viewAllResults" 
+                    class="w-full text-center text-sm font-semibold text-purple-600 hover:text-purple-700 transition-colors py-2 rounded-lg hover:bg-purple-50"
+                >
+                    عرض كل النتائج لـ "{{ searchQueryModel }}"
+                </button>
             </div>
         </div>
     </Transition>
 
     <Transition name="custom-slide-down z-50">
-        <div v-if="showFilterDropdown" class="z-50    mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl  text-right p-3">
+        <div v-if="showFilterDropdown" class="z-50    mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl  text-right p-3">
             
             <label class="block mb-2 font-semibold">حسب القسم:</label>
             <select v-model="selectedCategory" @change="performSearch" class="w-full border rounded p-1 mb-4">

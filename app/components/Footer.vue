@@ -9,9 +9,9 @@
         <!-- معلومات المنصة -->
         <div class="lg:col-span-2">
           <div class="flex items-center gap-3 mb-6 transform hover:scale-105 transition-all duration-300">
-            <div class="bg-white/20 rounded-2xl p-3 shadow-lg custom-rotate-slow">
+            <!-- <div class="bg-white/20 rounded-2xl p-3 shadow-lg custom-rotate-slow">
               <span class="material-icons text-white text-2xl">auto_stories</span>
-            </div>
+            </div> -->
             <div>
               <h3 class="text-2xl font-bold text-white custom-text-pulse"></h3>
               <p class="text-purple-200 text-lg">نحو جيل قارئ ومبدع</p>

@@ -104,7 +104,7 @@
 
                     <div class="w-1/2 md:w-1/4 px-4 mb-6 md:mb-0">
                         <p class="text-3xl font-extrabold mb-1"><span id="stat2">0</span>+</p>
-                        <p class="text-sm font-light uppercase tracking-wider opacity-80">موضوع منوع</p>
+                        <p class="text-sm font-light uppercase tracking-wider opacity-80">إعجابات</p>
                     </div>
 
                     <div class="w-1/2 md:w-1/4 px-4">
@@ -237,7 +237,7 @@ const generalStats = ref({
 
 // Pagination State
 const currentPage = ref(1)
-const pageSize = ref(8) 
+const pageSize = ref(6) 
 const totalItems = ref(0) 
 
 // Form data
@@ -334,7 +334,7 @@ const initializeStats = () => {
     runCountUp('stat1', generalStats.value.averageRating, 1000, true);
 
     // Stat 2: الموضوعات المنوعة (نستخدم عدد الفئات الفعلي)
-    const totalTopics = categories.value.length || generalStats.value.totalTopics;
+    const totalTopics = generalStats.value.totalTopics;
     runCountUp('stat2', totalTopics, 1500); 
     
     // Stat 3: المستفيد النشط
@@ -365,6 +365,7 @@ const fetchGeneralStats = async () => {
 
         if (data) {
             generalStats.value.totalContent = data.storyCounts.total || 0;
+            generalStats.value.totalTopics = data.engagementMetrics.totalLikes || 0;
             generalStats.value.totalActiveUsers = data.userCounts.total || 0;
             generalStats.value.averageRating = data.engagementMetrics.averageRating || 4.8;
             
