@@ -1,6 +1,6 @@
 <template>
   <div dir="rtl"
-    class="min-h-screen bg-gradient-to-br from-purple-300 via-pink-400 to-purple-400 transition-colors duration-300 overflow-hidden">
+    class="min-h-screen  transition-colors duration-300 overflow-hidden">
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
       <div class="absolute top-1/4 left-1/4 w-12 h-12 bg-purple-300 rounded-full opacity-20 animate-float-1"></div>
       <div class="absolute top-1/3 right-1/4 w-8 h-8 bg-blue-300 rounded-full opacity-30 animate-float-2"></div>
@@ -470,7 +470,7 @@ const fetchStoryPage = async (storyId, itemsPageNumber = 1) => {
       soundEffect: it.soundEffect || null,
       interactions: it.interactions || null
     })) : []
-    storyAuthor.value = data.createdByUserName || data.createdBy || ''
+    storyAuthor.value = data.createdByUser.fullName  || ''
     return {
       id: data.id,
       title: data.title,

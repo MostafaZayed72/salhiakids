@@ -1,5 +1,5 @@
 <template>
-  <div dir="rtl" class="min-h-screen bg-gradient-to-br from-purple-300 via-pink-400 to-purple-400 transition-colors duration-300">
+  <div dir="rtl" class="min-h-screen  transition-colors duration-300">
     
     <main class="flex-1 py-8">
       <div class="container mx-auto px-4">
@@ -167,7 +167,7 @@
                     {{ selectedStory.description || 'قصة مغامرة مثيرة مليئة بالتحديات والإنجازات' }}
                   </p>
                   
-                  <div class="flex justify-center gap-2 mt-4">
+                  <!-- <div class="flex justify-center gap-2 mt-4">
                     <span 
                       v-if="selectedStory.ageGroup"
                       class="bg-purple-500 text-white px-3 py-1 rounded-full text-sm"
@@ -180,10 +180,10 @@
                     >
                       {{ selectedStory.heroName }}
                     </span>
-                  </div>
+                  </div> -->
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                <!-- <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
                   <div class="text-center">
                     <span class="material-icons text-purple-500">schedule</span>
                     <div>{{ selectedStory.duration || 'غير محدد' }}</div>
@@ -192,7 +192,7 @@
                     <span class="material-icons text-pink-500">star</span>
                     <div>{{ selectedStory.rating || 'N/A' }}</div>
                   </div>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>
