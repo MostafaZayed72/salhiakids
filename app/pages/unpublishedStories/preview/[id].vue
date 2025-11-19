@@ -4,7 +4,6 @@ import { useRoute } from 'vue-router'
 import axios from 'axios'
 
 const route = useRoute()
-const router = useRouter()
 const masterStoryId = ref('') 
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
@@ -27,7 +26,7 @@ const isUploading = ref(false)
 const relatedStories = ref([]) 
 const isLiked = ref(false) 
 const userRating = ref(0) 
-
+const hasAccess = ref(true)
 // ----------------------
 // حالة الميزات التفاعلية (تعليقات)
 // ----------------------
@@ -98,15 +97,6 @@ if (route.params.masterStoryId) return String(route.params.masterStoryId)
 return ''
 }
 
-const redirectBack = () => { // 👈 دالة التوجيه للخلف
-    alert('القصة غير منشورة. سيتم إعادتك للصفحة السابقة.');
-    if (window.history.length > 1) {
-        router.back();
-    } else {
-        // بديل في حال لم يكن هناك تاريخ للمتصفح
-        router.push('/');
-    }
-}
 // ----------------------
 // جلب البيانات الرئيسية (تم إضافة الـ Token)
 // ----------------------
@@ -123,30 +113,30 @@ const fetchStoryTitle = async (storyId) => {
     });
     
     const storyData = response.data || {};
-        
-        // 🚨🚨🚨 التحقق الجديد: إذا كانت الحالة 0 (Pending)، نرفع خطأ مخصص ونوقف الجلب
-        if (storyData.approvalStatus === 0) {
-             throw new Error('STORY_PENDING'); 
-        }
-        // 🚨🚨🚨 نهاية التحقق 🚨🚨🚨
+
+    // 🚨🚨🚨 التحقق من حالة القصة (يجب أن تكون 0: Pending) 🚨🚨🚨
+    if (storyData.approvalStatus !== 0) {
+      throw new Error('Story status is not 0 (Pending).');
+    }
+    // 🚨🚨🚨 نهاية التحقق 🚨🚨🚨
 
     masterStory.value = storyData;
 
     storyTitle.value = masterStory.value.title || 'قصة بدون عنوان';
     
-    // تحديث حالة الإعجاب
+    // تحديث حالة الإعجاب بناءً على الرد الجديد (لن يكون null إذا كان التوكن صالحاً)
     isLiked.value = storyData.isLikedByCurrentUser === true;
     
   } catch (err) {
     console.error('Error fetching story title:', err);
-        
-        // إذا كان الخطأ هو خطأ القصة المعلقة
-        if (err.message === 'STORY_PENDING') {
-            storyTitle.value = 'القصة معلقة وغير منشورة.';
-        } else {
-            storyTitle.value = 'خطأ في تحميل اسم القصة';
-        }
     
+    // تخصيص رسالة الخطأ بناءً على سبب الرفض
+    const isStatusError = err.message.includes('Story status is not 0 (Pending).');
+    
+    storyTitle.value = isStatusError 
+     ? 'خطأ في تحميل القصة: حالة القصة غير متوفرة (ليست Pending).' 
+     : 'خطأ في تحميل اسم القصة: القصة غير متوفرة أو حدث خطأ عام.';
+
     masterStory.value = {};
     isLiked.value = false;
   }
@@ -444,44 +434,39 @@ const trackView = (storyId) => {
     }
   }, 3000);
 };
-
-
 const initializeData = async (id) => {
- isLoading.value = true;
- if (!id) return;
+  isLoading.value = true;
+  hasAccess.value = true;
+  if (!id) return;
 
- // 1. جلب بيانات المستخدم أولاً
- await checkAdminStatus(); 
- 
- // 2. جلب القصة
- await fetchStoryTitle(id);
-
-  // 🚨🚨🚨 التحقق من حالة القصة بعد الجلب 🚨🚨🚨
-  // إذا كانت masterStory فارغة والعنوان يشير إلى أنها معلقة (بسبب الخطأ STORY_PENDING)
-  if (!masterStory.value.id && storyTitle.value.includes('القصة معلقة')) {
-      redirectBack(); // توجيه المستخدم للخلف
-      isLoading.value = false;
-      return; // إيقاف تنفيذ initializeData
-  }
-  // 🚨🚨🚨 نهاية التحقق 🚨🚨🚨
- 
- // 3. جلب القصص المشابهة (لن يتم تنفيذها إذا تم التوجيه)
- const categoryId = masterStory.value?.storyCategoryId;
- if (categoryId) {
- await fetchRelatedStories(categoryId, id);
+  // 1. جلب بيانات المستخدم أولاً (يجب أن يتم أولاً لمعرفة ID المستخدم والتوكن)
+  await checkAdminStatus(); 
+  
+  if (!isAdmin.value) {
+  storyTitle.value = 'غير مصرح لك بفتح هذه الصفحة.';
+  masterStory.value = {};
+  hasAccess.value = false; // 👈 رفض الوصول
+  isLoading.value = false;
+  return; // وقف تنفيذ الدالة
  }
- 
- // 4. جلب تقييم المستخدم الحالي
- await fetchRating(id);
+  // 2. جلب القصة مع إرسال التوكن للحصول على حالة الإعجاب والتقييم المتوسط الصحيحة
+  await fetchStoryTitle(id);
 
- // 5. جلب التعليقات
- await fetchComments();
+  // 3. جلب القصص المشابهة
+  const categoryId = masterStory.value?.storyCategoryId;
+  if (categoryId) {
+   await fetchRelatedStories(categoryId, id);
+  }
+  
+  // 4. جلب تقييم المستخدم الحالي (التقييم المحدد)
+  await fetchRating(id);
 
- trackView(id);
- isLoading.value = false;
+  // 5. جلب التعليقات (القائمة مع الصفحات)
+  await fetchComments();
+
+  trackView(id);
+  isLoading.value = false;
 };
-
-
 onMounted(async () => {
 masterStoryId.value = resolveStoryIdFromUrl();
 })

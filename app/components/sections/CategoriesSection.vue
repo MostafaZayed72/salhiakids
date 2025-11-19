@@ -92,29 +92,29 @@
 
         <div class="container mx-auto px-4 mt-20">
             <div
-                class="bg-white text-purple-600 p-8 rounded-2xl shadow-2xl border-4 border-white/50"
+                class=""
                 data-aos="zoom-in"
                 data-aos-delay="300"
             >
                 <div class="flex flex-wrap justify-around text-center -mx-4">
                     <div class="w-1/2 md:w-1/4 px-4 mb-6 md:mb-0">
-                        <p class="text-3xl font-extrabold mb-1"><span id="stat1">0.0</span>/5</p>
-                        <p class="text-sm font-light uppercase tracking-wider opacity-80">تقييم المستخدمين</p>
+                        <p class="text-2xl font-bold text-green-600"><span id="stat1">0.0</span>/5</p>
+                        <p class="text-sm text-green-600 font-light uppercase tracking-wider opacity-80">تقييم المستخدمين</p>
                     </div>
 
                     <div class="w-1/2 md:w-1/4 px-4 mb-6 md:mb-0">
-                        <p class="text-3xl font-extrabold mb-1"><span id="stat2">0</span>+</p>
-                        <p class="text-sm font-light uppercase tracking-wider opacity-80">إعجابات</p>
+                        <p class="text-2xl font-bold text-purple-600"><span id="stat2">0</span>+</p>
+                        <p class="text-sm text-purple-600 font-light uppercase tracking-wider opacity-80">إعجابات</p>
                     </div>
 
                     <div class="w-1/2 md:w-1/4 px-4">
-                        <p class="text-3xl font-extrabold mb-1"><span id="stat3">0</span>+</p>
-                        <p class="text-sm font-light uppercase tracking-wider opacity-80">مستفيد نشط</p>
+                        <p class="text-2xl font-bold text-sky-500"><span id="stat3">0</span>+</p>
+                        <p class="text-sm text-sky-500 font-light uppercase tracking-wider opacity-80">مستفيد نشط</p>
                     </div>
 
                     <div class="w-1/2 md:w-1/4 px-4">
-                        <p class="text-3xl font-extrabold mb-1"><span id="stat4">0</span>+</p>
-                        <p class="text-sm font-light uppercase tracking-wider opacity-80">محتوى مميز</p>
+                        <p class="text-2xl font-bold text-pink-500"><span id="stat4">0</span>+</p>
+                        <p class="text-sm text-pink-500 font-light uppercase tracking-wider opacity-80">محتوى مميز</p>
                     </div>
                 </div>
             </div>

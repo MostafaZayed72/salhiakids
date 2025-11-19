@@ -245,7 +245,8 @@ watch(
       <div
        v-for="story in stories"
        :key="story.id"
-       class="group relative p-4 rounded-2xl bg-white border-4 border-dashed border-red-400 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 shadow-md cursor-default overflow-hidden"
+       @click="navigateTo(`preview/${story.id}`)"
+       class="group cursor-pointer  relative p-4 rounded-2xl bg-white border-4 border-dashed border-red-400 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 shadow-md  overflow-hidden"
       >
        <div class="absolute top-3 left-3 flex gap-2 z-10 transition">
         
