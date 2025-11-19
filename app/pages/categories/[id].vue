@@ -56,6 +56,7 @@ const isUploading = ref(false)
 const newStory = ref({
   title: '',
   content: '',
+  authorName: '',
   mediaType: 0, // 0: لا يوجد, 1: صورة, 2: فيديو (رابط), 3: ملف (PDF)
   mediaUrl: '', // رابط الميديا المرفوعة (صورة، فيديو، ملف)
   coverImageUrl: '', // صورة الغلاف
@@ -297,44 +298,46 @@ const addStory = async () => {
     return
   }
 
+  isUploading.value = true // تعيين حالة الرفع قبل البدء
+
   const storyPayload = {
     storyCategoryId: catId,
     title: newStory.value.title,
+    authorName: newStory.value.authorName,
     content: newStory.value.content,
     coverImageUrl: newStory.value.coverImageUrl,
     mediaType: newStory.value.mediaType,
     mediaUrl: newStory.value.mediaUrl || '',
-    publishYear: newStory.value.publishYear || 0, // 👈 التعديل الثاني: استخدام قيمة الحقل
+    publishYear: newStory.value.publishYear || 0,
   }
 
   // منطق رفع الملفات قبل الإرسال
   let uploadMediaUrl = newStory.value.mediaUrl
 
-  if (newStory.value.fileToUpload) {
-    let uploadedUrl = ''
-    if (newStory.value.mediaType === 1) { // صورة ميديا
-      uploadedUrl = await uploadImage(newStory.value.fileToUpload)
-    } else if (newStory.value.mediaType === 4) { // ملف PDF
-      uploadedUrl = await uploadFile(newStory.value.fileToUpload)
-    }
-    if (uploadedUrl) {
-      uploadMediaUrl = uploadedUrl
-    } else {
-      alert('فشل رفع ملف الميديا. يرجى المحاولة مرة أخرى.')
-      return
-    }
-  }
-
-  storyPayload.mediaUrl = uploadMediaUrl
-
   try {
+    if (newStory.value.fileToUpload) {
+      let uploadedUrl = ''
+      if (newStory.value.mediaType === 1) { // صورة ميديا
+        uploadedUrl = await uploadImage(newStory.value.fileToUpload)
+      } else if (newStory.value.mediaType === 4) { // ملف PDF
+        uploadedUrl = await uploadFile(newStory.value.fileToUpload)
+      }
+      if (uploadedUrl) {
+        uploadMediaUrl = uploadedUrl
+      } else {
+        alert('فشل رفع ملف الميديا. يرجى المحاولة مرة أخرى.')
+        return
+      }
+    }
+
+    storyPayload.mediaUrl = uploadMediaUrl
+
     await axios.post(`${API_BASE}/api/MasterStories/Add`, storyPayload, {
       headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {}
     })
 
     showAddModal.value = false
-    // 👈 التعديل الثالث: إعادة تعيين الحقل عند الإضافة
-    newStory.value = { title: '', content: '', mediaType: 0, mediaUrl: '', coverImageUrl: '', fileToUpload: null, publishYear: null }
+    newStory.value = { title: '', authorName:'', content: '', mediaType: 0, mediaUrl: '', coverImageUrl: '', fileToUpload: null, publishYear: null }
     currentPage.value = 1
     await fetchStories()
 
@@ -342,9 +345,10 @@ const addStory = async () => {
   } catch (err) {
     console.error('Add story failed:', err.response?.data || err)
     alert('فشلت عملية الإضافة: ' + (err.response?.data?.message || 'خطأ غير معروف. راجع Console.'))
+  } finally {
+    isUploading.value = false // إعادة الحالة مهما كان نتيجة العملية
   }
 }
-
 // ------------------------------------
 // 6. تعديل قصة (UPDATE)
 // ------------------------------------
@@ -361,38 +365,41 @@ const openEdit = (story) => {
 const updateStory = async () => {
   if (!editingStory.value || isUploading.value) return
 
+  isUploading.value = true // تعيين حالة الرفع قبل البدء
+
   const storyPayload = {
     id: editingStory.value.id,
     storyCategoryId: effectiveCategoryId.value,
     title: editingStory.value.title,
+    authorName: editingStory.value.authorName,
     content: editingStory.value.content,
     coverImageUrl: editingStory.value.coverImageUrl || '',
     mediaType: editingStory.value.mediaType,
     mediaUrl: editingStory.value.mediaUrl || '',
-    publishYear: editingStory.value.publishYear || 0, // 👈 التعديل الرابع: استخدام قيمة الحقل
+    publishYear: editingStory.value.publishYear || 0,
   }
 
   // منطق رفع الملفات الجديدة عند التعديل
   let uploadMediaUrl = editingStory.value.mediaUrl
 
-  if (editingStory.value.fileToUpload) {
-    let uploadedUrl = ''
-    if (editingStory.value.mediaType === 1) {
-      uploadedUrl = await uploadImage(editingStory.value.fileToUpload)
-    } else if (editingStory.value.mediaType === 3) {
-      uploadedUrl = await uploadFile(editingStory.value.fileToUpload)
-    }
-    if (uploadedUrl) {
-      uploadMediaUrl = uploadedUrl
-    } else {
-      alert('فشل رفع ملف الميديا الجديد. يرجى المحاولة مرة أخرى.')
-      return
-    }
-  }
-
-  storyPayload.mediaUrl = uploadMediaUrl
-
   try {
+    if (editingStory.value.fileToUpload) {
+      let uploadedUrl = ''
+      if (editingStory.value.mediaType === 1) {
+        uploadedUrl = await uploadImage(editingStory.value.fileToUpload)
+      } else if (editingStory.value.mediaType === 3 || editingStory.value.mediaType === 4) {
+        uploadedUrl = await uploadFile(editingStory.value.fileToUpload)
+      }
+      if (uploadedUrl) {
+        uploadMediaUrl = uploadedUrl
+      } else {
+        alert('فشل رفع ملف الميديا الجديد. يرجى المحاولة مرة أخرى.')
+        return
+      }
+    }
+
+    storyPayload.mediaUrl = uploadMediaUrl
+
     await axios.put(`${API_BASE}/api/MasterStories/Update`, storyPayload, {
       headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {}
     })
@@ -404,9 +411,10 @@ const updateStory = async () => {
   } catch (err) {
     console.error('Update story failed:', err.response?.data || err)
     alert('فشل تحديث القصة: ' + (err.response?.data?.message || 'خطأ غير معروف'))
+  } finally {
+    isUploading.value = false // إعادة الحالة
   }
 }
-
 // ------------------------------------
 // 7. حذف قصة (DELETE)
 // ------------------------------------
@@ -708,6 +716,11 @@ onMounted(async () => {
    <input v-model="newStory.title" type="text" required
    class="w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" />
   </div>
+  <div>
+   <label class="block mb-1 text-sm font-medium text-gray-700">اسم المؤلف</label>
+   <input v-model="newStory.authorName" type="text" required
+   class="w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" />
+  </div>
 
   <div>
    <label class="block mb-1 text-sm font-medium text-gray-700">المحتوى الأساسي (النص)</label>
@@ -790,7 +803,13 @@ onMounted(async () => {
    <input v-model="editingStory.title" type="text" required
    class="w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
   </div>
+  <div>
+   <label class="block mb-1 text-sm font-medium text-gray-700">اسم المؤلف</label>
+   <input v-model="editingStory.authorName" type="text" required
+   class="w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+  </div>
 
+  
   <div>
    <label class="block mb-1 text-sm font-medium text-gray-700">المحتوى الأساسي (النص)</label>
    <textarea v-model="editingStory.content" rows="6" required
