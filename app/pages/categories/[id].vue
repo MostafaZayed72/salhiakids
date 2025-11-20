@@ -636,7 +636,7 @@ onMounted(async () => {
  <div v-else-if="stories.length > 0"
   class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto ">
   <div v-for="story in stories" :key="story.id"
-  class="group relative p-4 rounded-2xl bg-gradient-to-br from-purple-300 via-pink-300 to-purple-600 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 shadow-md border border-gray-200 cursor-pointer overflow-hidden"
+  class="group relative p-4 rounded-2xl bg-gradient-to-br from-purple-300 to-pink-300  hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 shadow-md border border-gray-200 cursor-pointer overflow-hidden"
   @click="navigateTo(`/stories/${story.id}`)">
   <div v-if="isAdmin || (currentUserId && currentUserId.toString() === story.createdBy.toString())"
    class="absolute top-3 left-3 flex gap-2 z-10 opacity-0 group-hover:opacity-100 transition">
@@ -724,7 +724,7 @@ onMounted(async () => {
 <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showAddModal = false"></div>
     
-    <div class="relative bg-white rounded-3xl p-6 w-full max-w-2xl mx-4 shadow-2xl transform transition max-h-[90vh] overflow-y-auto">
+    <div class="relative bg-gradient-to-br from-purple-300 to-pink-300 rounded-3xl p-6 w-full max-w-2xl mx-4 shadow-2xl transform transition max-h-[90vh] overflow-y-auto">
         
         <div class="flex items-start justify-between border-b pb-3 mb-4">
             <h3 class="text-xl font-bold text-gray-800">إضافة قصة جديدة</h3>
@@ -817,7 +817,7 @@ onMounted(async () => {
 <div v-if="showEditModal && editingStory" class="fixed inset-0 z-50 flex items-center justify-center">
     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showEditModal = false"></div>
     
-    <div class="relative bg-white rounded-3xl p-6 w-full max-w-2xl mx-4 shadow-2xl transform transition max-h-[90vh] overflow-y-auto">
+    <div class="relative bg-gradient-to-br from-purple-300 to-pink-300 rounded-3xl p-6 w-full max-w-2xl mx-4 shadow-2xl transform transition max-h-[90vh] overflow-y-auto">
         
         <div class="flex items-start justify-between border-b pb-3 mb-4">
             <h3 class="text-xl font-bold text-gray-800">تعديل القصة: {{ editingStory.title }}</h3>
