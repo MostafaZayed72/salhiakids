@@ -200,30 +200,40 @@
                      <p class="text-gray-500">كن أول من يشارك برأيه!</p>
                   </div>
                   <div v-else v-for="comment in comments" :key="comment.id" class="group">
-                     <div class="flex gap-4">
-                        <div class="flex-shrink-0">
-                           <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg shadow-md">
-                              {{ comment.createdByUserName ? comment.createdByUserName.charAt(0).toUpperCase() : 'U' }}
-                           </div>
-                        </div>
-                        <div class="flex-grow">
-                           <div class="bg-gray-50 rounded-2xl rounded-tr-none p-4 border border-gray-100 relative">
-                              <div class="flex justify-between items-start mb-1">
-                                 <h4 class="font-bold text-gray-900">{{ comment.createdByUserName || 'مستخدم' }}</h4>
-                                 <span class="text-xs text-gray-400 font-english">{{ new Date(comment.createdAt).toLocaleDateString('en-GB') }}</span>
-                              </div>
-                              <p class="text-gray-700 leading-relaxed text-sm">{{ comment.content }}</p>
-                              
-                              <!-- Comment Actions -->
-                              <div v-if="String(comment.createdBy) === String(currentUserId) || isAdmin" class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-lg shadow-sm border border-gray-200 flex">
-                                 <button @click="openEditComment(comment)" class="p-1.5 text-blue-500 hover:bg-blue-50 rounded-r-lg" title="تعديل"><span class="material-icons text-sm">edit</span></button>
-                                 <div class="w-px bg-gray-200"></div>
-                                 <button @click="deleteComment(comment)" class="p-1.5 text-red-500 hover:bg-red-50 rounded-l-lg" title="حذف"><span class="material-icons text-sm">delete</span></button>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
+  <div class="flex gap-4 items-center">
+
+    <div class="flex-shrink-0">
+      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500
+                  flex items-center justify-center text-white font-bold text-lg shadow-md">
+        {{ comment.createdByUser ? comment.createdByUser.fullName.charAt(0).toUpperCase() : 'U' }}
+      </div>
+    </div>
+
+    <div class="flex-grow">
+      <div class="bg-gray-50 rounded-2xl rounded-tr-none p-4 border border-gray-100 relative">
+        <div class="flex justify-between items-start mb-1">
+          <h4 class="font-bold text-purple-600">{{ comment.createdByUser.fullName || 'مستخدم' }}</h4>
+          <span class="text-xs text-gray-400 font-english">{{ new Date(comment.createdAt).toLocaleDateString('en-GB') }}</span>
+        </div>
+
+        <p class="text-gray-700 leading-relaxed text-sm">{{ comment.content }}</p>
+
+        <div v-if="String(comment.createdBy) === String(currentUserId) || isAdmin"
+             class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-lg shadow-sm border border-gray-200 flex">
+          <button @click="openEditComment(comment)" class="p-1.5 text-blue-500 hover:bg-blue-50 rounded-r-lg" title="تعديل">
+            <span class="material-icons text-sm">edit</span>
+          </button>
+          <div class="w-px bg-gray-200"></div>
+          <button @click="deleteComment(comment)" class="p-1.5 text-red-500 hover:bg-red-50 rounded-l-lg" title="حذف">
+            <span class="material-icons text-sm">delete</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
                </div>
                
                <!-- Pagination -->
