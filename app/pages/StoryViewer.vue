@@ -921,26 +921,54 @@ const addSlide = async () => {
   }
 }
 
+// helper to set childImage from incoming query params
+const setChildImageFromQuery = () => {
+  try {
+    const q = route.query.imageUrl || route.query.imageKey || route.query.image || ''
+    if (!q) { childImage.value = ''; return }
+    // if it's a data URL or absolute URL, use it directly
+    if (/^(data:|https?:\/\/)/.test(q)) {
+      childImage.value = q
+      return
+    }
+    // otherwise try localStorage lookup (key)
+    try {
+      const stored = localStorage.getItem(q)
+      if (stored) {
+        childImage.value = stored
+        return
+      }
+    } catch (e) {
+      console.warn('localStorage read failed', e)
+    }
+    // fallback: treat as URL string anyway
+    childImage.value = q
+  } catch (e) {
+    console.error('setChildImageFromQuery error', e)
+    childImage.value = ''
+  }
+}
+
 // lifecycle
 onMounted(async () => {
-  childName.value = route.query.name || ''
-  const imageKey = route.query.imageKey
-  if (imageKey) {
-    const storedImage = localStorage.getItem(imageKey)
-    if (storedImage) {
-      childImage.value = storedImage
-    }
-  }
+  // set child image early from query (supports imageUrl or imageKey)
+  setChildImageFromQuery()
+
   await checkAdminStatus()
   const id = route.query.templateId || route.query.story || route.query.id || route.query.template
   const page = Number(route.query.page) || 1
   loadStory(id, page)
 })
 
-watch(route, (r) => {
+// react to query changes (e.g., navigation from CustomStory)
+watch(route, async (r) => {
+  // update child name and image if changed
+  childName.value = r.query.name || ''
+  setChildImageFromQuery()
+
   const id = r.query.templateId || r.query.story || r.query.id
   const page = Number(r.query.page) || 1
-  if (id) loadStory(id, page)
+  if (id) await loadStory(id, page)
 })
 </script>
 
