@@ -290,7 +290,7 @@ export default {
     const availableStories = ref([])
     const isLoadingStories = ref(true)
     const currentPage = ref(1)
-    const pageSize = 6
+    const pageSize = 4
     const totalPages = ref(1)
 
     // حالة التطبيق

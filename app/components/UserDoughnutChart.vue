@@ -46,18 +46,11 @@ const chartOptions = {
       position: 'bottom',
       labels: {
           usePointStyle: true,
-          font: {
-            family: 'Tajawal, sans-serif'
-          }
       }
     },
     title: {
       display: true,
       text: 'توزيع المستخدمين (إجمالي)',
-      font: {
-        size: 14,
-        family: 'Tajawal, sans-serif'
-      }
     }
   }
 };

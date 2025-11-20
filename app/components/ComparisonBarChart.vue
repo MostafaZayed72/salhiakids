@@ -72,10 +72,6 @@ const chartOptions = {
     title: {
       display: true,
       text: 'كفاءة القصص ومعدلات التفاعل الرئيسية',
-      font: {
-        size: 14,
-        family: 'Tajawal, sans-serif'
-      }
     },
     tooltip: {
       callbacks: {

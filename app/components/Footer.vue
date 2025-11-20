@@ -13,7 +13,7 @@
               <span class="material-icons text-white text-2xl">auto_stories</span>
             </div> -->
             <div>
-              <h3 class="text-2xl font-bold text-white custom-text-pulse"></h3>
+              <h3 class="text-2xl font-bold text-white custom-text-pulse">منصة الطفل الرقمية</h3>
               <p class="text-purple-200 text-lg">نحو جيل قارئ ومبدع</p>
             </div>
           </div>
@@ -199,13 +199,8 @@ const policies = [
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
-/* تطبيق الخط العربي */
-footer {
-  font-family: 'Tajawal', sans-serif;
-}
 
 /* حركات مخصصة */
 @keyframes custom-rotate-slow {

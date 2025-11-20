@@ -1,6 +1,6 @@
 <template>
   <header
-    class="bg-gradient-to-r from-white to-purple-50 dark:from-gray-900 dark:to-purple-900 shadow-2xl border-b border-purple-200 dark:border-purple-700 sticky top-0 z-50 transition-all duration-300 font-tajawal">
+    class="bg-gradient-to-r from-white to-purple-50 dark:from-gray-900 dark:to-purple-900 shadow-2xl border-b border-purple-200 dark:border-purple-700 sticky top-0 z-50 transition-all duration-300 ">
     <div class="container mx-auto px-6 py-4">
       <div class="flex items-center justify-between">
 
@@ -420,12 +420,8 @@ export default {
 
 <style scoped>
 /* (لم يتم تغيير تنسيقات CSS هنا، فقط للتأكد من أنها متضمنة) */
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
-.font-tajawal {
-  font-family: 'Tajawal', sans-serif;
-}
 
 .line-clamp-1 {
   display: -webkit-box;

@@ -14,11 +14,10 @@ const props = defineProps({
   <div class="container mx-auto px-4">
    <div class="text-center mb-16">
         <h2 class="text-4xl font-bold text-gray-800 mb-4">
-     لماذا تختار <span class="text-purple-600">مكتبتنا؟</span>
+          لماذا تعتبر <span class="text-purple-600">منصتنا</span> التجربة المثالية لطفلك؟
     </h2>
     <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-     نقدم تجربة قراءة استثنائية تجمع بين المتعة والتعليم في بيئة آمنة
-    </p>
+نقدم تجربة رقمية استثنائية تجمع بين المتعة والتعليم في بيئة آمنة    </p>
    </div>
 
    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">

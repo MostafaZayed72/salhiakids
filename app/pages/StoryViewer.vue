@@ -1,6 +1,5 @@
 <template>
-  <div dir="rtl"
-    class="min-h-screen  transition-colors duration-300 overflow-hidden">
+  <div dir="rtl" class="min-h-screen  transition-colors duration-300 overflow-hidden">
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
       <div class="absolute top-1/4 left-1/4 w-12 h-12 bg-purple-300 rounded-full opacity-20 animate-float-1"></div>
       <div class="absolute top-1/3 right-1/4 w-8 h-8 bg-blue-300 rounded-full opacity-30 animate-float-2"></div>
@@ -42,8 +41,7 @@
               <span class="material-icons text-xl">file_download</span>
             </button>
  -->
-            <button
-              @click="shareStory"
+            <button @click="shareStory"
               class="p-2 text-gray-500 hover:text-purple-600 transition-all duration-300 transform hover:scale-110">
               <span class="material-icons text-xl">share</span>
             </button>
@@ -107,10 +105,12 @@
 
           <div class="p-8 min-h-96 flex items-center justify-center relative">
             <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-4xl text-purple-300 animate-bounce">
-              <span class="material-icons">auto_awesome</span></div>
+              <span class="material-icons">auto_awesome</span>
+            </div>
             <div
               class="absolute right-4 top-1/2 transform -translate-y-1/2 text-4xl text-pink-300 animate-bounce-delay">
-              <span class="material-icons">auto_awesome</span></div>
+              <span class="material-icons">auto_awesome</span>
+            </div>
 
             <transition :name="pageTransition" mode="out-in" @enter="onPageEnter" @leave="onPageLeave">
               <div :key="pageKey" class="text-center w-full">
@@ -133,28 +133,30 @@
                 </div>
 
                 <div :class="{ 'print-content-only': isPrintingAll }">
-                  
-                    <div v-if="!isPrintingAll">
-                        <h2 class="text-3xl font-bold">{{ currentPageData.title }}</h2>
-                        <div class="story-content-text" v-html="formatStoryText(currentPageData.content)"></div>
-                    </div>
 
-                    <div v-else class="print-only-container">
-                        <div v-for="(slide, index) in selectedStory.items" :key="index" class="story-slide-for-print">
-                            <h1 v-if="index === 0" class="text-4xl font-bold mb-8 text-center text-gray-800">
-                                {{ storyTitle }}
-                                <p class="text-xl font-normal text-gray-600 mt-2">مغامرة البطل: {{ childName }}</p>
-                            </h1>
+                  <div v-if="!isPrintingAll">
+                    <h2 class="text-3xl font-bold">{{ currentPageData.title }}</h2>
+                    <div class="story-content-text" v-html="formatStoryText(currentPageData.content)"></div>
+                  </div>
 
-                            <h3 class="text-2xl font-bold text-gray-800 mb-4 mt-8">صفحة {{ index + 1 }} - {{ slide.title || 'بدون عنوان' }}</h3>
-                            
-                            <img v-if="slide.image" :src="slide.image" :alt="slide.title" class="w-full h-auto object-contain mb-4 border rounded-lg shadow-md" style="max-height: 50vh;">
-                            
-                            <div class="text-lg text-gray-700 story-content-text" v-html="slide.content"></div> 
-                            
-                            <div v-if="index < selectedStory.items.length - 1" class="page-break-after"></div>
-                        </div>
+                  <div v-else class="print-only-container">
+                    <div v-for="(slide, index) in selectedStory.items" :key="index" class="story-slide-for-print">
+                      <h1 v-if="index === 0" class="text-4xl font-bold mb-8 text-center text-gray-800">
+                        {{ storyTitle }}
+                        <p class="text-xl font-normal text-gray-600 mt-2">مغامرة البطل: {{ childName }}</p>
+                      </h1>
+
+                      <h3 class="text-2xl font-bold text-gray-800 mb-4 mt-8">صفحة {{ index + 1 }} - {{ slide.title ||
+                        'بدون عنوان' }}</h3>
+
+                      <img v-if="slide.image" :src="slide.image" :alt="slide.title"
+                        class="w-full h-auto object-contain mb-4 border rounded-lg shadow-md" style="max-height: 50vh;">
+
+                      <div class="text-lg text-gray-700 story-content-text" v-html="slide.content"></div>
+
+                      <div v-if="index < selectedStory.items.length - 1" class="page-break-after"></div>
                     </div>
+                  </div>
                 </div>
                 <div v-if="isAdmin" class="flex justify-center gap-2 mt-4">
                   <button @click="editCurrentSlide"
@@ -470,7 +472,7 @@ const fetchStoryPage = async (storyId, itemsPageNumber = 1) => {
       soundEffect: it.soundEffect || null,
       interactions: it.interactions || null
     })) : []
-    storyAuthor.value = data.createdByUser.fullName  || ''
+    storyAuthor.value = data.createdByUser.fullName || ''
     return {
       id: data.id,
       title: data.title,
@@ -644,160 +646,160 @@ import { jsPDF } from 'jspdf'; // تأكد من استيرادها في بداي
 // ... (بقية الأكواد)
 
 const downloadStory = async () => {
-    if (!selectedStory.value) return;
+  if (!selectedStory.value) return;
 
-    try {
-        const doc = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-        });
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-        let y = 10; // موضع البداية Y
-        const margin = 10;
-        const lineHeight = 7;
-        
-        // ضبط الخط العربي
-        // 💡 ملاحظة: يتطلب jspdf تحميل خط يدعم اللغة العربية. 
-        // سنفترض مؤقتاً أن خطاً افتراضياً موجود، وإلا يجب تحميله.
-        doc.setFont('Amiri', 'normal'); // مثال لخط يدعم العربية (تحتاج لـ jspdf-autotable أو إضافة خط مخصص)
-        doc.setFontSize(14);
-        
-        // إضافة عنوان القصة (إذا كان هناك مجال)
-        doc.text(storyTitle.value, pageWidth / 2, y, { align: 'center' });
-        y += lineHeight;
-        doc.text(`الكاتب: ${storyAuthor.value}`, pageWidth / 2, y, { align: 'center' });
-        y += lineHeight * 2;
-        
-        doc.setFontSize(12);
+  try {
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    let y = 10; // موضع البداية Y
+    const margin = 10;
+    const lineHeight = 7;
 
-        // جلب جميع الصفحات
-        for (let i = 1; i <= backendTotalPages.value; i++) {
-            const pageData = await fetchStoryPage(selectedStory.value.id, i);
-            const pageContent = pageData?.items?.[0];
+    // ضبط الخط العربي
+    // 💡 ملاحظة: يتطلب jspdf تحميل خط يدعم اللغة العربية. 
+    // سنفترض مؤقتاً أن خطاً افتراضياً موجود، وإلا يجب تحميله.
+    doc.setFont('Amiri', 'normal'); // مثال لخط يدعم العربية (تحتاج لـ jspdf-autotable أو إضافة خط مخصص)
+    doc.setFontSize(14);
 
-            if (pageContent) {
-                // 1. استخدام دالة تنسيق النص لضمان استبدال "اسم_البطل"
-                const text = formatStoryText(pageContent.content || pageContent.description)
-                                .replace(/<br>/g, '\n'); // تحويل <br> لسطر جديد في PDF
+    // إضافة عنوان القصة (إذا كان هناك مجال)
+    doc.text(storyTitle.value, pageWidth / 2, y, { align: 'center' });
+    y += lineHeight;
+    doc.text(`الكاتب: ${storyAuthor.value}`, pageWidth / 2, y, { align: 'center' });
+    y += lineHeight * 2;
 
-                // 2. إذا لم يعد هناك مساحة، نبدأ صفحة جديدة
-                if (y + 100 > pageHeight) { // 100 ارتفاع تقريبي للصورة والنص
-                    doc.addPage();
-                    y = margin;
-                }
-                
-                // 3. إضافة الصورة (مهم جداً!)
-                const imageUrl = pageContent.image;
-                if (imageUrl) {
-                    const imgWidth = pageWidth - (margin * 2);
-                    const imgHeight = imgWidth / 1.5; // نسبة 3:2 تقريبًا
-                    
-                    // استخدام try/catch لضمان عدم توقف التحميل بسبب فشل جلب الصورة
-                    try {
-                        const response = await fetch(imageUrl);
-                        const blob = await response.blob();
-                        const reader = new FileReader();
-                        
-                        await new Promise((resolve) => {
-                            reader.onloadend = () => {
-                                const base64Image = reader.result;
-                                const imageFormat = imageUrl.split('.').pop() === 'png' ? 'PNG' : 'JPEG';
-                                
-                                doc.addImage(base64Image, imageFormat, margin, y, imgWidth, imgHeight);
-                                y += imgHeight + 5; // تحريك موضع Y بعد الصورة
-                                resolve();
-                            };
-                            reader.readAsDataURL(blob);
-                        });
-                        
-                    } catch (e) {
-                        console.warn(`Failed to fetch image for page ${i}: ${e}`);
-                        doc.text(`[تعذر تحميل الصورة للصفحة ${i}]`, pageWidth / 2, y, { align: 'center' });
-                        y += 10;
-                    }
-                }
-                
-                // 4. إضافة النص المنسق
-                const lines = doc.splitTextToSize(text, pageWidth - (margin * 2));
-                doc.text(lines, margin, y);
-                y += lines.length * lineHeight + 10; // تحريك Y بعد النص
-                
-                // إضافة فاصل بين الصفحات في ملف PDF
-                doc.setFontSize(8);
-                doc.text(`--- نهاية صفحة القصة ${i} ---`, pageWidth / 2, y, { align: 'center' });
-                y += 10;
-                doc.setFontSize(12);
-            }
+    doc.setFontSize(12);
+
+    // جلب جميع الصفحات
+    for (let i = 1; i <= backendTotalPages.value; i++) {
+      const pageData = await fetchStoryPage(selectedStory.value.id, i);
+      const pageContent = pageData?.items?.[0];
+
+      if (pageContent) {
+        // 1. استخدام دالة تنسيق النص لضمان استبدال "اسم_البطل"
+        const text = formatStoryText(pageContent.content || pageContent.description)
+          .replace(/<br>/g, '\n'); // تحويل <br> لسطر جديد في PDF
+
+        // 2. إذا لم يعد هناك مساحة، نبدأ صفحة جديدة
+        if (y + 100 > pageHeight) { // 100 ارتفاع تقريبي للصورة والنص
+          doc.addPage();
+          y = margin;
         }
 
-        // حفظ الملف
-        doc.save(`${storyTitle.value || 'قصة'}.pdf`);
-        
-    } catch (err) {
-        console.error('Download PDF failed', err);
-        alert('فشل تحميل القصة كملف PDF');
+        // 3. إضافة الصورة (مهم جداً!)
+        const imageUrl = pageContent.image;
+        if (imageUrl) {
+          const imgWidth = pageWidth - (margin * 2);
+          const imgHeight = imgWidth / 1.5; // نسبة 3:2 تقريبًا
+
+          // استخدام try/catch لضمان عدم توقف التحميل بسبب فشل جلب الصورة
+          try {
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const reader = new FileReader();
+
+            await new Promise((resolve) => {
+              reader.onloadend = () => {
+                const base64Image = reader.result;
+                const imageFormat = imageUrl.split('.').pop() === 'png' ? 'PNG' : 'JPEG';
+
+                doc.addImage(base64Image, imageFormat, margin, y, imgWidth, imgHeight);
+                y += imgHeight + 5; // تحريك موضع Y بعد الصورة
+                resolve();
+              };
+              reader.readAsDataURL(blob);
+            });
+
+          } catch (e) {
+            console.warn(`Failed to fetch image for page ${i}: ${e}`);
+            doc.text(`[تعذر تحميل الصورة للصفحة ${i}]`, pageWidth / 2, y, { align: 'center' });
+            y += 10;
+          }
+        }
+
+        // 4. إضافة النص المنسق
+        const lines = doc.splitTextToSize(text, pageWidth - (margin * 2));
+        doc.text(lines, margin, y);
+        y += lines.length * lineHeight + 10; // تحريك Y بعد النص
+
+        // إضافة فاصل بين الصفحات في ملف PDF
+        doc.setFontSize(8);
+        doc.text(`--- نهاية صفحة القصة ${i} ---`, pageWidth / 2, y, { align: 'center' });
+        y += 10;
+        doc.setFontSize(12);
+      }
     }
+
+    // حفظ الملف
+    doc.save(`${storyTitle.value || 'قصة'}.pdf`);
+
+  } catch (err) {
+    console.error('Download PDF failed', err);
+    alert('فشل تحميل القصة كملف PDF');
+  }
 }
 
 // ... (داخل قسم state)
 
 const currentPage = ref(1)
 // 💡 الحالة الجديدة: للتحكم في عرض جميع السلايدات
-const isPrintingAll = ref(false) 
+const isPrintingAll = ref(false)
 
 // ... (بقية الأكواد)
 
 // 💡 الدالة الجديدة: لجلب جميع الصفحات مؤقتاً والطباعة
 const printFullStory = async () => {
-    if (!selectedStory.value?.id) return
+  if (!selectedStory.value?.id) return
 
-    // 1. جلب بيانات القصة كاملة
-    // بما أن الـ API الخاص بك يجلب صفحة واحدة فقط، نحتاج إلى جلب كل صفحة بالترتيب
-    // هذا الجزء سيعتمد على `fetchStoryPage` ولكن يجب تعديله لجلب كل الصفحات بشكل صحيح.
+  // 1. جلب بيانات القصة كاملة
+  // بما أن الـ API الخاص بك يجلب صفحة واحدة فقط، نحتاج إلى جلب كل صفحة بالترتيب
+  // هذا الجزء سيعتمد على `fetchStoryPage` ولكن يجب تعديله لجلب كل الصفحات بشكل صحيح.
 
-    // 💡 ملاحظة هامة: يجب أن تكون لديك طريقة لجلب جميع السلايدات دفعة واحدة 
-    // أو سنكرر النداء لـ fetchStoryPage. بما أن `fetchStoryPage` تعتمد على 
-    // رقم الصفحة، سأستخدمها لجلب كل صفحة على حدة.
+  // 💡 ملاحظة هامة: يجب أن تكون لديك طريقة لجلب جميع السلايدات دفعة واحدة 
+  // أو سنكرر النداء لـ fetchStoryPage. بما أن `fetchStoryPage` تعتمد على 
+  // رقم الصفحة، سأستخدمها لجلب كل صفحة على حدة.
 
-    const allItems = []
-    let originalPage = currentPage.value // حفظ الصفحة الحالية
+  const allItems = []
+  let originalPage = currentPage.value // حفظ الصفحة الحالية
 
-    for (let i = 1; i <= backendTotalPages.value; i++) {
-        // نستخدم نفس المنطق تقريباً لجلب بيانات الصفحة
-        const full = await fetchStoryPage(selectedStory.value.id, i)
-        if (full?.items?.[0]) {
-            // ننسخ البيانات بعد معالجة اسم البطل
-            let content = full.items[0].content || ''
-            if (content) content = String(content).replace(/اسم_البطل/g, childName.value || '') 
-            
-            allItems.push({
-                ...full.items[0],
-                content: content // نستخدم المحتوى المنسق
-            })
-        }
+  for (let i = 1; i <= backendTotalPages.value; i++) {
+    // نستخدم نفس المنطق تقريباً لجلب بيانات الصفحة
+    const full = await fetchStoryPage(selectedStory.value.id, i)
+    if (full?.items?.[0]) {
+      // ننسخ البيانات بعد معالجة اسم البطل
+      let content = full.items[0].content || ''
+      if (content) content = String(content).replace(/اسم_البطل/g, childName.value || '')
+
+      allItems.push({
+        ...full.items[0],
+        content: content // نستخدم المحتوى المنسق
+      })
     }
-    
-    // 2. تحديث الـ selectedStory مؤقتاً لعرض جميع العناصر
-    // (هذا هو المفتاح الذي سيعرض جميع العناصر في الـ <template>)
-    const tempStory = selectedStory.value 
-    
-    // حفظ العناصر الأصلية لاستعادتها لاحقاً
-    const originalItems = tempStory.items
-    
-    // عرض جميع العناصر في الـ state
-    selectedStory.value = { ...tempStory, items: allItems } 
-    isPrintingAll.value = true // تفعيل وضع الطباعة الكاملة
-    
-    // 3. طباعة الصفحة
-    await new Promise(resolve => setTimeout(resolve, 50)); // انتظار DOM ليتحدث
-    window.print()
-    
-    // 4. إعادة الحالة الأصلية
-    isPrintingAll.value = false
-    selectedStory.value = { ...tempStory, items: originalItems }
-    await goToPage(originalPage) // العودة للصفحة الأصلية (أو مجرد تحديث)
+  }
+
+  // 2. تحديث الـ selectedStory مؤقتاً لعرض جميع العناصر
+  // (هذا هو المفتاح الذي سيعرض جميع العناصر في الـ <template>)
+  const tempStory = selectedStory.value
+
+  // حفظ العناصر الأصلية لاستعادتها لاحقاً
+  const originalItems = tempStory.items
+
+  // عرض جميع العناصر في الـ state
+  selectedStory.value = { ...tempStory, items: allItems }
+  isPrintingAll.value = true // تفعيل وضع الطباعة الكاملة
+
+  // 3. طباعة الصفحة
+  await new Promise(resolve => setTimeout(resolve, 50)); // انتظار DOM ليتحدث
+  window.print()
+
+  // 4. إعادة الحالة الأصلية
+  isPrintingAll.value = false
+  selectedStory.value = { ...tempStory, items: originalItems }
+  await goToPage(originalPage) // العودة للصفحة الأصلية (أو مجرد تحديث)
 }
 
 // ...
@@ -1207,41 +1209,45 @@ watch(route, async (r) => {
 }
 
 @media print {
-    /* 🛑 القاعدة الأولى والأهم: إخفاء كل شيء في الواجهة */
-    /* استبدل .story-reader-main باسم العنصر الأب الذي يحيط بكل محتوى الصفحة */
-    body * {
-        visibility: hidden; 
-    }
 
-    /* 2. جعل العنصر الذي يحتوي على محتوى القصة (السلايدات) مرئياً */
-    /* افترض أن هذا هو العنصر الذي يحيط بـ [v-for] لطباعة كل السلايدات */
-    .print-content-only, 
-    .print-content-only * { /* وجميع محتوياته الفرعية */
-        visibility: visible;
-    }
+  /* 🛑 القاعدة الأولى والأهم: إخفاء كل شيء في الواجهة */
+  /* استبدل .story-reader-main باسم العنصر الأب الذي يحيط بكل محتوى الصفحة */
+  body * {
+    visibility: hidden;
+  }
 
-    /* 3. وضع محتوى القصة (Print-Content-Only) في وضع الطباعة */
-    .print-content-only {
-        position: absolute; /* وضعه في المقدمة */
-        left: 0;
-        top: 0;
-        width: 100%;
-        max-width: none;
-        margin: 0;
-        padding: 0;
-        box-shadow: none;
-        background-color: white !important; /* خلفية بيضاء للطباعة */
-    }
+  /* 2. جعل العنصر الذي يحتوي على محتوى القصة (السلايدات) مرئياً */
+  /* افترض أن هذا هو العنصر الذي يحيط بـ [v-for] لطباعة كل السلايدات */
+  .print-content-only,
+  .print-content-only * {
+    /* وجميع محتوياته الفرعية */
+    visibility: visible;
+  }
 
-    /* 4. تطبيق فاصل الصفحات بين السلايدات */
-    .page-break-after {
-        page-break-after: always;
-    }
+  /* 3. وضع محتوى القصة (Print-Content-Only) في وضع الطباعة */
+  .print-content-only {
+    position: absolute;
+    /* وضعه في المقدمة */
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    background-color: white !important;
+    /* خلفية بيضاء للطباعة */
+  }
 
-    /* 5. ضبط محاذاة الخطوط العربية */
-    .print-content-only {
-        direction: rtl !important;
-        text-align: right !important;
-    }
+  /* 4. تطبيق فاصل الصفحات بين السلايدات */
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  /* 5. ضبط محاذاة الخطوط العربية */
+  .print-content-only {
+    direction: rtl !important;
+    text-align: right !important;
+  }
 }
 </style>

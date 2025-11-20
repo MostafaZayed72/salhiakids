@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-300  shadow-xl border border-gray-200  font-tajawal p-4">
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-300  shadow-xl border border-gray-200   p-4">
     <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 transform transition-all duration-500 hover:shadow-purple-500/50 
         bg-gradient-to-br from-white via-purple-50/50 to-pink-50/50 border border-gray-100">
       
@@ -131,12 +131,8 @@ export default {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
-.font-tajawal {
-  font-family: 'Tajawal', sans-serif;
-}
 
 @keyframes custom-spin-slow {
   0% { transform: rotate(0deg); }
