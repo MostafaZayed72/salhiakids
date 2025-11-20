@@ -11,7 +11,7 @@
             <img src="/test.png" alt="شعار النظام" class="w-full h-full object-cover ">
           </div>
           <div class="text-right">
-            <h1 class="text-xl font-bold text-purple-700 dark:text-white custom-text-pulse">
+            <h1 class="text-xl font-bold text-purple-700 dark:text-white custom-text-pulse" style="font-family: tajawal">
               الجمعية الأهلية الصالحية بعنيزة
             </h1>
             <!-- <p class="text-xs text-purple-500 dark:text-purple-300 mt-1 transform group-hover:translate-x-1 transition-transform duration-300">منصة الطفل الرقمية</p> -->

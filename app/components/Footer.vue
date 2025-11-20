@@ -109,8 +109,8 @@
 
       <!-- قسم حقوق النشر -->
       <div class="border-t border-white/20 pt-8 flex flex-col lg:flex-row items-center justify-between gap-4">
-        <p class="text-purple-200 text-sm text-center lg:text-right">
-            الجمعية الأهلية الصالحية بعنيزة © {{ currentYear }} جميع الحقوق محفوظة
+        <p class="text-purple-200 text-sm text-center lg:text-right" style="font-family: tajawal">
+          جميع الحقوق محفوظة للجمعية الأهلية الصالحية بعنيزة © {{ currentYear  }}
         </p>
 
         <div class="flex flex-wrap justify-center gap-6">
