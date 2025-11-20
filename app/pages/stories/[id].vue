@@ -249,7 +249,7 @@
               <div class="grid grid-cols-1 gap-4">
                  <div class="detail-box">
                     <span class="label">المؤلف</span>
-                    <span class="value text-purple-700">{{ masterStory.author?.fullName || 'غير معروف' }}</span>
+                    <span class="value text-purple-700">{{ masterStory.authorName || 'غير معروف' }}</span>
                  </div>
                  <div class="detail-box">
                     <span class="label">الفئة</span>
@@ -301,7 +301,7 @@
               <button @click="router.push('/searchResults')" class="nav-btn-secondary">
                  <span class="material-icons">search</span> العودة لصفحة البحث
               </button>
-              <button @click="router.push('/customstory/add')" class="nav-btn-primary">
+              <button @click="router.push('/CustomStory')" class="nav-btn-primary">
                  <span class="material-icons">edit_square</span> قصتك المخصصة
               </button>
            </div>
