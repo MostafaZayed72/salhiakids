@@ -205,14 +205,14 @@
     <div class="flex-shrink-0">
       <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500
                   flex items-center justify-center text-white font-bold text-lg shadow-md">
-        {{ comment.authorName ? comment.authorName.charAt(0).toUpperCase() : 'U' }}
+        {{ comment.createdByUser ? comment.createdByUser.fullName.charAt(0).toUpperCase() : 'U' }}
       </div>
     </div>
 
     <div class="flex-grow">
       <div class="bg-gray-50 rounded-2xl rounded-tr-none p-4 border border-gray-100 relative">
         <div class="flex justify-between items-start mb-1">
-          <h4 class="font-bold text-purple-600">{{ comment.authorName || 'مستخدم' }}</h4>
+          <h4 class="font-bold text-purple-600">{{ comment.createdByUser.fullName || 'مستخدم' }}</h4>
           <span class="text-xs text-gray-400 font-english">{{ new Date(comment.createdAt).toLocaleDateString('en-GB') }}</span>
         </div>
 
