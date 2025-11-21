@@ -70,39 +70,42 @@
           </div>
 
           <!-- 2. Interaction Buttons (مفصول عن الإحصائيات) -->
-<div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 
-            grid grid-cols-3 gap-y-4 place-items-center text-center
-            sm:flex sm:justify-around sm:items-center sm:gap-0">
-    
-    <div class="stat-item col-span-1">
-        <h4 class="text-2xl font-extrabold text-gray-800 font-english">{{ masterStory.totalViews || 0 }}</h4>
-        <span class="text-xs text-gray-500 flex items-center justify-center gap-1"><span class="material-icons text-[14px]">visibility</span> مشاهدة</span>
-    </div>
-    
-    <div class="stat-item col-span-1">
-        <h4 class="text-2xl font-extrabold text-gray-800 font-english">{{ masterStory.likesCount || 0 }}</h4>
-        <span class="text-xs text-gray-500 flex items-center justify-center gap-1"><span class="material-icons text-[14px]">favorite</span> إعجاب</span>
-    </div>
+<div class="flex flex-wrap items-center justify-center gap-4 w-full">
+    <button 
+        @click="toggleLike"
+        class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 shadow-sm border"
+        :class="isLiked ? 'bg-pink-50 border-pink-200 text-pink-600' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'"
+    >
+        <span class="material-icons" :class="{'text-pink-500': isLiked}">{{ isLiked ? 'favorite' : 'favorite_border' }}</span>
+        <span class="font-bold">{{ isLiked ? 'أعجبني' : 'إعجاب' }}</span>
+    </button>
 
-    <div class="stat-item col-span-1">
-        <h4 class="text-2xl font-extrabold text-gray-800 font-english">{{ masterStory.sharesCount || 0 }}</h4>
-        <span class="text-xs text-gray-500 flex items-center justify-center gap-1"><span class="material-icons text-[14px]">share</span> مشاركة</span>
-    </div>
+    <button 
+        @click="toggleFavorite"
+        class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 shadow-sm border"
+        :class="isFavorite ? 'bg-yellow-50 border-yellow-200 text-yellow-600' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'"
+    >
+        <span class="material-icons" :class="{'text-yellow-500': isFavorite}">{{ isFavorite ? 'bookmark' : 'bookmark_border' }}</span>
+        <span class="font-bold">{{ isFavorite ? 'في المفضلة' : 'إضافة للمفضلة' }}</span>
+    </button>
 
-    <div class="stat-item col-span-1 sm:ml-0 sm:mr-0">
-        <h4 class="text-2xl font-extrabold text-gray-800 font-english">{{ masterStory.averageRating?.toFixed(1) || 0 }}</h4>
-        <span class="text-xs text-gray-500 flex items-center justify-center gap-1"><span class="material-icons text-[14px]">star</span> تقييم</span>
-    </div>
+    <button 
+        @click="shareStory"
+        class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-2xl hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all duration-300 transform hover:-translate-y-1 shadow-sm"
+    >
+        <span class="material-icons">share</span>
+        <span class="font-bold">مشاركة</span>
+    </button>
 
-    <div class="stat-item col-span-1">
-        <h4 class="text-2xl font-extrabold text-gray-800 font-english">{{ masterStory.commentsCount || 0 }}</h4>
-        <span class="text-xs text-gray-500 flex items-center justify-center gap-1"><span class="material-icons text-[14px]">chat_bubble</span> تعليق</span>
-    </div>
-
-    <div class="hidden sm:block"></div> 
-
+    <a :href="masterStory.mediaUrl" target="_blank" v-if="masterStory.mediaUrl"
+        class="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-2xl hover:bg-purple-50 hover:text-purple-600 hover:border-purple-200 transition-all duration-300 transform hover:-translate-y-1 shadow-sm"
+    >
+        <span class="material-icons">open_in_new</span>
+        <span class="font-bold">فتح</span>
+    </a>
 </div>
-
+          <!-- 3. Statistics Bar (إحصائيات) -->
+          https://salhiakids.premiumasp.net/
           <!-- 4. Title & Description -->
           <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
              <h1 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 leading-tight">{{ storyTitle }}</h1>
