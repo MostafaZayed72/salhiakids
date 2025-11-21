@@ -1,6 +1,188 @@
+<script>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+const REGISTER_ENDPOINT = '/api/identity/register'
+
+const USER_TYPE_MAP = {
+  teacher: 2,
+  student: 3
+}
+
+// ترجمة أسماء الحقول من الإنجليزية للعربية
+const FIELD_TRANSLATIONS = {
+  'PhoneNumber': 'رقم الهاتف',
+  'FirstName': 'الاسم الأول',
+  'LastName': 'الاسم الأخير',
+  'Email': 'البريد الإلكتروني',
+  'Password': 'كلمة المرور',
+  'UserType': 'نوع الحساب'
+}
+
+export default {
+  name: 'Register',
+  setup() {
+    const router = useRouter()
+    const loading = ref(false)
+    const showPassword = ref(false)
+    const showConfirmPassword = ref(false)
+    const errorMessage = ref('')
+    const fieldErrors = ref({}) // لتخزين أخطاء الحقول الفردية
+    const showSuccessModal = ref(false)
+    
+    const form = ref({
+      fullName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      accountType: 'teacher', 
+      phone: '', 
+      agreeTerms: false
+    })
+
+    const getNames = (fullName) => {
+      const parts = fullName.trim().split(/\s+/)
+      const firstName = parts[0] || ''
+      const lastName = parts.slice(1).join(' ') || firstName
+      return { firstName, lastName }
+    }
+    
+    const validateForm = () => {
+      fieldErrors.value = {} // مسح الأخطاء السابقة
+      
+      if (!form.value.fullName.trim()) {
+        errorMessage.value = 'الاسم الكامل مطلوب'
+        return false
+      }
+
+      if (form.value.password.length < 6) {
+        errorMessage.value = 'كلمة المرور يجب أن تحتوي على 6 أحرف على الأقل'
+        return false
+      }
+
+      if (form.value.password !== form.value.confirmPassword) {
+        errorMessage.value = 'كلمات المرور غير متطابقة'
+        return false
+      }
+
+      if (!form.value.agreeTerms) {
+        errorMessage.value = 'يجب الموافقة على الشروط والأحكام'
+        return false
+      }
+
+      errorMessage.value = ''
+      return true
+    }
+    
+    const closeModalAndRedirect = () => {
+      showSuccessModal.value = false
+      router.push('/login') 
+    }
+
+    const handleRegister = async () => {
+  if (!validateForm()) return
+
+  loading.value = true
+  errorMessage.value = ''
+  fieldErrors.value = {}
+
+  try {
+    const { firstName, lastName } = getNames(form.value.fullName)
+    const userType = USER_TYPE_MAP[form.value.accountType] || 1
+    
+    const requestBody = {
+      firstName: firstName,
+      lastName: lastName,
+      email: form.value.email,
+      password: form.value.password,
+      phoneNumber: form.value.phone || 'N/A', 
+      userType: userType
+    }
+    
+    const response = await fetch(API_BASE_URL + REGISTER_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestBody)
+    })
+    
+    // قراءة JSON بغض النظر عن حالة الـ response
+    let data = {}
+    try {
+      data = await response.json()
+    } catch (parseError) {
+      console.warn('Failed to parse JSON response:', parseError)
+      data = {}
+    }
+
+    console.log('📋 Response Status:', response.status)
+    console.log('📋 Response Data:', data)
+
+    if (response.ok) {
+      showSuccessModal.value = true 
+    } else {
+      // معالجة أخطاء الـ Validation من الـ API
+      if (data && data.errors && typeof data.errors === 'object' && Object.keys(data.errors).length > 0) {
+        // تخزين الأخطاء في fieldErrors للعرض بجانب الحقول
+        fieldErrors.value = data.errors
+        
+        // بناء رسالة خطأ عامة
+        const errorList = Object.entries(data.errors)
+          .map(([field, errors]) => {
+            const translatedField = FIELD_TRANSLATIONS[field] || field
+            const errorTexts = Array.isArray(errors) ? errors : [errors]
+            return `<strong>${translatedField}:</strong> ${errorTexts.join(', ')}`
+          })
+          .join('<br />')
+        
+        errorMessage.value = errorList
+        console.log('✅ Errors processed successfully:', errorList)
+      } else if (data && data.message) {
+        errorMessage.value = data.message
+      } else if (data && data.title) {
+        // عرض الـ title بدلاً من رسالة عامة
+        errorMessage.value = data.title
+      } else {
+        errorMessage.value = `خطأ غير معروف (HTTP Status: ${response.status})`
+      }
+      
+      console.error('❌ API Error:', data, response.status)
+    }
+    
+  } catch (error) {
+    console.error('❌ Network or Unknown error:', error)
+    errorMessage.value = 'فشل الاتصال بالخادم. تحقق من اتصالك بالإنترنت.'
+  } finally {
+    loading.value = false 
+  }
+}
+
+    const goToLogin = () => {
+      router.push('/login')
+    }
+    
+    return {
+      form,
+      loading,
+      showPassword,
+      showConfirmPassword,
+      errorMessage,
+      fieldErrors,
+      showSuccessModal, 
+      handleRegister,
+      goToLogin,
+      closeModalAndRedirect
+    }
+  }
+}
+</script>
+
 <template>
   <div class="bg-gray-50 flex items-center justify-center px-4 py-2 min-h-screen">
-    <div class="max-w-3xl w-full"> <div class="bg-gradient-to-br from-pink-500 to-purple-300 rounded-2xl shadow-xl border border-gray-200 p-8">
+    <div class="max-w-3xl w-full"> 
+      <div class="bg-gradient-to-br from-pink-500 to-purple-300 rounded-2xl shadow-xl border border-gray-200 p-8">
         
         <div class="text-center mb-6">
           <div class="w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#1B3C53] to-[#234C6A] mx-auto mb-4 shadow-lg">
@@ -20,9 +202,14 @@
                 v-model="form.fullName"
                 required
                 placeholder="ادخل اسمك الكامل"
-                class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 transition-all duration-200"
+                :class="['w-full px-4 py-3 pr-10 border rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 transition-all duration-200', 
+                  fieldErrors.FirstName ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'
+                ]"
               >
             </div>
+            <p v-if="fieldErrors.FirstName" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm md:col-span-2 shadow-sm">
+              {{ fieldErrors.FirstName[0] }}
+            </p>
           </div>
 
           <div>
@@ -34,9 +221,14 @@
                 v-model="form.email"
                 required
                 placeholder="ادخل بريدك الإلكتروني"
-                class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 transition-all duration-200"
+                :class="['w-full px-4 py-3 pr-10 border rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 transition-all duration-200', 
+                  fieldErrors.Email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'
+                ]"
               >
             </div>
+            <p v-if="fieldErrors.Email" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm md:col-span-2 shadow-sm">
+              {{ fieldErrors.Email[0] }}
+            </p>
           </div>
 
           <div>
@@ -48,7 +240,9 @@
                 :type="showPassword ? 'text' : 'password'"
                 required
                 placeholder="اختر كلمة مرور قوية"
-                class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 transition-all duration-200"
+                :class="['w-full px-4 py-3 pr-10 border rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 transition-all duration-200', 
+                  fieldErrors.Password ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'
+                ]"
               >
               <button 
                 type="button"
@@ -58,6 +252,9 @@
                 <span class="material-icons text-lg">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
               </button>
             </div>
+            <p v-if="fieldErrors.Password" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm md:col-span-2 shadow-sm">
+              {{ fieldErrors.Password[0] }}
+            </p>
           </div>
 
           <div>
@@ -102,10 +299,15 @@
               <input 
                 type="tel" 
                 v-model="form.phone"
-                placeholder="ادخل رقم هاتفك"
-                class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 transition-all duration-200"
+placeholder="ادخل رقم هاتفك (مثال: +966501234567)"
+                :class="['w-full px-4 py-3 pr-10 border rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 transition-all duration-200', 
+                  fieldErrors.PhoneNumber ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'
+                ]"
               >
             </div>
+            <p v-if="fieldErrors.PhoneNumber" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm md:col-span-2 shadow-sm">
+              {{ fieldErrors.PhoneNumber[0] }}
+            </p>
           </div>
           
           <div class="flex items-start gap-3 md:col-span-2">
@@ -123,8 +325,12 @@
             </label>
           </div>
 
-          <div v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm md:col-span-2">
-            {{ errorMessage }}
+          <!-- رسالة الخطأ العامة (بتنسيق أفضل) -->
+          <div v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm md:col-span-2 shadow-sm">
+            <div class="flex items-start gap-3">
+              <span class="material-icons text-lg flex-shrink-0">error_outline</span>
+              <div v-html="errorMessage" class="flex-1"></div>
+            </div>
           </div>
 
           <button 
@@ -158,9 +364,6 @@
         </div>
 
       </div>
-
-     
-
     </div>
   </div>
   
@@ -195,215 +398,3 @@
   </Transition>
 
 </template>
-
-<script>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-
-// ----------------------------------------------------
-// 1. تحديد Base URL من متغيرات البيئة
-// ----------------------------------------------------
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
-const REGISTER_ENDPOINT = '/api/identity/register'
-
-// ----------------------------------------------------
-// 2. تعيين User Type Mapping حسب متطلبات الـ API
-// ----------------------------------------------------
-const USER_TYPE_MAP = {
-  teacher: 2,
-  student: 3
-}
-
-export default {
-  name: 'Register',
-  setup() {
-    const router = useRouter()
-    const loading = ref(false)
-    const showPassword = ref(false)
-    const showConfirmPassword = ref(false)
-    const errorMessage = ref('')
-    const showSuccessModal = ref(false) // متحكم ظهور الـ Modal
-    
-    const form = ref({
-      fullName: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      accountType: 'teacher', 
-      phone: '', 
-      agreeTerms: false
-    })
-
-    // دالة مساعدة لتقسيم الاسم الكامل
-    const getNames = (fullName) => {
-      const parts = fullName.trim().split(/\s+/)
-      const firstName = parts[0] || ''
-      const lastName = parts.slice(1).join(' ') || firstName
-      return { firstName, lastName }
-    }
-    
-    // دالة التحقق من صحة النموذج 
-    const validateForm = () => {
-      // ... (منطق التحقق) ...
-      if (form.value.password.length < 6) {
-        errorMessage.value = 'كلمة المرور يجب أن تحتوي على 6 أحرف على الأقل'
-        return false
-      }
-
-      if (form.value.password !== form.value.confirmPassword) {
-        errorMessage.value = 'كلمات المرور غير متطابقة'
-        return false
-      }
-
-      if (!form.value.agreeTerms) {
-        errorMessage.value = 'يجب الموافقة على الشروط والأحكام'
-        return false
-      }
-      
-      if (!form.value.fullName.trim()) {
-        errorMessage.value = 'الاسم الكامل مطلوب'
-        return false
-      }
-
-      errorMessage.value = ''
-      return true
-    }
-    
-    // دالة إغلاق الـ Modal والرجوع للرئيسية
-    const closeModalAndRedirect = () => {
-      showSuccessModal.value = false
-      router.push('/login') 
-    }
-
-    // ----------------------------------------------------
-    // دالة معالجة التسجيل (مُعدلة لإظهار الـ Modal)
-    // ----------------------------------------------------
-    const handleRegister = async () => {
-      if (!validateForm()) return
-
-      loading.value = true
-      errorMessage.value = ''
-
-      try {
-        const { firstName, lastName } = getNames(form.value.fullName)
-        const userType = USER_TYPE_MAP[form.value.accountType] || 1
-        
-        const requestBody = {
-          firstName: firstName,
-          lastName: lastName,
-          email: form.value.email,
-          password: form.value.password,
-          phoneNumber: form.value.phone || 'N/A', 
-          userType: userType
-        }
-        
-        console.log('API Request Body:', requestBody)
-        console.log('API URL:', API_BASE_URL + REGISTER_ENDPOINT)
-        
-        // **ملاحظة هامة:** إذا كان الـ API_BASE_URL غير معرف (مثل 'undefined')، 
-        // أو كان الخادم لا يعمل/يرد، فلن ينجح الطلب.
-
-        const response = await fetch(API_BASE_URL + REGISTER_ENDPOINT, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(requestBody)
-        })
-        
-        // التحقق مما إذا كان هناك محتوى في الاستجابة قبل محاولة قراءة JSON
-        let data = {}
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-            data = await response.json();
-        }
-
-        if (response.ok) {
-          // النجاح: إظهار الـ Modal
-          showSuccessModal.value = true 
-        } else {
-          // فشل الـ API
-          let errorMsg = 'حدث خطأ في التسجيل.'
-          if (data && data.message) {
-            errorMsg = data.message 
-          } else if (data && data.errors) {
-            errorMsg = Object.values(data.errors).flat().join(' | ')
-          }
-          
-          errorMessage.value = errorMsg || 'خطأ غير معروف في الخادم (HTTP Status: ' + response.status + ')'
-          console.error('❌ API Error:', data, response.status)
-        }
-        
-      } catch (error) {
-        console.error('❌ Network or Unknown error:', error)
-        errorMessage.value = 'فشل الاتصال بالخادم. تحقق من اتصالك بالإنترنت أو تأكد من صحة مسار الـ API.'
-      } finally {
-        loading.value = false 
-      }
-    }
-
-    const goToLogin = () => {
-      router.push('/login')
-    }
-    
-    return {
-      form,
-      loading,
-      showPassword,
-      showConfirmPassword,
-      errorMessage,
-      showSuccessModal, 
-      handleRegister,
-      goToLogin,
-      closeModalAndRedirect
-    }
-  }
-}
-</script>
-
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
-
-/* تنسيقات إضافية للحقول */
-input:focus, select:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(27, 60, 83, 0.2);
-}
-
-/* تحسين مظهر select */
-select {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23456882' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-  background-position: left 0.75rem center;
-  background-repeat: no-repeat;
-  background-size: 16px 12px;
-  padding-left: 2.5rem;
-}
-
-/*
-  ==================================================
-  تنسيقات انتقال الـ Modal 
-  (Vue Transition Classes)
-  ==================================================
-*/
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-active > div,
-.modal-leave-active > div {
-  transition: all 0.3s ease;
-}
-
-.modal-enter-from > div,
-.modal-leave-to > div {
-  transform: scale(0.9) translateY(-20px);
-  opacity: 0;
-}
-</style>
