@@ -350,24 +350,31 @@ const initializeStats = () => {
 
 const fetchGeneralStats = async () => {
     try {
-      const token = getToken();
+        const token = getToken();
         if (!token) { return; } // يتوقف إذا لم يوجد توكن
-        const response = await axios.post(`${API_BASE}/api/dashboard/overview`, {
-            period: 0 
-        },
-      { headers: {
+
+        // **التعديل هنا:** وضع 'period: 0' داخل كائن 'params'
+        const response = await axios.get(`${API_BASE}/api/LandingPage/stats`, {
+            params: { // <==  يجب وضع بارامترات الاستعلام هنا
+                period: 0 
+            },
+            headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
-            }}
-          );
+            }
+        });
 
-        const data = response.data?.data;
+        // **التعديل هنا:** بما أن الاستجابة هي مباشرة البيانات المطلوبة 
+        // وليس داخل response.data?.data، نستخدم response.data مباشرة.
+        // ونفترض أن response.data هو الكائن: {"averageRating":..., "totalLikes":..., ...}
+        const data = response.data; // <== استخدام response.data مباشرة
 
         if (data) {
-            generalStats.value.totalContent = data.storyCounts.total || 0;
-            generalStats.value.totalTopics = data.engagementMetrics.totalLikes || 0;
-            generalStats.value.totalActiveUsers = data.userCounts.total || 0;
-            generalStats.value.averageRating = data.engagementMetrics.averageRating || 4.8;
+            // **التعديل هنا:** استخدام المفاتيح الصحيحة من كائن 'data'
+            generalStats.value.totalContent = data.totalStories || 0;
+            generalStats.value.totalTopics = data.totalLikes || 0; // في الكود الأصلي استخدمتها لـ totalTopics
+            generalStats.value.totalActiveUsers = data.activeUsers || 0;
+            generalStats.value.averageRating = data.averageRating || 4.8;
             
             initializeStats(); // تشغيل العداد بالبيانات الجديدة
         }
@@ -377,7 +384,6 @@ const fetchGeneralStats = async () => {
         initializeStats(); // تشغيل العداد بالقيم الافتراضية إذا فشل الجلب
     }
 }
-
 
 const fetchCategories = async () => {
     try {
