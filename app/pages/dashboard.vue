@@ -64,60 +64,99 @@
 
         <div v-else-if="dashboardData">
             
+            <!-- 📝 نظرة عامة على القصص -->
             <h2 class="text-2xl font-bold text-gray-800 my-6">📝 نظرة عامة على القصص</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                <DashboardCard title="إجمالي القصص" :value="dashboardData.storyCounts.totalInPeriod" icon="book" color="bg-indigo-500" />
-                <DashboardCard title="قصص قيد المراجعة" :value="dashboardData.storyCounts.pendingInPeriod" icon="hourglass_empty" color="bg-yellow-500" />
-                <DashboardCard title="قصص معتمدة" :value="dashboardData.storyCounts.approvedInPeriod" icon="check_circle" color="bg-green-500" />
-                <DashboardCard title="قصص مرفوضة" :value="dashboardData.storyCounts.rejectedInPeriod" icon="cancel" color="bg-red-500" />
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                    <DashboardCard title="إجمالي القصص" :value="dashboardData.storyCounts.totalInPeriod" icon="book" color="bg-indigo-500" />
+                    <ProgressBar :percentage="100" color="bg-indigo-500" class="mt-4" />
+                </div>
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                    <DashboardCard title="قصص قيد المراجعة" :value="dashboardData.storyCounts.pendingInPeriod" icon="hourglass_empty" color="bg-yellow-500" />
+                    <ProgressBar :percentage="getPercentage(dashboardData.storyCounts.pendingInPeriod, dashboardData.storyCounts.totalInPeriod)" color="bg-yellow-500" class="mt-4" />
+                </div>
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                    <DashboardCard title="قصص معتمدة" :value="dashboardData.storyCounts.approvedInPeriod" icon="check_circle" color="bg-green-500" />
+                    <ProgressBar :percentage="getPercentage(dashboardData.storyCounts.approvedInPeriod, dashboardData.storyCounts.totalInPeriod)" color="bg-green-500" class="mt-4" />
+                </div>
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                    <DashboardCard title="قصص مرفوضة" :value="dashboardData.storyCounts.rejectedInPeriod" icon="cancel" color="bg-red-500" />
+                    <ProgressBar :percentage="getPercentage(dashboardData.storyCounts.rejectedInPeriod, dashboardData.storyCounts.totalInPeriod)" color="bg-red-500" class="mt-4" />
+                </div>
             </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+
+            <!-- 👥 نظرة عامة على المستخدمين -->
+            <h2 class="text-2xl font-bold text-gray-800 my-6">👥 نظرة عامة على المستخدمين</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                    <DashboardCard title="إجمالي المستخدمين" :value="dashboardData.userCounts.total" icon="group" color="bg-blue-500" />
+                    <ProgressBar :percentage="100" color="bg-blue-500" class="mt-4" />
+                </div>
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                    <DashboardCard title="مستخدمون نشطون" :value="dashboardData.userCounts.activeUsersInPeriod" icon="verified_user" color="bg-green-500" />
+                    <ProgressBar :percentage="getPercentage(dashboardData.userCounts.activeUsersInPeriod, dashboardData.userCounts.total)" color="bg-green-500" class="mt-4" />
+                </div>
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                    <DashboardCard title="مستخدمون غير نشطين" :value="dashboardData.userCounts.inactiveUsers" icon="person_off" color="bg-gray-500" />
+                    <ProgressBar :percentage="getPercentage(dashboardData.userCounts.inactiveUsers, dashboardData.userCounts.total)" color="bg-gray-500" class="mt-4" />
+                </div>
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                    <DashboardCard title="جدد في الفترة" :value="dashboardData.userCounts.newInPeriod" icon="person_add" color="bg-purple-500" />
+                    <ProgressBar :percentage="getPercentage(dashboardData.userCounts.newInPeriod, dashboardData.userCounts.total)" color="bg-purple-500" class="mt-4" />
+                </div>
+            </div>
+
+            <!-- 💖 مقاييس التفاعل والأرقام الإجمالية -->
+            <h2 class="text-2xl font-bold text-gray-800 my-6">💖 مقاييس التفاعل والأرقام الإجمالية</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                    <DashboardCard title="إجمالي المشاهدات" :value="dashboardData.engagementMetrics.viewsInPeriod" icon="visibility" color="bg-blue-500" />
+                    <ProgressBar :percentage="100" color="bg-blue-500" class="mt-4" />
+                </div>
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                    <DashboardCard title="إجمالي الإعجابات" :value="dashboardData.engagementMetrics.likesInPeriod" icon="thumb_up" color="bg-red-500" />
+                    <ProgressBar :percentage="getPercentage(dashboardData.engagementMetrics.likesInPeriod, dashboardData.engagementMetrics.viewsInPeriod)" color="bg-red-500" class="mt-4" />
+                </div>
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                    <DashboardCard title="إجمالي المشاركات" :value="dashboardData.engagementMetrics.sharesInPeriod" icon="share" color="bg-green-500" />
+                    <ProgressBar :percentage="getPercentage(dashboardData.engagementMetrics.sharesInPeriod, dashboardData.engagementMetrics.viewsInPeriod)" color="bg-green-500" class="mt-4" />
+                </div>
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-6">
+                    <DashboardCard title="إجمالي التعليقات" :value="dashboardData.engagementMetrics.commentsInPeriod" icon="chat_bubble" color="bg-orange-500" />
+                    <ProgressBar :percentage="getPercentage(dashboardData.engagementMetrics.commentsInPeriod, dashboardData.engagementMetrics.viewsInPeriod)" color="bg-orange-500" class="mt-4" />
+                </div>
+            </div>
+
+            <!-- الرسوم البيانية -->
+            <h2 class="text-2xl font-bold text-gray-800 my-6">📊 الرسوم البيانية والتحليلات</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
                 
-                <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                <!-- توزيع المستخدمين -->
+                <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
                     <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
                         <span class="material-icons text-blue-600">pie_chart</span> توزيع المستخدمين
                     </h3>
-                    <div class="h-80">
-                        <UserDoughnutChart :userCounts="dashboardData.userCounts" />
-                    </div>
+                    <UserDoughnutChart :userCounts="dashboardData.userCounts" />
                 </div>
 
-                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+                <!-- توزيع أنواع الوسائط -->
+                <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
                     <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <span class="material-icons text-red-600">stacked_bar_chart</span> مقارنة نسب الأداء
+                        <span class="material-icons text-purple-600">assessment</span> توزيع أنواع الوسائط
                     </h3>
-                    <div class="h-80">
-                        <ComparisonBarChart :dashboardData="dashboardData" />
-                    </div>
+                    <MediaTypeChart :mediaTypeStats="dashboardData.mediaTypeStats" />
                 </div>
             </div>
 
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">💖 مقاييس التفاعل والأرقام الإجمالية</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
-                
-                <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <span class="material-icons text-blue-600">group</span> تفاصيل المستخدمين
-                    </h3>
-                    <StatsDetail title="إجمالي المستخدمين" :value="dashboardData.userCounts.total" unit="مستخدم" />
-                    <StatsDetail title="نشطون في الفترة" :value="dashboardData.userCounts.activeInPeriod" unit="مستخدم" color="text-green-500" />
-                    <StatsDetail title="جدد في الفترة" :value="dashboardData.userCounts.newInPeriod" unit="مستخدم" color="text-indigo-500" />
-                </div>
-
-                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
-                    <h3 class="text-xl font-bold text-pink-600 mb-4 flex items-center gap-2">
-                        <span class="material-icons text-pink-600">favorite_border</span> الأرقام الإجمالية للتفاعل
-                    </h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <EngagementStat title="إجمالي المشاهدات" :value="dashboardData.engagementMetrics.totalViews" icon="visibility" color="text-blue-500" />
-                        <EngagementStat title="إجمالي الإعجابات" :value="dashboardData.engagementMetrics.totalLikes" icon="thumb_up" color="text-red-500" />
-                        <EngagementStat title="إجمالي المشاركات" :value="dashboardData.engagementMetrics.totalShares" icon="share" color="text-green-500" />
-                        <EngagementStat title="إجمالي التقييمات" :value="dashboardData.engagementMetrics.totalRatings" icon="star" color="text-yellow-500" />
-                    </div>
-                </div>
+            <!-- مقارنة نسب الأداء -->
+            <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 mb-12">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                    <span class="material-icons text-red-600">stacked_bar_chart</span> مقارنة نسب الأداء
+                </h3>
+                <ComparisonBarChart :dashboardData="dashboardData" />
             </div>
-            
+
+            <!-- ⭐ التقييم والمعدلات -->
             <h2 class="text-2xl font-bold text-gray-800 mb-6">⭐ التقييم والمعدلات</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
@@ -165,35 +204,28 @@
 import { ref, onMounted, h, defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-// المكتبات التي تحتاج تثبيت: npm install xlsx docx file-saver
 import * as XLSX from 'xlsx';
 import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, HeadingLevel } from 'docx';
 import { saveAs } from 'file-saver';
 
-// استيراد المكونات الحقيقية (يجب أن تكون موجودة في مسارها الصحيح):
-
-
-
 const router = useRouter();
 const roles = ref(false);
-// -------------------
-// الثوابت ونقاط النهاية
-// -------------------
+
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 const DASHBOARD_ENDPOINT = `${API_BASE}/api/dashboard/overview`;
 const USER_ME_ENDPOINT = `${API_BASE}/api/identity/users/me`; 
 
-// -------------------
-// حالة المكون
-// -------------------
 const loading = ref(true);
 const error = ref(null);
 const dashboardData = ref(null);
 const selectedPeriod = ref("0"); 
 
-// -------------------
-// الدوال المساعدة للتوكن والكوكيز
-// -------------------
+// دالة حساب النسبة المئوية
+const getPercentage = (value, total) => {
+    if (total === 0 || !total) return 0;
+    return Math.round((value / total) * 100);
+};
+
 const getCookie = (name) => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
@@ -205,9 +237,6 @@ const getToken = () => {
     return getCookie('authToken');
 };
 
-/**
- * دالة جلب بيانات المستخدم والتحقق من دور المدير (Admin)
- */
 const checkUserRole = async () => {
     const token = getToken();
     if (!token) {
@@ -234,9 +263,6 @@ const checkUserRole = async () => {
     return false;
 };
 
-// -------------------
-// جلب بيانات لوحة التحكم
-// -------------------
 const fetchDashboardData = async () => {
   loading.value = true; 
   error.value = null;
@@ -256,20 +282,16 @@ const fetchDashboardData = async () => {
     const token = getToken();
     if (!token) { return; }
 
-        // 💡 تم إعداد المتغيرات التي سيتم إرسالها في الرابط (Query Parameters)
-        const requestConfig = {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            // 🚀 التعديل الرئيسي: استخدام خاصية params لإرسال period في الـ URL
-            params: {
-                period: parseInt(selectedPeriod.value) 
-            }
-        };
+    const requestConfig = {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
+        params: {
+            period: parseInt(selectedPeriod.value) 
+        }
+    };
 
-        // 🚀 إبقاء الطلب POST، وتمرير null كـ Request Body، واستخدام requestConfig لمتغيرات الرابط
-        // سيصبح الرابط: DASHBOARD_ENDPOINT?period=1
     const response = await axios.post(DASHBOARD_ENDPOINT, null, requestConfig);
 
     if (response.data && response.data.data) {
@@ -291,11 +313,8 @@ const fetchDashboardData = async () => {
   } finally {
     loading.value = false;
   }
-};// -------------------
-// وظائف التصدير والطباعة
-// -------------------
+};
 
-// 1. التصدير كـ Excel (XLSX)
 const exportToExcel = () => {
     if (!dashboardData.value) return;
 
@@ -304,17 +323,17 @@ const exportToExcel = () => {
     
     const storyData = [
         ['', 'إجمالي القصص', 'قيد المراجعة', 'معتمدة', 'مرفوضة'],
-        ['العدد', data.storyCounts.total, data.storyCounts.pending, data.storyCounts.approved, data.storyCounts.rejected]
+        ['العدد', data.storyCounts.totalInPeriod, data.storyCounts.pendingInPeriod, data.storyCounts.approvedInPeriod, data.storyCounts.rejectedInPeriod]
     ];
     
     const userData = [
-        ['', 'إجمالي المستخدمين', 'نشطون في الفترة', 'جدد في الفترة'],
-        ['العدد', data.userCounts.total, data.userCounts.activeInPeriod, data.userCounts.newInPeriod]
+        ['', 'إجمالي المستخدمين', 'نشطون', 'غير نشطين', 'جدد في الفترة'],
+        ['العدد', data.userCounts.total, data.userCounts.activeUsers, data.userCounts.inactiveUsers, data.userCounts.newInPeriod]
     ];
 
     const engagementData = [
-        ['', 'إجمالي المشاهدات', 'إجمالي الإعجابات', 'إجمالي المشاركات', 'إجمالي التقييمات', 'متوسط التقييم'],
-        ['العدد', data.engagementMetrics.totalViews, data.engagementMetrics.totalLikes, data.engagementMetrics.totalShares, data.engagementMetrics.totalRatings, data.engagementMetrics.averageRating.toFixed(2)]
+        ['', 'إجمالي المشاهدات', 'إجمالي الإعجابات', 'إجمالي المشاركات', 'إجمالي التعليقات', 'إجمالي التقييمات', 'متوسط التقييم'],
+        ['العدد', data.engagementMetrics.totalViews, data.engagementMetrics.totalLikes, data.engagementMetrics.totalShares, data.engagementMetrics.totalComments, data.engagementMetrics.ratingsInPeriod, data.engagementMetrics.averageRating.toFixed(2)]
     ];
 
     const rateData = [
@@ -331,7 +350,6 @@ const exportToExcel = () => {
     XLSX.writeFile(wb, `تقرير_المدير_${reportDate}.xlsx`);
 };
 
-// 2. التصدير كـ Word (DOCX) - التصحيح هنا
 const exportToWord = async () => {
     if (!dashboardData.value) {
         console.error("Dashboard data is not available for export.");
@@ -343,7 +361,6 @@ const exportToWord = async () => {
         const reportDate = new Date().toLocaleString('ar-EG');
         const sections = [];
 
-        // دالة مساعدة لإنشاء جدول (كما هي)
         const createDocxTable = (header, body) => {
             return new Table({
                 alignment: AlignmentType.RIGHT,
@@ -371,7 +388,6 @@ const exportToWord = async () => {
             });
         };
 
-        // 1. العنوان
         sections.push(
             new Paragraph({
                 children: [
@@ -383,30 +399,27 @@ const exportToWord = async () => {
             }),
         );
         
-        // 2. نظرة عامة على القصص
         sections.push(
-            new Paragraph({ children: [new TextRun({ text: "\n2. نظرة عامة على القصص", size: 32, bold: true })], alignment: AlignmentType.RIGHT, spacing: { before: 200 } }),
+            new Paragraph({ children: [new TextRun({ text: "\n1. نظرة عامة على القصص", size: 32, bold: true })], alignment: AlignmentType.RIGHT, spacing: { before: 200 } }),
             createDocxTable(
                 ['إجمالي القصص', 'قيد المراجعة', 'معتمدة', 'مرفوضة'],
-                [[data.storyCounts.total, data.storyCounts.pending, data.storyCounts.approved, data.storyCounts.rejected]]
+                [[data.storyCounts.totalInPeriod, data.storyCounts.pendingInPeriod, data.storyCounts.approvedInPeriod, data.storyCounts.rejectedInPeriod]]
             )
         );
         
-        // 3. توزيع المستخدمين
         sections.push(
-            new Paragraph({ children: [new TextRun({ text: "\n3. توزيع المستخدمين", size: 32, bold: true })], alignment: AlignmentType.RIGHT, spacing: { before: 200 } }),
+            new Paragraph({ children: [new TextRun({ text: "\n2. توزيع المستخدمين", size: 32, bold: true })], alignment: AlignmentType.RIGHT, spacing: { before: 200 } }),
             createDocxTable(
-                ['إجمالي المستخدمين', 'نشطون في الفترة', 'جدد في الفترة'],
-                [[data.userCounts.total, data.userCounts.activeInPeriod, data.userCounts.newInPeriod]]
+                ['إجمالي المستخدمين', 'نشطون', 'غير نشطين', 'جدد في الفترة'],
+                [[data.userCounts.total, data.userCounts.activeUsers, data.userCounts.inactiveUsers, data.userCounts.newInPeriod]]
             )
         );
         
-        // 4. مقاييس التفاعل
         sections.push(
-            new Paragraph({ children: [new TextRun({ text: "\n4. مقاييس التفاعل والأرقام الإجمالية", size: 32, bold: true })], alignment: AlignmentType.RIGHT, spacing: { before: 200 } }),
+            new Paragraph({ children: [new TextRun({ text: "\n3. مقاييس التفاعل والأرقام الإجمالية", size: 32, bold: true })], alignment: AlignmentType.RIGHT, spacing: { before: 200 } }),
             createDocxTable(
-                ['إجمالي المشاهدات', 'إجمالي الإعجابات', 'إجمالي المشاركات', 'متوسط التقييم'],
-                [[data.engagementMetrics.totalViews, data.engagementMetrics.totalLikes, data.engagementMetrics.totalShares, data.engagementMetrics.averageRating.toFixed(2)]]
+                ['إجمالي المشاهدات', 'إجمالي الإعجابات', 'إجمالي المشاركات', 'إجمالي التعليقات', 'متوسط التقييم'],
+                [[data.engagementMetrics.totalViews, data.engagementMetrics.totalLikes, data.engagementMetrics.totalShares, data.engagementMetrics.totalComments, data.engagementMetrics.averageRating.toFixed(2)]]
             )
         );
 
@@ -415,48 +428,54 @@ const exportToWord = async () => {
             properties: { bidirectional: true } 
         });
 
-        // 💡 نقطة التصحيح: استخدام Packer.toBlob بدلاً من Packer.toBuffer لضمان التوافق الأفضل مع المتصفح
-        // ثم حفظه باستخدام file-saver
         const blob = await Packer.toBlob(doc);
         saveAs(blob, `تقرير_المدير_${reportDate}.docx`);
         
-
     } catch (e) {
         console.error("Word Export Error:", e);
         alert(`فشل تصدير Word. تحقق من الكونسول. (الخطأ: ${e.message})`);
     }
 };
 
-
-// 3. وظيفة الطباعة (لتركها خياراً)
 const printReport = () => {
     window.print();
 };
 
 onMounted(fetchDashboardData);
 
-// -------------------
-// المكونات الداخلية المصغرة (H-Functions)
-// -------------------
+// ==================
+// المكونات الداخلية
+// ==================
 
 const DashboardCard = defineComponent({
-//... (تعريف المكون كما هو)
     props: ['title', 'value', 'icon', 'color'],
     setup(props) {
-        return () => h('div', { class: `p-5 rounded-2xl text-white shadow-xl ${props.color}` }, [
+        return () => h('div', { class: `p-5 rounded-2xl text-white ${props.color}` }, [
             h('div', { class: 'flex items-center justify-between' }, [
-                h('span', { class: 'material-icons text-4xl' }, props.icon),
                 h('div', { class: 'text-right' }, [
                     h('p', { class: 'text-sm opacity-80' }, props.title),
                     h('p', { class: 'text-3xl font-bold' }, props.value.toString()),
-                ])
+                ]),
+                h('span', { class: 'material-icons text-4xl' }, props.icon),
             ])
         ]);
     }
 });
 
+// مكون شريط التقدم (Progress Bar)
+const ProgressBar = defineComponent({
+    props: ['percentage', 'color'],
+    setup(props) {
+        return () => h('div', { class: 'w-full bg-gray-200 rounded-full h-3 overflow-hidden' }, [
+            h('div', {
+                class: `h-full transition-all duration-1000 ease-out ${props.color}`,
+                style: { width: `${props.percentage}%` }
+            })
+        ]);
+    }
+});
+
 const StatsDetail = defineComponent({
-//... (تعريف المكون كما هو)
     props: ['title', 'value', 'unit', 'color'],
     setup(props) {
         const detailColor = props.color || 'text-gray-700';
@@ -468,7 +487,6 @@ const StatsDetail = defineComponent({
 });
 
 const EngagementStat = defineComponent({
-//... (تعريف المكون كما هو)
     props: ['title', 'value', 'icon', 'color'],
     setup(props) {
         return () => h('div', { class: 'text-center p-3 border rounded-xl bg-gray-50' }, [
@@ -480,7 +498,6 @@ const EngagementStat = defineComponent({
 });
 
 const RateDetail = defineComponent({
-//... (تعريف المكون كما هو)
     props: ['title', 'value', 'color'],
     setup(props) {
         return () => h('div', { class: 'flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0' }, [
@@ -489,10 +506,133 @@ const RateDetail = defineComponent({
         ]);
     }
 });
+
+// مكون الرسم البياني الدائري (توزيع المستخدمين)
+const UserDoughnutChart = defineComponent({
+    props: ['userCounts'],
+    setup(props) {
+        const activePercentage = props.userCounts?.total > 0 
+            ? ((props.userCounts?.activeUsers / props.userCounts?.total) * 100).toFixed(0) 
+            : 0;
+        const inactivePercentage = 100 - activePercentage;
+
+        return () => h('div', { class: 'w-full flex flex-col items-center justify-center' }, [
+            h('div', { class: 'relative w-48 h-48 mb-6' }, [
+                h('svg', { 
+                    viewBox: '0 0 100 100', 
+                    class: 'w-full h-full transform -rotate-90',
+                    style: { filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }
+                }, [
+                    h('circle', {
+                        cx: 50,
+                        cy: 50,
+                        r: 45,
+                        fill: 'none',
+                        stroke: '#10b981',
+                        'stroke-width': 8,
+                        'stroke-dasharray': `${(activePercentage / 100) * 282.7} 282.7`,
+                    }),
+                    h('circle', {
+                        cx: 50,
+                        cy: 50,
+                        r: 45,
+                        fill: 'none',
+                        stroke: '#ef4444',
+                        'stroke-width': 8,
+                        'stroke-dasharray': `${(inactivePercentage / 100) * 282.7} 282.7`,
+                        'stroke-dashoffset': `-${(activePercentage / 100) * 282.7}`,
+                    })
+                ]),
+                h('div', { class: 'absolute inset-0 flex items-center justify-center flex-col' }, [
+                    h('p', { class: 'text-2xl font-bold text-gray-800' }, `${props.userCounts?.total || 0}`),
+                    h('p', { class: 'text-xs text-gray-500' }, 'إجمالي'),
+                ])
+            ]),
+            h('div', { class: 'flex gap-8 w-full justify-center' }, [
+                h('div', { class: 'text-center' }, [
+                    h('div', { class: 'w-6 h-6 rounded-full bg-green-500 mx-auto mb-2' }),
+                    h('p', { class: 'text-2xl font-bold text-green-500' }, props.userCounts?.activeUsers || 0),
+                    h('p', { class: 'text-xs text-gray-500' }, 'نشطون'),
+                ]),
+                h('div', { class: 'text-center' }, [
+                    h('div', { class: 'w-6 h-6 rounded-full bg-red-500 mx-auto mb-2' }),
+                    h('p', { class: 'text-2xl font-bold text-red-500' }, props.userCounts?.inactiveUsers || 0),
+                    h('p', { class: 'text-xs text-gray-500' }, 'غير نشطين'),
+                ]),
+            ])
+        ]);
+    }
+});
+
+// مكون توزيع أنواع الوسائط
+const MediaTypeChart = defineComponent({
+    props: ['mediaTypeStats'],
+    setup(props) {
+        const total = Object.values(props.mediaTypeStats || {}).reduce((a, b) => a + b, 0);
+        const types = Object.entries(props.mediaTypeStats || {}).map(([type, count]) => ({
+            type,
+            count,
+            percentage: total > 0 ? ((count / total) * 100).toFixed(0) : 0
+        }));
+
+        const colors = {
+            'Image': 'bg-blue-500',
+            'Video': 'bg-purple-500',
+            'Document': 'bg-orange-500',
+            'Audio': 'bg-green-500'
+        };
+
+        return () => h('div', { class: 'w-full' }, [
+            ...types.map(item => h('div', { class: 'mb-6' }, [
+                h('div', { class: 'flex items-center justify-between mb-2' }, [
+                    h('span', { class: 'font-medium text-gray-700' }, item.type),
+                    h('span', { class: 'font-bold text-gray-900' }, `${item.count} (${item.percentage}%)`)
+                ]),
+                h('div', { class: 'w-full bg-gray-200 rounded-full h-3 overflow-hidden' }, [
+                    h('div', {
+                        class: `h-full transition-all duration-500 ${colors[item.type] || 'bg-gray-500'}`,
+                        style: { width: `${item.percentage}%` }
+                    })
+                ])
+            ]))
+        ]);
+    }
+});
+
+// مكون مقارنة نسب الأداء
+const ComparisonBarChart = defineComponent({
+    props: ['dashboardData'],
+    setup(props) {
+        const rates = [
+            { label: 'معدل الإعجاب', value: props.dashboardData?.engagementRates?.viewToLikeRate || 0, color: 'bg-red-500', icon: 'thumb_up' },
+            { label: 'معدل المشاركة', value: props.dashboardData?.engagementRates?.viewToShareRate || 0, color: 'bg-green-500', icon: 'share' },
+            { label: 'معدل التعليق', value: props.dashboardData?.engagementRates?.viewToCommentRate || 0, color: 'bg-blue-500', icon: 'comment' },
+        ];
+
+        return () => h('div', { class: 'w-full space-y-6' }, [
+            ...rates.map(rate => h('div', { class: 'flex items-center gap-4' }, [
+                h('div', { class: 'w-32' }, [
+                    h('div', { class: 'flex items-center gap-2 mb-2' }, [
+                        h('span', { class: 'material-icons text-lg text-gray-600' }, rate.icon),
+                        h('p', { class: 'text-sm font-semibold text-gray-700' }, rate.label),
+                    ]),
+                ]),
+                h('div', { class: 'flex-1' }, [
+                    h('div', { class: 'w-full bg-gray-200 rounded-full h-4 overflow-hidden' }, [
+                        h('div', {
+                            class: `h-full transition-all duration-500 ${rate.color}`,
+                            style: { width: `${Math.min(rate.value * 5, 100)}%` }
+                        })
+                    ])
+                ]),
+                h('p', { class: 'w-16 text-right font-bold text-gray-900' }, `${rate.value.toFixed(2)}%`)
+            ]))
+        ]);
+    }
+});
 </script>
 
-<style>
-/* ... (أنماط الطباعة CSS كما هي) ... */
+<style scoped>
 @media print {
     .material-icons,
     .max-w-7xl + button, 
