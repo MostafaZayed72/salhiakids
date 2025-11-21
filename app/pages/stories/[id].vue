@@ -1,5 +1,5 @@
 <template>
-  <div class="story-page-container min-h-screen bg-[#f9fbfc] font-tajawal text-right" dir="rtl">
+  <div class="story-page-container min-h-screen bg-gray-200  text-right" dir="rtl">
     
     <!-- Loading State -->
     <div v-if="masterStoryId && isLoading" class="flex flex-col items-center justify-center min-h-[60vh]">
@@ -890,11 +890,6 @@ await initializeData(newId)
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
-
-.font-tajawal {
-  font-family: 'Tajawal', sans-serif;
-}
 
 .font-english {
   font-family: sans-serif; /* Use system font for numbers */
