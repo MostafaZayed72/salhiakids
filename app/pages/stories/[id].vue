@@ -105,8 +105,38 @@
     </a>
 </div>
           <!-- 3. Statistics Bar (إحصائيات) -->
-          https://salhiakids.premiumasp.net/
-          <!-- 4. Title & Description -->
+<div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 
+            grid grid-cols-3 gap-y-4 place-items-center text-center
+            sm:flex sm:justify-around sm:items-center sm:gap-0">
+    
+    <div class="stat-item col-span-1">
+        <h4 class="text-2xl font-extrabold text-gray-800 font-english">{{ masterStory.totalViews || 0 }}</h4>
+        <span class="text-xs text-gray-500 flex items-center justify-center gap-1"><span class="material-icons text-[14px]">visibility</span> مشاهدة</span>
+    </div>
+    
+    <div class="stat-item col-span-1">
+        <h4 class="text-2xl font-extrabold text-gray-800 font-english">{{ masterStory.likesCount || 0 }}</h4>
+        <span class="text-xs text-gray-500 flex items-center justify-center gap-1"><span class="material-icons text-[14px]">favorite</span> إعجاب</span>
+    </div>
+
+    <div class="stat-item col-span-1">
+        <h4 class="text-2xl font-extrabold text-gray-800 font-english">{{ masterStory.sharesCount || 0 }}</h4>
+        <span class="text-xs text-gray-500 flex items-center justify-center gap-1"><span class="material-icons text-[14px]">share</span> مشاركة</span>
+    </div>
+
+    <div class="stat-item col-span-1 sm:ml-0 sm:mr-0">
+        <h4 class="text-2xl font-extrabold text-gray-800 font-english">{{ masterStory.averageRating?.toFixed(1) || 0 }}</h4>
+        <span class="text-xs text-gray-500 flex items-center justify-center gap-1"><span class="material-icons text-[14px]">star</span> تقييم</span>
+    </div>
+
+    <div class="stat-item col-span-1">
+        <h4 class="text-2xl font-extrabold text-gray-800 font-english">{{ masterStory.commentsCount || 0 }}</h4>
+        <span class="text-xs text-gray-500 flex items-center justify-center gap-1"><span class="material-icons text-[14px]">chat_bubble</span> تعليق</span>
+    </div>
+
+    <div class="hidden sm:block"></div> 
+
+</div>          <!-- 4. Title & Description -->
           <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
              <h1 class="text-3xl md:text-4xl font-black text-gray-900 mb-6 leading-tight">{{ storyTitle }}</h1>
              <div class="prose prose-lg max-w-none text-gray-600 leading-relaxed text-justify" v-html="masterStory.content"></div>
