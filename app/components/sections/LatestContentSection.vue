@@ -92,7 +92,7 @@
                   >person</span
                 >
                 <span class="truncate">{{
-                  story.author?.fullName || 'مستخدم مجهول'
+                  story.authorName || 'مستخدم مجهول'
                 }}</span>
               </div>
               <span class="text-xs">{{ formatDate(story.createdAt) }}</span>

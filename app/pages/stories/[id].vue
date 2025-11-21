@@ -205,14 +205,14 @@
     <div class="flex-shrink-0">
       <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500
                   flex items-center justify-center text-white font-bold text-lg shadow-md">
-        {{ comment.createdByUser ? comment.createdByUser.fullName.charAt(0).toUpperCase() : 'U' }}
+        {{ comment.authorName ? comment.authorName.charAt(0).toUpperCase() : 'U' }}
       </div>
     </div>
 
     <div class="flex-grow">
       <div class="bg-gray-50 rounded-2xl rounded-tr-none p-4 border border-gray-100 relative">
         <div class="flex justify-between items-start mb-1">
-          <h4 class="font-bold text-purple-600">{{ comment.createdByUser.fullName || 'مستخدم' }}</h4>
+          <h4 class="font-bold text-purple-600">{{ comment.authorName || 'مستخدم' }}</h4>
           <span class="text-xs text-gray-400 font-english">{{ new Date(comment.createdAt).toLocaleDateString('en-GB') }}</span>
         </div>
 
@@ -389,44 +389,44 @@ const commentsPerPage = 5
 // ----------------------
 
 const shareStory = async () => {
-    const storyId = masterStoryId.value;
-    const url = window.location.href;
-    const title = storyTitle.value;
-    const platformId = 10;
+  const storyId = masterStoryId.value;
+  const url = window.location.href;
+  const title = storyTitle.value;
+  const platformId = 10;
 
-    if (!storyId) return;
+  if (!storyId) return;
 
-    if (navigator.share) {
-        try {
-            await navigator.share({ title: title, url: url });
-            await sendShareRequest(storyId, platformId);
-        } catch (error) {
-            console.log('Web Share failed or cancelled:', error);
-        }
-    } else {
-        try {
-            await navigator.clipboard.writeText(url);
-            alert(`تم نسخ رابط القصة بنجاح: \n\n${url}`);
-            await sendShareRequest(storyId, platformId);
-        } catch (error) {
-            alert(`يمكنك نسخ رابط القصة مباشرة: \n\n${url}\n\n(فشل النسخ التلقائي)`);
-        }
-    }
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: title, url: url });
+      await sendShareRequest(storyId, platformId);
+    } catch (error) {
+      console.log('Web Share failed or cancelled:', error);
+    }
+  } else {
+    try {
+      await navigator.clipboard.writeText(url);
+      alert(`تم نسخ رابط القصة بنجاح: \n\n${url}`);
+      await sendShareRequest(storyId, platformId);
+    } catch (error) {
+      alert(`يمكنك نسخ رابط القصة مباشرة: \n\n${url}\n\n(فشل النسخ التلقائي)`);
+    }
+  }
 }
 
 const sendShareRequest = async (storyId, platformId) => {
-      try {
-        const body = { masterStoryId: storyId, platform: platformId };
-        
-        await axios.post(`${API_BASE}/api/StoryShares/Share`, body, {
-            headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} 
-        });
-        
-        // إعادة جلب بيانات القصة بالكامل لتحديث SharesCount (مهم إرسال التوكن هنا أيضاً)
-        await fetchStoryTitle(storyId);
-    } catch (err) {
-        console.error('Share request failed:', err);
-    }
+   try {
+    const body = { masterStoryId: storyId, platform: platformId };
+    
+    await axios.post(`${API_BASE}/api/StoryShares/Share`, body, {
+      headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} 
+    });
+    
+    // إعادة جلب بيانات القصة بالكامل لتحديث SharesCount (مهم إرسال التوكن هنا أيضاً)
+    await fetchStoryTitle(storyId);
+  } catch (err) {
+    console.error('Share request failed:', err);
+  }
 }
 
 const getCookie = (name) => {
@@ -445,44 +445,44 @@ return ''
 }
 
 const redirectBack = () => { // 👈 دالة التوجيه للخلف
-    alert('القصة غير منشورة. سيتم إعادتك للصفحة السابقة.');
-    if (window.history.length > 1) {
-        router.back();
-    } else {
-        // بديل في حال لم يكن هناك تاريخ للمتصفح
-        router.push('/');
-    }
+  alert('القصة غير منشورة. سيتم إعادتك للصفحة السابقة.');
+  if (window.history.length > 1) {
+    router.back();
+  } else {
+    // بديل في حال لم يكن هناك تاريخ للمتصفح
+    router.push('/');
+  }
 }
 // ----------------------
 // جلب البيانات الرئيسية (تم إضافة الـ Token)
 // ----------------------
 const fetchStoryTitle = async (storyId) => {
-  if (!storyId) {
-    storyTitle.value = 'القصة غير متوفرة';
-    masterStory.value = {};
-    isLiked.value = false;
+ if (!storyId) {
+  storyTitle.value = 'القصة غير متوفرة';
+  masterStory.value = {};
+  isLiked.value = false;
     isFavorite.value = false; // تحديث حالة المفضلة
-    return;
-  }
-  try {
-    const response = await axios.post(`${API_BASE}/api/MasterStories/GetById`, { id: storyId }, {
-      headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} 
-    });
-    
-    const storyData = response.data || {};
-        
-        // 🚨🚨🚨 التحقق الجديد: إذا كانت الحالة 0 (Pending)، نرفع خطأ مخصص ونوقف الجلب
-        if (storyData.approvalStatus === 0) {
-             throw new Error('STORY_PENDING'); 
-        }
-        // 🚨🚨🚨 نهاية التحقق 🚨🚨🚨
+  return;
+ }
+ try {
+  const response = await axios.post(`${API_BASE}/api/MasterStories/GetById`, { id: storyId }, {
+   headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} 
+  });
+  
+  const storyData = response.data || {};
+    
+    // 🚨🚨🚨 التحقق الجديد: إذا كانت الحالة 0 (Pending)، نرفع خطأ مخصص ونوقف الجلب
+    if (storyData.approvalStatus === 0) {
+      throw new Error('STORY_PENDING'); 
+    }
+    // 🚨🚨🚨 نهاية التحقق 🚨🚨🚨
 
-    masterStory.value = storyData;
+  masterStory.value = storyData;
 
-    storyTitle.value = masterStory.value.title || 'قصة بدون عنوان';
-    
-    // تحديث حالة الإعجاب
-    isLiked.value = storyData.isLikedByCurrentUser === true;
+  storyTitle.value = masterStory.value.title || 'قصة بدون عنوان';
+  
+  // تحديث حالة الإعجاب
+  isLiked.value = storyData.isLikedByCurrentUser === true;
     
     // 🚨🚨🚨 تحديث حالة المفضلة بناءً على بيانات القصة 🚨🚨🚨
     // نفترض أن API GetById يعيد حقلاً مثل isFavoriteByCurrentUser 
@@ -494,64 +494,64 @@ const fetchStoryTitle = async (storyId) => {
     //    await fetchFavoriteStatus(storyId); 
     // }
 
-  } catch (err) {
-    console.error('Error fetching story title:', err);
-        
-        // إذا كان الخطأ هو خطأ القصة المعلقة
-        if (err.message === 'STORY_PENDING') {
-            storyTitle.value = 'القصة معلقة وغير منشورة.';
-        } else {
-            storyTitle.value = 'خطأ في تحميل اسم القصة';
-        }
-    
-    masterStory.value = {};
-    isLiked.value = false;
+ } catch (err) {
+  console.error('Error fetching story title:', err);
+    
+    // إذا كان الخطأ هو خطأ القصة المعلقة
+    if (err.message === 'STORY_PENDING') {
+      storyTitle.value = 'القصة معلقة وغير منشورة.';
+    } else {
+      storyTitle.value = 'خطأ في تحميل اسم القصة';
+    }
+  
+  masterStory.value = {};
+  isLiked.value = false;
     isFavorite.value = false; // تحديث حالة المفضلة
-  }
+ }
 }
 const fetchRelatedStories = async (storyCategoryId, currentStoryId) => {
-  if (!storyCategoryId) {
-    relatedStories.value = [];
-    return;
-  }
+ if (!storyCategoryId) {
+  relatedStories.value = [];
+  return;
+ }
 
-  try {
-    const body = {
-      storyCategoryId: storyCategoryId,
-      ApprovalStatus: 1,
-      orderBy: "createdAt",
-      descending: true,
-      pageNumber: 1,
-      pageSize: 50 
-    };
+ try {
+  const body = {
+   storyCategoryId: storyCategoryId,
+   ApprovalStatus: 1,
+   orderBy: "createdAt",
+   descending: true,
+   pageNumber: 1,
+   pageSize: 50 
+  };
 
-    const response = await axios.post(`${API_BASE}/api/MasterStories/GetAllMatching`, body);
-    
-    const stories = Array.isArray(response.data?.items) ? response.data.items : [];
+  const response = await axios.post(`${API_BASE}/api/MasterStories/GetAllMatching`, body);
+  
+  const stories = Array.isArray(response.data?.items) ? response.data.items : [];
 
-    const processStoryForDisplay = (story) => {
-      if (story.coverImageUrl) return story.coverImageUrl;
-      if (story.mediaTypeName === 'Video' || story.mediaUrl?.includes('youtube.com')) {
-        const videoIdMatch = story.mediaUrl.match(/(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*)/);
-        if (videoIdMatch && videoIdMatch[2].length === 11) return `https://img.youtube.com/vi/${videoIdMatch[2]}/hqdefault.jpg`;
-      }
-      if (story.mediaTypeName === 'Document' || story.mediaUrl?.toLowerCase().endsWith('.pdf')) return '/pdf-icon-placeholder.png'; 
-      if (story.mediaUrl) return story.mediaUrl;
-      return '/default-story-placeholder.jpg'; 
-    };
+  const processStoryForDisplay = (story) => {
+   if (story.coverImageUrl) return story.coverImageUrl;
+   if (story.mediaTypeName === 'Video' || story.mediaUrl?.includes('youtube.com')) {
+    const videoIdMatch = story.mediaUrl.match(/(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*)/);
+    if (videoIdMatch && videoIdMatch[2].length === 11) return `https://img.youtube.com/vi/${videoIdMatch[2]}/hqdefault.jpg`;
+   }
+   if (story.mediaTypeName === 'Document' || story.mediaUrl?.toLowerCase().endsWith('.pdf')) return '/pdf-icon-placeholder.png'; 
+   if (story.mediaUrl) return story.mediaUrl;
+   return '/default-story-placeholder.jpg'; 
+  };
 
-    relatedStories.value = stories
-      .filter(s => s.id !== currentStoryId)
-      .slice(0, 5) 
-      .map(story => ({
-        ...story,
-        displayImage: processStoryForDisplay(story) 
-      }));
+  relatedStories.value = stories
+   .filter(s => s.id !== currentStoryId)
+   .slice(0, 5) 
+   .map(story => ({
+    ...story,
+    displayImage: processStoryForDisplay(story) 
+   }));
 
-  } catch (err) {
-    console.error('Error fetching related stories:', err);
-    relatedStories.value = [];
-  }
+ } catch (err) {
+  console.error('Error fetching related stories:', err);
+  relatedStories.value = [];
+ }
 }
 
 
@@ -559,203 +559,193 @@ const fetchRelatedStories = async (storyCategoryId, currentStoryId) => {
 // منطق الإعجاب (Like Logic)
 // ----------------------
 const toggleLike = async () => {
-    const storyId = masterStoryId.value;
-    
-    if (!getToken() || !storyId) {
-        alert('يجب تسجيل الدخول للإعجاب بالقصة.');
-        return;
-    }
+  const storyId = masterStoryId.value;
+  
+  if (!getToken() || !storyId) {
+    alert('يجب تسجيل الدخول للإعجاب بالقصة.');
+    return;
+  }
 
-    try {
-        const body = { masterStoryId: storyId };
+  try {
+    const body = { masterStoryId: storyId };
 
-        await axios.post(`${API_BASE}/api/StoryLikes/Toggle`, body, {
-            headers: { Authorization: `Bearer ${getToken()}` }
-        });
+    await axios.post(`${API_BASE}/api/StoryLikes/Toggle`, body, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    });
 
-        // إعادة جلب بيانات القصة بالكامل لتحديث LikesCount و isLikedByCurrentUser
-        await fetchStoryTitle(storyId); 
-        
-       
-        
-    } catch (err) {
-        console.error('Like toggle failed:', err);
-        const errorMessage = err.response?.data?.message || 'فشل في تحديث حالة الإعجاب.';
-        alert(errorMessage);
-    }
+    // إعادة جلب بيانات القصة بالكامل لتحديث LikesCount و isLikedByCurrentUser
+    await fetchStoryTitle(storyId); 
+    
+   
+    
+  } catch (err) {
+    console.error('Like toggle failed:', err);
+    const errorMessage = err.response?.data?.message || 'فشل في تحديث حالة الإعجاب.';
+    alert(errorMessage);
+  }
 }
 
 // ----------------------
 // 🚨🚨🚨 منطق المفضلة (Favorite Logic) 🚨🚨🚨
 // ----------------------
 
-// بما أن API الإضافة لا يدعم التبديل (Toggle) مباشرة، سنقوم بإجراء إضافة فقط 
-// ونفترض أن الإضافة المتكررة لن تسبب مشكلة (أو سنقوم بمحاكاة تبديل بسيط)
-
 const toggleFavorite = async () => {
-    const storyId = masterStoryId.value;
+  const storyId = masterStoryId.value;
 
-    if (!getToken() || !storyId) {
-        alert('يجب تسجيل الدخول للإضافة إلى المفضلة.');
-        return;
-    }
+  if (!getToken() || !storyId) {
+    alert('يجب تسجيل الدخول للإضافة إلى المفضلة.');
+    return;
+  }
 
-    // محاكاة لعملية التبديل: إذا كانت في المفضلة، نقوم بالإزالة (غير مدعوم بالـ API حالياً)
-    // إذا لم تكن في المفضلة، نقوم بالإضافة
+  try {
+    const headers = getToken() ? { Authorization: `Bearer ${getToken()}` } : {};
+    const body = { masterStoryIds: [storyId] };
+
     if (isFavorite.value) {
-        // بما أن الـ API لا يوفر نقطة نهاية للحذف، سنقوم بتنبيه بسيط
-        alert('وظيفة الإزالة من المفضلة غير متوفرة حالياً في الـ API.');
-        // يمكن تغيير حالة isFavorite هنا فقط للمحاكاة المرئية
-        // isFavorite.value = false;
-        return;
+      // إذا موجودة في المفضلة -> أزلها عبر DELETE /api/FavoriteStories/Remove
+      await axios.delete(`${API_BASE}/api/FavoriteStories/Remove`, { data: body, headers });
+      isFavorite.value = false;
+    } else {
+      // إذا غير موجودة -> أضفها عبر Add
+      await axios.post(`${API_BASE}/api/FavoriteStories/Add`, body, { headers });
+      isFavorite.value = true;
     }
-    
-    try {
-        const body = { masterStoryIds: [storyId] };
 
-        // بما أننا نستخدم Add، نفترض أنها تضيف القصة لمرة واحدة
-        await axios.post(`${API_BASE}/api/FavoriteStories/Add`, body, {
-            headers: { Authorization: `Bearer ${getToken()}` }
-        });
-
-        isFavorite.value = true; // نحدث الحالة إلى 'في المفضلة' بعد النجاح
-        alert('تمت إضافة القصة بنجاح إلى المفضلة!');
-
-    } catch (err) {
-        console.error('Favorite add failed:', err);
-        const errorMessage = err.response?.data?.message || 'فشل في إضافة القصة إلى المفضلة.';
-        alert(errorMessage);
-    }
+    // حدث بيانات القصة لتحديث العدادات والحالة
+    await fetchStoryTitle(storyId);
+  } catch (err) {
+    console.error('Favorite toggle failed:', err);
+    const errorMessage = err.response?.data?.message || 'فشل في تحديث حالة المفضلة.';
+    alert(errorMessage);
+  }
 }
-
-
-// ----------------------
+// ...existing code...// ----------------------
 // منطق التقييم (Rating Logic)
 // ----------------------
 const fetchRating = async (storyId) => {
-    if (!getToken() || !storyId) { userRating.value = 0; return }
-    try {
-        // تجلب تقييم المستخدم الخاص (وهو ليس متوفراً في GetById)
-        const response = await axios.post(`${API_BASE}/api/StoryRatings/GetRating`, { masterStoryId: storyId }, {
-            headers: { Authorization: `Bearer ${getToken()}` }
-        })
-        userRating.value = response.data?.rating || 0
-    } catch (err) {
-        userRating.value = 0
-    }
+  if (!getToken() || !storyId) { userRating.value = 0; return }
+  try {
+    // تجلب تقييم المستخدم الخاص (وهو ليس متوفراً في GetById)
+    const response = await axios.post(`${API_BASE}/api/StoryRatings/GetRating`, { masterStoryId: storyId }, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    })
+    userRating.value = response.data?.rating || 0
+  } catch (err) {
+    userRating.value = 0
+  }
 }
 
 const submitRating = async (rating) => {
-    const storyId = masterStoryId.value
-    if (!getToken() || !storyId) {
-        alert('يجب تسجيل الدخول لإضافة تقييم.')
-        return
-    }
+  const storyId = masterStoryId.value
+  if (!getToken() || !storyId) {
+    alert('يجب تسجيل الدخول لإضافة تقييم.')
+    return
+  }
 
-    const isUpdating = userRating.value > 0;
-    
-    try {
-        const body = { masterStoryId: storyId, rating: rating };
+  const isUpdating = userRating.value > 0;
+  
+  try {
+    const body = { masterStoryId: storyId, rating: rating };
 
-        if (isUpdating) {
-            await axios.put(`${API_BASE}/api/StoryRatings/Update`, body, {
-                headers: { Authorization: `Bearer ${getToken()}` }
-            });
-        } else {
-            await axios.post(`${API_BASE}/api/StoryRatings/Add`, body, {
-                headers: { Authorization: `Bearer ${getToken()}` }
-            });
-        }
+    if (isUpdating) {
+      await axios.put(`${API_BASE}/api/StoryRatings/Update`, body, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      });
+    } else {
+      await axios.post(`${API_BASE}/api/StoryRatings/Add`, body, {
+        headers: { Authorization: `Bearer ${getToken()}` }
+      });
+    }
 
-        userRating.value = rating;
-        
-        await fetchStoryTitle(storyId);
-        
-    } catch (err) {
-        console.error('Rating failed:', err);
-        alert('فشل في تسجيل التقييم.');
-    }
+    userRating.value = rating;
+    
+    await fetchStoryTitle(storyId);
+    
+  } catch (err) {
+    console.error('Rating failed:', err);
+    alert('فشل في تسجيل التقييم.');
+  }
 }
 
 // ----------------------
 // منطق المستخدم والـ Admin (تم تصحيح Endpoint)
 // ----------------------
 const checkAdminStatus = async () => { 
-    const token = getToken();
-    if (!token) {
-        isAdmin.value = false;
-        currentUserId.value = null; 
-        return;
-    }
-    try {
-        // 🚨🚨🚨 تصحيح المشكلة 2: استخدام الـ Endpoint الصحيح 'me' (GET)
-        const response = await axios.get(`${API_BASE}/api/identity/users/me`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        const user = response.data;
-        
-        currentUserId.value = user.id; 
-        // افتراض أن حقل الأدمن هو 'isAdmin' أو يمكن التحقق من 'roles'
-        isAdmin.value = user.isAdmin === true || user.roles?.includes('Admin') || false; 
-    } catch (err) {
-        isAdmin.value = false;
-        currentUserId.value = null;
-        console.error('Failed to fetch user (me) data:', err);
-    }
+  const token = getToken();
+  if (!token) {
+    isAdmin.value = false;
+    currentUserId.value = null; 
+    return;
+  }
+  try {
+    // 🚨🚨🚨 تصحيح المشكلة 2: استخدام الـ Endpoint الصحيح 'me' (GET)
+    const response = await axios.get(`${API_BASE}/api/identity/users/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const user = response.data;
+    
+    currentUserId.value = user.id; 
+    // افتراض أن حقل الأدمن هو 'isAdmin' أو يمكن التحقق من 'roles'
+    isAdmin.value = user.isAdmin === true || user.roles?.includes('Admin') || false; 
+  } catch (err) {
+    isAdmin.value = false;
+    currentUserId.value = null;
+    console.error('Failed to fetch user (me) data:', err);
+  }
 }
 
 
 const openEditComment = (comment) => { 
-    editingComment.value = { ...comment, newContent: comment.content };
+  editingComment.value = { ...comment, newContent: comment.content };
 }
 const updateComment = async () => { 
-    if (!editingComment.value) return;
-    const body = { 
-        id: editingComment.value.id, 
-        content: editingComment.value.newContent 
-    };
-    try {
-        await axios.put(`${API_BASE}/api/StoryComments/Update`, body, {
-            headers: { Authorization: `Bearer ${getToken()}` }
-        });
-        editingComment.value = null;
-        await fetchComments();
-    } catch (err) {
-        console.error('Update comment failed:', err);
-        alert('فشل في تعديل التعليق.');
-    }
+  if (!editingComment.value) return;
+  const body = { 
+    id: editingComment.value.id, 
+    content: editingComment.value.newContent 
+  };
+  try {
+    await axios.put(`${API_BASE}/api/StoryComments/Update`, body, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    });
+    editingComment.value = null;
+    await fetchComments();
+  } catch (err) {
+    console.error('Update comment failed:', err);
+    alert('فشل في تعديل التعليق.');
+  }
 }
 const deleteComment = async (comment) => { 
-    if (!confirm('هل أنت متأكد من حذف هذا التعليق؟')) return;
-    try {
-        await axios.delete(`${API_BASE}/api/StoryComments/Delete/${comment.id}`, {
-            headers: { Authorization: `Bearer ${getToken()}` }
-        });
-        await fetchComments();
-    } catch (err) {
-        console.error('Delete comment failed:', err);
-        alert('فشل في حذف التعليق.');
-    }
+  if (!confirm('هل أنت متأكد من حذف هذا التعليق؟')) return;
+  try {
+    await axios.delete(`${API_BASE}/api/StoryComments/Delete/${comment.id}`, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    });
+    await fetchComments();
+  } catch (err) {
+    console.error('Delete comment failed:', err);
+    alert('فشل في حذف التعليق.');
+  }
 }
 
 
 const storyMediaType = computed(() => { 
-    const url = masterStory.value.mediaUrl?.toLowerCase();
-    if (!url) return 'none';
-    if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
-    if (url.match(/\.(jpeg|jpg|png|gif|webp)$/)) return 'image';
-    if (url.match(/\.(mp4|webm|ogg)$/)) return 'video';
-    if (url.match(/\.(mp3|wav|oga)$/)) return 'audio';
-    if (url.endsWith('.pdf')) return 'pdf';
-    return 'file';
+  const url = masterStory.value.mediaUrl?.toLowerCase();
+  if (!url) return 'none';
+  if (url.includes('youtube.com') || url.includes('youtu.be')) return 'youtube';
+  if (url.match(/\.(jpeg|jpg|png|gif|webp)$/)) return 'image';
+  if (url.match(/\.(mp4|webm|ogg)$/)) return 'video';
+  if (url.match(/\.(mp3|wav|oga)$/)) return 'audio';
+  if (url.endsWith('.pdf')) return 'pdf';
+  return 'file';
 })
 const getEmbedUrl = (url) => { 
-    if (!url) return '';
-    const youtubeMatch = url.match(/(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*)/);
-    if (youtubeMatch && youtubeMatch[2].length === 11) {
-        return `https://www.youtube.com/embed/${youtubeMatch[2]}?rel=0`;
-    }
-    return url; 
+  if (!url) return '';
+  const youtubeMatch = url.match(/(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*)/);
+  if (youtubeMatch && youtubeMatch[2].length === 11) {
+    return `https://www.youtube.com/embed/${youtubeMatch[2]}?rel=0`;
+  }
+  return url; 
 }
 
 
@@ -827,60 +817,60 @@ fetchComments()
 // تهيئة البيانات والمراقبة
 // ----------------------
 const trackView = (storyId) => {
-  if (!storyId) return;
+ if (!storyId) return;
 
-  setTimeout(async () => {
-    try {
-      await axios.post(
-        `${API_BASE}/api/StoryViews/${storyId}/views`,
-        {},
-        {
-          withCredentials: true, // ✅ this is enough
-        }
-      );
+ setTimeout(async () => {
+  try {
+   await axios.post(
+    `${API_BASE}/api/StoryViews/${storyId}/views`,
+    {},
+    {
+     withCredentials: true, // ✅ this is enough
+    }
+   );
 
-      console.log(`View tracked successfully for story ID: ${storyId}`);
+   console.log(`View tracked successfully for story ID: ${storyId}`);
 
-    } catch (err) {
-      console.error("Failed to track story view:", err);
-    }
-  }, 3000);
+  } catch (err) {
+   console.error("Failed to track story view:", err);
+  }
+ }, 3000);
 };
 
 
 const initializeData = async (id) => {
- isLoading.value = true;
- if (!id) return;
+isLoading.value = true;
+if (!id) return;
 
- // 1. جلب بيانات المستخدم أولاً
- await checkAdminStatus(); 
- 
- // 2. جلب القصة
- await fetchStoryTitle(id);
+// 1. جلب بيانات المستخدم أولاً
+await checkAdminStatus(); 
 
-  // 🚨🚨🚨 التحقق من حالة القصة بعد الجلب 🚨🚨🚨
-  // إذا كانت masterStory فارغة والعنوان يشير إلى أنها معلقة (بسبب الخطأ STORY_PENDING)
-  if (!masterStory.value.id && storyTitle.value.includes('القصة معلقة')) {
-      redirectBack(); // توجيه المستخدم للخلف
-      isLoading.value = false;
-      return; // إيقاف تنفيذ initializeData
-  }
-  // 🚨🚨🚨 نهاية التحقق 🚨🚨🚨
- 
- // 3. جلب القصص المشابهة (لن يتم تنفيذها إذا تم التوجيه)
- const categoryId = masterStory.value?.storyCategoryId;
- if (categoryId) {
- await fetchRelatedStories(categoryId, id);
- }
- 
- // 4. جلب تقييم المستخدم الحالي
- await fetchRating(id);
+// 2. جلب القصة
+await fetchStoryTitle(id);
 
- // 5. جلب التعليقات
- await fetchComments();
+ // 🚨🚨🚨 التحقق من حالة القصة بعد الجلب 🚨🚨🚨
+ // إذا كانت masterStory فارغة والعنوان يشير إلى أنها معلقة (بسبب الخطأ STORY_PENDING)
+ if (!masterStory.value.id && storyTitle.value.includes('القصة معلقة')) {
+   redirectBack(); // توجيه المستخدم للخلف
+   isLoading.value = false;
+   return; // إيقاف تنفيذ initializeData
+ }
+ // 🚨🚨🚨 نهاية التحقق 🚨🚨🚨
 
- trackView(id);
- isLoading.value = false;
+// 3. جلب القصص المشابهة (لن يتم تنفيذها إذا تم التوجيه)
+const categoryId = masterStory.value?.storyCategoryId;
+if (categoryId) {
+await fetchRelatedStories(categoryId, id);
+}
+
+// 4. جلب تقييم المستخدم الحالي
+await fetchRating(id);
+
+// 5. جلب التعليقات
+await fetchComments();
+
+trackView(id);
+isLoading.value = false;
 };
 
 

@@ -18,9 +18,9 @@ const emit = defineEmits(['viewContent']);
     @click="emit('viewContent', content.id)"
     class="group cursor-pointer transform hover:-translate-y-4 transition-all duration-500"
   >
-    <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl border border-gray-200 dark:border-gray-700 h-full flex flex-col group-hover:border-purple-400">
+    <div class="bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl border border-gray-700 h-full flex flex-col group-hover:border-purple-400">
       
-      <div class="relative h-48 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 overflow-hidden">
+      <div class="relative h-48 bg-gradient-to-br from-indigo-900 to-purple-900 overflow-hidden">
         <div class="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition-all duration-300"></div>
         <span class="absolute top-4 right-4 text-5xl transform group-hover:scale-110 transition-transform duration-300">{{ content.emoji }}</span>
         
@@ -40,23 +40,23 @@ const emit = defineEmits(['viewContent']);
       </div>
       
       <div class="p-6 flex-grow text-right">
-        <h4 class="text-lg font-bold text-gray-800 dark:text-white mb-3 line-clamp-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-300">
+        <h4 class="text-lg font-bold text-white mb-3 line-clamp-2 group-hover:text-purple-400 transition-colors duration-300">
           {{ content.title }}
         </h4>
         
-        <p class="text-gray-700 dark:text-gray-300 text-sm mb-4 line-clamp-2 leading-relaxed">
+        <p class="text-gray-300 text-sm mb-4 line-clamp-2 leading-relaxed">
           {{ content.summary }}
         </p>
         
         <div class="flex items-center justify-between mb-3">
-          <span class="bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 px-3 py-1 rounded-full text-xs font-medium">
+          <span class="bg-purple-900 text-purple-300 px-3 py-1 rounded-full text-xs font-medium">
             {{ content.age_group }}
           </span>
-          <span class="text-gray-600 dark:text-gray-400 text-xs">{{ content.author }}</span>
+          <span class="text-gray-400 text-xs">{{ content.author }}</span>
         </div>
 
-        <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-          <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded transform group-hover:scale-105 transition-transform">{{ content.category }}</span>
+        <div class="flex items-center justify-between text-xs text-gray-400">
+          <span class="bg-gray-700 px-2 py-1 rounded transform group-hover:scale-105 transition-transform">{{ content.category }}</span>
           <span>{{ formatDate(content.created_at) }}</span>
         </div>
       </div>

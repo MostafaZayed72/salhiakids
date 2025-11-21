@@ -1,32 +1,31 @@
 <template>
   <header
-    class="bg-gradient-to-r from-white to-purple-50 dark:from-gray-900 dark:to-purple-900 shadow-2xl border-b border-purple-200 dark:border-purple-700 sticky top-0 z-50 transition-all duration-300 ">
+    class="bg-gradient-to-r from-gray-900 to-purple-900 shadow-2xl border-b border-purple-700 sticky top-0 z-50 transition-all duration-300 ">
     <div class="container mx-auto px-6 py-4">
       <div class="flex items-center justify-between">
 
         <router-link to="/"
           class="flex items-center gap-3 hover:opacity-80 transition-all duration-300 transform hover:scale-105 group">
           <div
-            class="w-24 h-24 md:w-20 md:h-20 rounded-2xl flex items-center justify-center  md:bg-white shadow-lg overflow-hidden   transition-transform duration-500">
+            class="w-24 h-24 md:w-20 md:h-20 rounded-2xl flex items-center justify-center md:bg-white shadow-lg overflow-hidden transition-transform duration-500">
             <img src="/test.png" alt="شعار النظام" class="w-full h-full object-cover ">
           </div>
           <div class="text-right">
-            <h1 class="text-xl font-bold text-purple-700 dark:text-white custom-text-pulse" style="font-family: tajawal">
+            <h1 class="text-xl font-bold text-white custom-text-pulse" style="font-family: tajawal">
               الجمعية الأهلية الصالحية بعنيزة
             </h1>
-            <!-- <p class="text-xs text-purple-500 dark:text-purple-300 mt-1 transform group-hover:translate-x-1 transition-transform duration-300">منصة الطفل الرقمية</p> -->
           </div>
         </router-link>
 
         <div class="flex items-center gap-3">
 
 
-          <div class="w-px h-8 bg-gradient-to-b from-purple-300 to-pink-300 dark:from-purple-600 dark:to-pink-600 mx-2">
+          <div class="w-px h-8 bg-gradient-to-b from-purple-600 to-pink-600 mx-2">
           </div>
 
           <div v-if="isAuthenticated" class="relative">
             <button @click="showMenu = !showMenu"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 dark:hover:from-purple-800 dark:hover:to-pink-800 transition-all duration-300 transform hover:scale-105 group">
+              class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-800 hover:to-pink-800 transition-all duration-300 transform hover:scale-105 group">
               <div
                 class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg transform group-hover:rotate-12 transition-transform duration-500">
                 <img v-if="user?.profileImage" :src="user.profileImage" :alt="user?.name"
@@ -37,14 +36,14 @@
               </div>
               <div class="text-right hidden sm:block">
                 <span
-                  class="text-sm font-bold text-purple-700 dark:text-purple-300 block transform group-hover:translate-x-1 transition-transform">{{
+                  class="text-sm font-bold text-purple-300 block transform group-hover:translate-x-1 transition-transform">{{
                     user?.name || 'المستخدم' }}</span>
                 <span
-                  class="text-xs text-purple-500 dark:text-purple-400 capitalize bg-purple-100 dark:bg-purple-800 px-2 py-1 rounded-full mt-1 inline-block">{{
+                  class="text-xs text-purple-400 capitalize bg-purple-800 px-2 py-1 rounded-full mt-1 inline-block">{{
                     getUserRoleText(user?.role) }}</span>
               </div>
               <span
-                class="material-icons text-purple-600 dark:text-purple-400 text-xl transition-all duration-300 transform"
+                class="material-icons text-purple-400 text-xl transition-all duration-300 transform"
                 :class="showMenu ? 'rotate-180 scale-110' : ''">
                 expand_more
               </span>
@@ -52,10 +51,10 @@
 
             <transition name="custom-slide-down">
               <div v-if="showMenu" @click.away="showMenu = false"
-                class="absolute top-full left-0 mt-3 w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-purple-200 dark:border-purple-700 z-50 custom-fade-in-up">
+                class="absolute top-full left-0 mt-3 w-64 bg-gray-800 rounded-2xl shadow-2xl border border-purple-700 z-50 custom-fade-in-up">
 
                 <div
-                  class="p-4 border-b border-purple-100 dark:border-purple-700 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900 rounded-t-2xl">
+                  class="p-4 border-b border-purple-700 bg-gradient-to-r from-purple-900 to-pink-900 rounded-t-2xl">
                   <div class="flex items-center gap-3">
                     <div
                       class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 shadow-md">
@@ -66,17 +65,17 @@
                       </span>
                     </div>
                     <div class="flex-1 text-right">
-                      <p class="text-sm font-bold text-purple-700 dark:text-white">{{ user?.name || 'المستخدم' }}</p>
-                      <p class="text-xs text-purple-500 dark:text-purple-300 mt-1">{{ user?.email }}</p>
+                      <p class="text-sm font-bold text-white">{{ user?.name || 'المستخدم' }}</p>
+                      <p class="text-xs text-purple-300 mt-1">{{ user?.email }}</p>
                       <p
-                        class="text-xs text-purple-500 dark:text-purple-300 capitalize bg-white dark:bg-purple-700 px-2 py-1 rounded-full mt-2 inline-block">
+                        class="text-xs text-purple-300 capitalize bg-purple-700 px-2 py-1 rounded-full mt-2 inline-block">
                         {{ getUserRoleText(user?.role) }}</p>
                     </div>
                   </div>
                 </div>
 
                 <div
-                  class="p-3 bg-gradient-to-b from-white to-purple-50 dark:from-gray-800 dark:to-purple-900 rounded-b-2xl">
+                  class="p-3 bg-gradient-to-b from-gray-800 to-purple-900 rounded-b-2xl">
                   <template v-if="user?.role === 'admin'">
     
     <router-link to="/dashboard" class="custom-dropdown-item group" @click="showMenu = false">
@@ -150,16 +149,11 @@
                       <span
                         class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
                     </router-link>
-
-
-
-
-
                   </template>
                   <div class="custom-dropdown-divider"></div>
 
                   <button @click="handleLogout"
-                    class="custom-dropdown-item group text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-red-900/20 dark:hover:to-pink-900/20">
+                    class="custom-dropdown-item group text-red-600 hover:bg-gradient-to-r hover:from-red-900/20 hover:to-pink-900/20">
                     <div class="custom-dropdown-icon bg-gradient-to-r from-red-500 to-pink-500">
                       <span class="material-icons">logout</span>
                     </div>
@@ -168,16 +162,13 @@
                       class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
                   </button>
                 </div>
-
-
-                
               </div>
             </transition>
           </div>
 
           <div v-else class="flex items-center gap-3">
             <router-link to="/login"
-              class="flex items-center gap-2 px-5 py-3 border-2 border-purple-500 text-purple-600 dark:border-purple-400 dark:text-purple-300 rounded-xl hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-300 transform hover:scale-105 font-bold text-sm shadow-lg hover:shadow-xl">
+              class="flex items-center gap-2 px-5 py-3 border-2 border-purple-400 text-purple-300 rounded-xl hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-300 transform hover:scale-105 font-bold text-sm shadow-lg hover:shadow-xl">
               <span class="material-icons text-lg">login</span>
               <span class="hidden sm:block">تسجيل الدخول</span>
             </router-link>
