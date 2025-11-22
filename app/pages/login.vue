@@ -36,7 +36,7 @@
                 :type="showPassword ? 'text' : 'password'"
                 required
                 placeholder="ادخل كلمة المرور"
-                class="w-full px-4 py-3 pr-20 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 transition-all duration-200"
+                class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#1B3C53] focus:border-transparent bg-white text-gray-800 transition-all duration-200"
               >
               <button 
                 type="button"
