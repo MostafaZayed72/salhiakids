@@ -349,8 +349,6 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
-import NotificationModal from '../../components/NotificationModal.vue'
-import { useNotification } from '../../composables/useNotification'
 
 const route = useRoute()
 const router = useRouter()

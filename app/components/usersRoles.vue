@@ -201,13 +201,19 @@
         </div>
       </div>
     </div>
+    <!-- في نهاية <template> -->
+<NotificationModal 
+  :is-open="notification.isOpen.value"
+  :notification="notification.notification.value"
+  @close="notification.close"
+/>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
-
+const notification = useNotification()
 // -------------------
 // الثوابت ونقاط النهاية
 // -------------------
@@ -421,9 +427,20 @@ const toggleUserStatus = async (user) => {
     })
 
     users.value.items[userIndex].isActive = !user.isActive
+    notification.show({
+      title: 'نجاح',
+      message: `تم ${action === 'enable' ? 'تفعيل' : 'تعطيل'} المستخدم بنجاح.`,
+      type: 'success',
+      autoClose: true
+    })
   } catch (err) {
     console.error(`Failed to ${action} user:`, err)
-    alert(`فشل في ${action === 'enable' ? 'تفعيل' : 'تعطيل'} المستخدم.`)
+    notification.show({
+      title: 'خطأ',
+      message: `فشل في ${action === 'enable' ? 'تفعيل' : 'تعطيل'} المستخدم.`,
+      type: 'error',
+      autoClose: true
+    })
   } finally {
     users.value.items[userIndex].isStatusChanging = false
   }

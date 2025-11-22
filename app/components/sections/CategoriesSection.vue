@@ -206,7 +206,13 @@
                     </div>
                 </form>
             </div>
+
         </div>
+        <NotificationModal 
+      :is-open="notification.isOpen.value"
+      :notification="notification.notification.value"
+      @close="notification.close"
+    />
     </section>
 </template>
 
@@ -216,6 +222,7 @@ import axios from 'axios'
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
 const emit = defineEmits(['searchByCategory'])
+const notification = useNotification()
 
 // ----------------------------------------------------
 // ⭐️ الحالة والمتغيرات
@@ -435,7 +442,13 @@ const uploadImage = async (file) => {
         return response.data?.url || ''
     } catch (err) {
         console.error('Upload failed:', err)
-        alert('فشل رفع الصورة.')
+        notification.show({
+            title: 'خطأ',
+            message: 'فشل رفع الصورة.',
+            type: 'error',
+            autoClose: true,
+            duration: 2000
+        })
         return ''
     } finally {
         isUploading.value = false
@@ -456,9 +469,23 @@ const addCategory = async () => {
         newCategory.value = { title: '', description: '', imageUrl: '' }
         currentPage.value = 1 
         await fetchCategories()
+        
+        notification.show({
+            title: 'نجاح',
+            message: 'تمت إضافة الفئة الجديدة بنجاح.',
+            type: 'success',
+            autoClose: true,
+            duration: 2000
+        })
     } catch (err) {
         console.error('Add category failed:', err)
-        alert('فشلت عملية الإضافة.')
+        notification.show({
+            title: 'خطأ',
+            message: 'فشلت عملية الإضافة.',
+            type: 'error',
+            autoClose: true,
+            duration: 2000
+        })
     }
 }
 
@@ -476,26 +503,72 @@ const updateCategory = async () => {
         showEditModal.value = false
         editingCategory.value = null
         await fetchCategories()
+        
+        notification.show({
+            title: 'نجاح',
+            message: 'تم تحديث الفئة بنجاح.',
+            type: 'success',
+            autoClose: true,
+            duration: 2000
+        })
     } catch (err) {
         console.error('Update category failed:', err)
-        alert('فشل تحديث الفئة.')
+        notification.show({
+            title: 'خطأ',
+            message: 'فشل تحديث الفئة.',
+            type: 'error',
+            autoClose: true,
+            duration: 2000
+        })
     }
 }
 
 const deleteCategory = async (id) => {
-    if (!confirm('هل أنت متأكد من حذف هذه الفئة؟')) return
-    try {
-        await axios.delete(`${API_BASE}/api/StoryCategories/Delete/${id}`, {
-            headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {}
-        })
-        if (categories.value.length === 1 && currentPage.value > 1) {
-            currentPage.value -= 1
-        }
-        await fetchCategories()
-    } catch (err) {
-        console.error('Delete category failed:', err)
-        alert('فشل حذف الفئة.')
-    }
+    // ✅ استبدال confirm بـ notification
+    notification.show({
+        title: 'تأكيد الحذف',
+        message: 'هل أنت متأكد من حذف هذه الفئة؟',
+        type: 'warning',
+        actions: [
+            {
+                label: 'إلغاء',
+                onClick: () => {},
+                style: 'secondary'
+            },
+            {
+                label: 'حذف',
+                onClick: async () => {
+                    try {
+                        await axios.delete(`${API_BASE}/api/StoryCategories/Delete/${id}`, {
+                            headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {}
+                        })
+                        if (categories.value.length === 1 && currentPage.value > 1) {
+                            currentPage.value -= 1
+                        }
+                        await fetchCategories()
+                        
+                        notification.show({
+                            title: 'نجاح',
+                            message: 'تم حذف الفئة بنجاح.',
+                            type: 'success',
+                            autoClose: true,
+                            duration: 2000
+                        })
+                    } catch (err) {
+                        console.error('Delete category failed:', err)
+                        notification.show({
+                            title: 'خطأ',
+                            message: 'فشل حذف الفئة.',
+                            type: 'error',
+                            autoClose: true,
+                            duration: 2000
+                        })
+                    }
+                },
+                style: 'primary'
+            }
+        ]
+    })
 }
 
 const checkAdminStatus = async () => {
@@ -539,10 +612,10 @@ const openEdit = (cat) => {
 // ----------------------------------------------------
 
 onMounted(() => {
-    checkAdminStatus();
-    // جلب الفئات (الذي بدوره سيجلب الإحصائيات ويشغل initializeStats)
-    fetchCategories(); 
-});
+    notification.close()
+    checkAdminStatus()
+    fetchCategories()
+})
 </script>
 
 <style scoped>
