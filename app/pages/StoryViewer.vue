@@ -202,24 +202,30 @@
           </div>
 
           <div class="border-t border-gray-200/50 p-6 bg-gray-50/80 backdrop-blur-md">
-            <div class="flex items-center justify-between">
-              <button @click="previousPage" :disabled="currentPage === 1"
+            <div class="flex flex-col gap-6 items-center justify-center">
+              <div class="flex justify-between items-center gap-10">
+<button @click="previousPage" :disabled="currentPage === 1"
                 :class="['flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 transform', currentPage === 1 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white hover:scale-105 hover:shadow-lg group']">
                 <span class="material-icons text-xl group-hover:animate-bounce">arrow_forward</span>
                 <span>السابق</span>
               </button>
 
-              <div class="flex items-center gap-2">
-                <span v-for="page in backendTotalPages" :key="page" @click="goToPage(page)"
-                  :class="['w-3 h-3 rounded-full cursor-pointer transition-all duration-300 transform hover:scale-150', page === currentPage ? 'bg-gradient-to-r from-purple-500 to-pink-500 scale-125 shadow-lg' : 'bg-gray-300 hover:bg-purple-300']"
-                  :title="`الصفحة ${page}`"></span>
-              </div>
+             
 
               <button @click="nextPage" :disabled="currentPage === backendTotalPages"
                 :class="['flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-300 transform', currentPage === backendTotalPages ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white hover:scale-105 hover:shadow-lg group']">
                 <span>التالي</span>
                 <span class="material-icons text-xl group-hover:animate-bounce">arrow_back</span>
               </button>
+
+              </div>
+
+
+               <div class="flex items-center gap-2">
+                <span v-for="page in backendTotalPages" :key="page" @click="goToPage(page)"
+                  :class="['w-3 h-3 rounded-full cursor-pointer transition-all duration-300 transform hover:scale-150', page === currentPage ? 'bg-gradient-to-r from-purple-500 to-pink-500 scale-125 shadow-lg' : 'bg-gray-300 hover:bg-purple-300']"
+                  :title="`الصفحة ${page}`"></span>
+              </div>
             </div>
 
             <div v-if="isAdmin" class="mt-4 text-center">
