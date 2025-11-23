@@ -1,6 +1,6 @@
 <template>
   <header
-    class="bg-gradient-to-r from-gray-900 to-purple-900 shadow-2xl border-b border-purple-700 sticky top-0 z-50 transition-all duration-300 ">
+    class="bg-gradient-to-r from-gray-300 to-white shadow-2xl border-b border-purple-700 sticky top-0 z-50 transition-all duration-300 ">
     <div class="container mx-auto px-6 py-4">
       <div class="flex items-center justify-between">
 
@@ -11,7 +11,7 @@
             <img src="/test.png" alt="شعار النظام" class="w-full h-full object-cover ">
           </div>
           <div class="text-right">
-            <h1 class="text-xl font-bold text-white custom-text-pulse" style="font-family: tajawal">
+            <h1 class="text-xl font-bold text-purple-600 custom-text-pulse" style="font-family: tajawal">
               الجمعية الأهلية الصالحية بعنيزة
             </h1>
           </div>
@@ -23,9 +23,9 @@
           <div class="w-px h-8 bg-gradient-to-b from-purple-600 to-pink-600 mx-2">
           </div>
 
-          <div v-if="isAuthenticated" class="relative">
+          <div v-if="isAuthenticated" class="relative ">
             <button @click="showMenu = !showMenu"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-800 hover:to-pink-800 transition-all duration-300 transform hover:scale-105 group">
+              class="bg-gradient-to-r from-purple-800 to-pink-800  flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-800 hover:to-pink-800 transition-all duration-300 transform hover:scale-105 group">
               <div
                 class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg transform group-hover:rotate-12 transition-transform duration-500">
                 <img v-if="user?.profileImage" :src="user.profileImage" :alt="user?.name"
@@ -168,7 +168,7 @@
 
           <div v-else class="flex items-center gap-3">
             <router-link to="/login"
-              class="flex items-center gap-2 px-5 py-3 border-2 border-purple-400 text-purple-300 rounded-xl hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-300 transform hover:scale-105 font-bold text-sm shadow-lg hover:shadow-xl">
+              class="flex items-center gap-2 px-5 py-3 border-2 border-purple-400 text-purple-600 rounded-xl hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-300 transform hover:scale-105 font-bold text-sm shadow-lg hover:shadow-xl">
               <span class="material-icons text-lg">login</span>
               <span class="hidden sm:block">تسجيل الدخول</span>
             </router-link>

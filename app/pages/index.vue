@@ -288,7 +288,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen   relative ">
+  <div class="min-h-screen   relative  ">
 
     <DynamicHeroBackground />
 

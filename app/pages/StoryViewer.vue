@@ -46,13 +46,17 @@
               <span class="material-icons text-xl">share</span>
             </button>
 
-<button @click="printCurrentSlide" class="p-2 text-gray-500 hover:text-purple-600 transition-all duration-300 transform hover:scale-110" title="طباعة السلايد">
-  <span class="material-icons text-xl">print</span>
-</button>
+            <button @click="printCurrentSlide"
+              class="p-2 text-gray-500 hover:text-purple-600 transition-all duration-300 transform hover:scale-110"
+              title="طباعة السلايد">
+              <span class="material-icons text-xl">print</span>
+            </button>
 
-<button @click="downloadCurrentSlidePDF" class="p-2 text-gray-500 hover:text-purple-600 transition-all duration-300 transform hover:scale-110" title="تحميل PDF">
-  <span class="material-icons text-xl">file_download</span>
-</button>
+            <button @click="downloadCurrentSlidePDF"
+              class="p-2 text-gray-500 hover:text-purple-600 transition-all duration-300 transform hover:scale-110"
+              title="تحميل PDF">
+              <span class="material-icons text-xl">file_download</span>
+            </button>
 
           </div>
         </div>
@@ -404,15 +408,11 @@
       </div>
     </teleport>
 
-    <NotificationModal 
-  :is-open="notification.isOpen.value"
-  :notification="notification.notification.value"
-  @close="notification.close"
-/>
+    <NotificationModal :is-open="notification.isOpen.value" :notification="notification.notification.value"
+      @close="notification.close" />
   </div>
 </template>
 
-// ...existing code...
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
@@ -554,7 +554,7 @@ const uploadImage = async (file) => {
     return res.data?.url || ''
   } catch (err) {
     console.error('uploadImage failed', err)
-    notification.show({ title: 'خطأ', message: 'فشل رفع الصورة', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
+    notification.show({ title: 'خطأ', message: 'فشل رفع الصورة', type: 'error', actions: [{ label: 'حسناً', onClick: () => { }, style: 'primary' }] })
     return ''
   }
 }
@@ -609,7 +609,7 @@ const loadStory = async (id, page = 1) => {
       startTime.value = Date.now()
       await fetchSuggestions()
     } else {
-      notification.show({ title: 'خطأ', message: 'تعذر تحميل القصة من السيرفر.', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
+      notification.show({ title: 'خطأ', message: 'تعذر تحميل القصة من السيرفر.', type: 'error', actions: [{ label: 'حسناً', onClick: () => { }, style: 'primary' }] })
     }
   } finally {
     isLoading.value = false
@@ -679,7 +679,7 @@ const downloadStory = async () => {
     notification.show({ title: 'نجاح', message: 'تم تحميل القصة كـ PDF.', type: 'success', autoClose: true, duration: 2000 })
   } catch (err) {
     console.error('Download PDF failed', err)
-    notification.show({ title: 'خطأ', message: 'فشل تحميل القصة كملف PDF. راجع الكونسول.', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
+    notification.show({ title: 'خطأ', message: 'فشل تحميل القصة كملف PDF. راجع الكونسول.', type: 'error', actions: [{ label: 'حسناً', onClick: () => { }, style: 'primary' }] })
   }
 }
 
@@ -688,16 +688,29 @@ const downloadCurrentSlidePDF = async () => {
   const slide = currentPageData.value
   if (!slide) return
   try {
+    // حاول تحميل الخط العربي أولاً
+    await loadArabicFont()
+
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
     const pageWidth = doc.internal.pageSize.getWidth()
     let y = 20
+
+    // استخدم الخط العربي إذا تم تحميله
+    if (arabicFontLoaded) doc.setFont('Amiri')
     doc.setFontSize(18)
+    // عنوان مركزي
     doc.text(storyTitle.value || 'قصة', pageWidth / 2, y, { align: 'center' })
     y += 10
-    doc.setFontSize(12)
-    doc.text(`الصفحة ${currentPage.value}`, pageWidth / 2, y, { align: 'center' })
-    y += 10
 
+    doc.setFontSize(12)
+    // الكاتب / معلومات قصيرة
+    if (storyAuthor.value) {
+      doc.text(`الكاتب: ${storyAuthor.value}`, pageWidth / 2, y, { align: 'center' })
+      y += 10
+    }
+
+    doc.setFontSize(14)
+    // صورة السلايد - اجعلها مناسبة لصفحة واحدة
     if (slide.image) {
       try {
         const res = await fetch(slide.image)
@@ -709,101 +722,99 @@ const downloadCurrentSlidePDF = async () => {
           reader.readAsDataURL(blob)
         })
         const imgData = reader.result
-        const imgW = pageWidth - 20
-        const imgH = (imgW * 3) / 4
-        doc.addImage(imgData, 'JPEG', 10, y, imgW, imgH)
-        y += imgH + 8
+        const maxImgW = pageWidth - 20
+        const imgH = (maxImgW * 3) / 4
+        // إذا الصورة كبيرة فنخفض ارتفاعها لكي يبقى مكان للنص (نضمن صفحة واحدة)
+        const allowedImgH = Math.min(imgH, 90)
+        doc.addImage(imgData, 'JPEG', 10, y, maxImgW, allowedImgH)
+        y += allowedImgH + 8
       } catch (e) {
         console.warn('Could not add slide image to PDF', e)
-        y += 4
       }
     }
 
-    const text = (slide.content || slide.description || '').replace(/<br\s*\/?>/g, '\n').replace(/<[^>]*>/g, '')
-    const lines = doc.splitTextToSize(text, pageWidth - 20)
-    doc.text(lines, 10, y)
+    // نص الوصف - نجري تنظيف بسيط ونقسم النص
+    const rawText = (slide.content || slide.description || '').replace(/<br\s*\/?>/g, '\n').replace(/<[^>]*>/g, '')
+    const lines = doc.splitTextToSize(rawText, pageWidth - 20)
+    // اجعل المحاذاة لليمين للغة العربية
+    if (arabicFontLoaded) {
+      // jsPDF لا يدعم shaping الكامل، لكن وجود خط عربي غالباً يحسن النتيجة
+      // نطبع النص بمحاذاة لليمين
+      const startY = y
+      const rightX = pageWidth - 10
+      doc.setFontSize(12)
+      doc.text(lines, rightX, startY, { align: 'right', maxWidth: pageWidth - 20 })
+    } else {
+      doc.text(lines, 10, y)
+    }
+
     doc.save(`${(storyTitle.value || 'قصة')}_صفحة_${currentPage.value}.pdf`)
     notification.show({ title: 'نجاح', message: 'تم تحميل السلايد كملف PDF.', type: 'success', autoClose: true, duration: 2000 })
   } catch (err) {
     console.error('downloadCurrentSlidePDF failed', err)
-    notification.show({ title: 'خطأ', message: 'فشل تحميل السلايد كـ PDF.', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
+    notification.show({ title: 'خطأ', message: 'فشل تحميل السلايد كـ PDF.', type: 'error', actions: [{ label: 'حسناً', onClick: () => { }, style: 'primary' }] })
   }
 }
 
-// print current slide
+// ============================
+// تعديل printCurrentSlide
+// ============================
 const printCurrentSlide = async () => {
   const slide = currentPageData.value
   if (!slide) return
   try {
+    // نعرض صفحة بسيطة تحتوي الصورة والعنوان والوصف فقط، في صفحة واحدة
+    const cleanTitle = escapeHtml(storyTitle.value || '')
+    const cleanDesc = formatStoryText(slide.content || slide.description || '')
+    const imgTag = slide.image ? `<div style="text-align:center;margin:12px 0"><img src="${slide.image}" style="max-width:90%;height:auto;display:block;margin:0 auto" /></div>` : ''
     const html = `
-      <html dir="rtl"><head><meta charset="utf-8"><title>${storyTitle.value}</title>
-      <style>body{font-family:Arial, sans-serif;direction:rtl;padding:20px}img{max-width:100%;height:auto}h1{ text-align:center }</style>
-      </head><body>
-      <h1>${escapeHtml(storyTitle.value || '')}</h1>
-      <h3 style="text-align:center">الصفحة ${currentPage.value}</h3>
-      ${slide.image ? `<div style="text-align:center"><img src="${slide.image}" /></div>` : ''}
-      <div style="margin-top:16px">${formatStoryText(slide.content || slide.description || '')}</div>
-      </body></html>`
+      <html dir="rtl">
+        <head>
+          <meta charset="utf-8"/>
+          <title>${cleanTitle}</title>
+          <style>
+            @media print { body { margin: 0; } }
+            body { font-family: "Arial", "Tahoma", sans-serif; direction: rtl; text-align: right; padding: 24px; }
+            h1 { text-align: center; font-size: 22px; margin-bottom: 8px; }
+            .meta { text-align: center; color: #555; margin-bottom: 12px; }
+            .desc { margin-top: 12px; line-height: 1.6; font-size: 14px; }
+            img { page-break-inside: avoid; }
+            /* منع الطباعة للصفحة الثانية */
+            @page { size: A4; margin: 20mm; }
+          </style>
+        </head>
+        <body>
+          <h1>${cleanTitle}</h1>
+          <div class="meta">${storyAuthor.value ? `الكاتب: ${escapeHtml(storyAuthor.value)}` : ''}</div>
+          ${imgTag}
+          <div class="desc">${cleanDesc}</div>
+        </body>
+      </html>
+    `
     const w = window.open('', '_blank')
     if (!w) throw new Error('popup_blocked')
+    w.document.open()
     w.document.write(html)
     w.document.close()
-    w.focus()
-    setTimeout(() => { w.print(); w.close() }, 300)
+    // نفّذ الطباعة بعد ضمان تحميل الصورة إن وُجدت
+    const tryPrint = () => {
+      try {
+        w.focus()
+        w.print()
+        w.close()
+      } catch (e) {
+        console.warn('print failed', e)
+      }
+    }
+    // إذا توجد صورة انتظر تحميلها (أقل من 700ms عادة)
+    setTimeout(tryPrint, 400)
   } catch (err) {
     console.error('printCurrentSlide failed', err)
-    notification.show({ title: 'خطأ', message: 'فشل في طباعة السلايد.', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
+    notification.show({ title: 'خطأ', message: 'فشل في طباعة السلايد.', type: 'error', actions: [{ label: 'حسناً', onClick: () => { }, style: 'primary' }] })
   }
 }
 
-// print full story (uses template to render all slides then window.print)
-const isPrintingAll = ref(false)
-const printFullStory = async () => {
-  if (!selectedStory.value?.id) return
-  const allItems = []
-  for (let i = 1; i <= backendTotalPages.value; i++) {
-    const full = await fetchStoryPage(selectedStory.value.id, i)
-    if (full?.items?.[0]) {
-      let content = full.items[0].content || ''
-      if (content) content = String(content).replace(/اسم_البطل/g, childName.value || '')
-      allItems.push({ ...full.items[0], content })
-    }
-  }
-
-  const temp = selectedStory.value
-  const originalItems = temp.items
-  selectedStory.value = { ...temp, items: allItems }
-  isPrintingAll.value = true
-  await new Promise(resolve => setTimeout(resolve, 100))
-  window.print()
-  isPrintingAll.value = false
-  selectedStory.value = { ...temp, items: originalItems }
-  await goToPage(currentPage.value)
-}
-
-// share story
-const shareStory = async () => {
-  try {
-    const shareData = {
-      title: storyTitle.value || 'قصة',
-      text: `شاهد قصة "${storyTitle.value}" من تأليف ${storyAuthor.value}`,
-      url: window.location.href
-    }
-
-    if (navigator.share) {
-      await navigator.share(shareData)
-    } else {
-      await navigator.clipboard.writeText(window.location.href)
-      notification.show({ title: 'تم النسخ', message: 'تم نسخ رابط القصة!', type: 'success', autoClose: true, duration: 2000 })
-    }
-  } catch (err) {
-    if (err.name !== 'AbortError') {
-      console.error('Share failed', err)
-      notification.show({ title: 'خطأ', message: 'فشلت مشاركة القصة', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
-    }
-  }
-}
-
+// completeStory
 const completeStory = () => {
   showCompletion.value = true
   const duration = Math.round((Date.now() - (startTime.value || Date.now())) / 1000 / 60)
@@ -871,7 +882,7 @@ const updateSlide = async () => {
     notification.show({ title: 'نجاح', message: 'تم حفظ التعديل.', type: 'success', autoClose: true, duration: 1500 })
   } catch (err) {
     console.error('updateSlide failed', err)
-    notification.show({ title: 'خطأ', message: 'فشل تحديث السلايد', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
+    notification.show({ title: 'خطأ', message: 'فشل تحديث السلايد', type: 'error', actions: [{ label: 'حسناً', onClick: () => { }, style: 'primary' }] })
   }
 }
 
@@ -882,7 +893,7 @@ const deleteCurrentSlide = async () => {
     message: 'هل أنت متأكد من حذف هذا السلايد؟',
     type: 'warning',
     actions: [
-      { label: 'إلغاء', onClick: () => {}, style: 'secondary' },
+      { label: 'إلغاء', onClick: () => { }, style: 'secondary' },
       {
         label: 'حذف',
         onClick: async () => {
@@ -893,7 +904,7 @@ const deleteCurrentSlide = async () => {
             notification.show({ title: 'نجاح', message: 'تم حذف السلايد.', type: 'success', autoClose: true, duration: 1500 })
           } catch (err) {
             console.error('deleteCurrentSlide failed', err)
-            notification.show({ title: 'خطأ', message: 'فشل حذف السلايد', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
+            notification.show({ title: 'خطأ', message: 'فشل حذف السلايد', type: 'error', actions: [{ label: 'حسناً', onClick: () => { }, style: 'primary' }] })
           }
         },
         style: 'primary'
@@ -927,7 +938,7 @@ const addSlide = async () => {
     notification.show({ title: 'نجاح', message: 'تم إضافة السلايد.', type: 'success', autoClose: true, duration: 1500 })
   } catch (err) {
     console.error('addSlide failed', err)
-    notification.show({ title: 'خطأ', message: 'فشل إضافة السلايد', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
+    notification.show({ title: 'خطأ', message: 'فشل إضافة السلايد', type: 'error', actions: [{ label: 'حسناً', onClick: () => { }, style: 'primary' }] })
   }
 }
 
@@ -976,12 +987,41 @@ watch(route, async (r) => {
 })
 
 // small helpers
-function escapeHtml (str = '') {
-  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))
+function escapeHtml(str = '') {
+  return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]))
+}
+
+// ✅ helper: load TTF from public and register to jsPDF
+async function arrayBufferToBase64(buffer) {
+  const bytes = new Uint8Array(buffer)
+  let binary = ''
+  const chunk = 0x8000
+  for (let i = 0; i < bytes.length; i += chunk) {
+    const slice = bytes.subarray(i, i + chunk)
+    binary += String.fromCharCode.apply(null, Array.from(slice))
+  }
+  return btoa(binary)
+}
+
+let arabicFontLoaded = false
+async function loadArabicFont(fontUrl = '/fonts/Amiri-Regular.ttf', fontName = 'Amiri') {
+  if (arabicFontLoaded) return
+  try {
+    const res = await fetch(fontUrl)
+    if (!res.ok) throw new Error('font fetch failed')
+    const buf = await res.arrayBuffer()
+    const b64 = await arrayBufferToBase64(buf)
+    // register font with jsPDF
+    jsPDF.API.addFileToVFS(`${fontName}.ttf`, b64)
+    jsPDF.API.addFont(`${fontName}.ttf`, fontName, 'normal')
+    arabicFontLoaded = true
+  } catch (err) {
+    console.warn('Failed to load Arabic font for PDF:', err)
+    // still continue without custom font
+  }
 }
 </script>
-<!-- register NotificationModal component used in template already -->
-// ...existing code...
+
 <style scoped>
 /* حركات الصفحات */
 .slide-left-enter-active {

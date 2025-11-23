@@ -3,6 +3,11 @@
 import { ref, onMounted, watch } from 'vue'
 import axios from 'axios'
 import { useRoute } from 'vue-router'
+const isLoggedIn = ref(false)
+const checkIsLoggedIn = () => {
+    // نعتمد على المتغير isLoggedIn الذي يتم تحديثه في دالة checkAdminStatus
+    return isLoggedIn.value;
+}
 
 // ------------------------------------
 // Props
@@ -169,6 +174,7 @@ const checkAdminStatus = async () => {
    headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {}
   })
   const data = response.data || {}
+isLoggedIn.value = !!data.id;
 
   isAdmin.value = Array.isArray(data.roles) ? data.roles.includes('Admin') : (data.userTypeName === 'Admin' || data.userTypeValue === 1)
   currentUserId.value = data.id || null;
@@ -177,6 +183,7 @@ const checkAdminStatus = async () => {
   console.warn('Admin check failed:', err)
   isAdmin.value = false
   currentUserId.value = null;
+  isLoggedIn.value = false;
  }
 }
 // ------------------------------------
@@ -611,7 +618,7 @@ onMounted(async () => {
      </div>
 
   <div class="flex flex-col md:flex-row gap-4 justify-center">
-  <button @click="showAddModal = true"
+  <button @click="showAddModal = true" v-if="isLoggedIn"
    class="w-full md:w-auto  flex flex-row-reverse items-center mt-4 justify-center gap-2 px-6 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 shadow-xl transition transform hover:scale-105">
    شارك موهبتك                               <span class="material-icons text-3xl">library_add</span>
  
