@@ -426,6 +426,7 @@ import axios from 'axios'
 import { jsPDF } from 'jspdf'
 import NotificationModal from '../components/NotificationModal.vue'
 import { useNotification } from '../composables/useNotification'
+import html2canvas from 'html2canvas'
 
 const router = useRouter()
 const route = useRoute()
@@ -694,65 +695,81 @@ const downloadStory = async () => {
 
 
 
+        // إنشاء عنصر مؤقت للعرض
 
-
-// download current slide as PDF
-import html2canvas from 'html2canvas';
+// تحويل أي صورة URL إلى Base64
+async function toBase64(url) {
+    if (!url) return '';
+    try {
+        // Use our own proxy to avoid CORS issues
+        const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(url)}`;
+        const res = await fetch(proxyUrl);
+        const blob = await res.blob();
+        return await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    } catch (e) {
+        console.warn('Failed to fetch image for base64', url, e);
+        return '';
+    }
+}
 
 const downloadCurrentSlideImage = async () => {
     const slide = currentPageData.value;
     if (!slide) return;
 
     try {
-        // أنشئ عنصر مؤقت كما في printCurrentSlide
         const cleanTitle = escapeHtml(storyTitle.value || '');
         const cleanChildName = escapeHtml(childName.value || '');
         const cleanDesc = formatStoryText(slide.content || slide.description || '');
 
-        const childImgTag = childImage.value
-            ? `<div style="text-align:center;margin:16px 0">
-                  <img src="${childImage.value}" alt="صورة الطفل"
-                  style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid #9333ea;box-shadow:0 4px 6px rgba(0,0,0,0.1)" />
-              </div>` : '';
+        // تحويل الصور إلى Base64
+        const childImgBase64 = childImage.value ? await toBase64(childImage.value) : '';
+        const slideImgBase64 = slide.image ? await toBase64(slide.image) : '';
 
-        const slideImgTag = slide.image
-            ? `<div style="text-align:center;margin:16px 0">
-                  <img src="${slide.image}" style="max-width:90%;height:auto;display:block;margin:0 auto;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)" />
-              </div>` : '';
-
+        // إنشاء عنصر مؤقت للعرض
         const wrapper = document.createElement('div');
         wrapper.style.direction = 'rtl';
-        wrapper.style.width = '800px'; // يمكن ضبط العرض حسب الحاجة
+        wrapper.style.width = '800px'; // عرض الصورة النهائية
         wrapper.style.padding = '24px';
         wrapper.style.background = 'linear-gradient(to bottom, #faf5ff 0%, #ffffff 100%)';
         wrapper.style.fontFamily = '"Arial", "Tahoma", sans-serif';
         wrapper.innerHTML = `
             <div style="text-align:center;margin-bottom:20px;">
-                ${childImgTag}
-                <h1 style="color:#7c3aed;">${cleanTitle}</h1>
+                ${childImgBase64 ? `<div style="margin:16px 0">
+                    <img src="${childImgBase64}" alt="صورة الطفل"
+                    style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid #9333ea;box-shadow:0 4px 6px rgba(0,0,0,0.1)" />
+                </div>` : ''}
+                <h1 style="color:#7c3aed;margin:12px 0 8px 0;font-weight:bold;">${cleanTitle}</h1>
                 ${cleanChildName ? `<div style="font-size:16px;color:#6b7280;margin:4px 0;">مغامرة ${cleanChildName}</div>` : ''}
                 ${storyAuthor.value ? `<div style="color:#9ca3af;font-size:14px;margin-top:8px;">الكاتب: ${escapeHtml(storyAuthor.value)}</div>` : ''}
             </div>
-            ${slideImgTag}
+            ${slideImgBase64 ? `<div style="text-align:center;margin:16px 0">
+                <img src="${slideImgBase64}" style="max-width:90%;height:auto;display:block;margin:0 auto;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)" />
+            </div>` : ''}
             <div style="margin-top:16px;line-height:1.8;font-size:16px;color:#374151;padding:16px;background:white;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
                 ${cleanDesc}
             </div>
         `;
 
-        document.body.appendChild(wrapper); // أضف العنصر للـ DOM مؤقتًا
-        const canvas = await html2canvas(wrapper, { scale: 2, useCORS: true });
+        document.body.appendChild(wrapper);
+
+        // تحويل العنصر إلى Canvas
+        const canvas = await html2canvas(wrapper, { scale: 2 });
         const imgData = canvas.toDataURL('image/png');
 
-        // أنشئ رابط للتحميل
+        // إنشاء رابط التحميل
         const link = document.createElement('a');
         link.href = imgData;
         link.download = `${storyTitle.value || 'قصة'}_صفحة_${currentPage.value}.png`;
         link.click();
 
-        document.body.removeChild(wrapper); // إزالة العنصر المؤقت
+        document.body.removeChild(wrapper);
 
         notification.show({ title: 'نجاح', message: 'تم تحميل السلايد كصورة.', type: 'success', autoClose: true, duration: 2000 });
-
     } catch (err) {
         console.error('downloadCurrentSlideImage failed', err);
         notification.show({ title: 'خطأ', message: 'فشل تحميل السلايد كصورة.', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] });
