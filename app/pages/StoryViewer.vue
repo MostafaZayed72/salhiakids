@@ -52,7 +52,7 @@
               <span class="material-icons text-xl">print</span>
             </button>
 
-            <button @click="downloadCurrentSlidePDF"
+            <button @click="downloadCurrentSlideImage"
               class="p-2 text-gray-500 hover:text-purple-600 transition-all duration-300 transform hover:scale-110"
               title="تحميل PDF">
               <span class="material-icons text-xl">file_download</span>
@@ -689,136 +689,221 @@ const downloadStory = async () => {
   }
 }
 
+
+
+
+
+
+
+
 // download current slide as PDF
-const downloadCurrentSlidePDF = async () => {
-  const slide = currentPageData.value
-  if (!slide) return
-  try {
-    // حاول تحميل الخط العربي أولاً
-    await loadArabicFont()
+import html2canvas from 'html2canvas';
 
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
-    const pageWidth = doc.internal.pageSize.getWidth()
-    let y = 20
+const downloadCurrentSlideImage = async () => {
+    const slide = currentPageData.value;
+    if (!slide) return;
 
-    // استخدم الخط العربي إذا تم تحميله
-    if (arabicFontLoaded) doc.setFont('Amiri')
-    doc.setFontSize(18)
-    // عنوان مركزي
-    doc.text(storyTitle.value || 'قصة', pageWidth / 2, y, { align: 'center' })
-    y += 10
+    try {
+        // أنشئ عنصر مؤقت كما في printCurrentSlide
+        const cleanTitle = escapeHtml(storyTitle.value || '');
+        const cleanChildName = escapeHtml(childName.value || '');
+        const cleanDesc = formatStoryText(slide.content || slide.description || '');
 
-    doc.setFontSize(12)
-    // الكاتب / معلومات قصيرة
-    if (storyAuthor.value) {
-      doc.text(`الكاتب: ${storyAuthor.value}`, pageWidth / 2, y, { align: 'center' })
-      y += 10
+        const childImgTag = childImage.value
+            ? `<div style="text-align:center;margin:16px 0">
+                  <img src="${childImage.value}" alt="صورة الطفل"
+                  style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid #9333ea;box-shadow:0 4px 6px rgba(0,0,0,0.1)" />
+              </div>` : '';
+
+        const slideImgTag = slide.image
+            ? `<div style="text-align:center;margin:16px 0">
+                  <img src="${slide.image}" style="max-width:90%;height:auto;display:block;margin:0 auto;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)" />
+              </div>` : '';
+
+        const wrapper = document.createElement('div');
+        wrapper.style.direction = 'rtl';
+        wrapper.style.width = '800px'; // يمكن ضبط العرض حسب الحاجة
+        wrapper.style.padding = '24px';
+        wrapper.style.background = 'linear-gradient(to bottom, #faf5ff 0%, #ffffff 100%)';
+        wrapper.style.fontFamily = '"Arial", "Tahoma", sans-serif';
+        wrapper.innerHTML = `
+            <div style="text-align:center;margin-bottom:20px;">
+                ${childImgTag}
+                <h1 style="color:#7c3aed;">${cleanTitle}</h1>
+                ${cleanChildName ? `<div style="font-size:16px;color:#6b7280;margin:4px 0;">مغامرة ${cleanChildName}</div>` : ''}
+                ${storyAuthor.value ? `<div style="color:#9ca3af;font-size:14px;margin-top:8px;">الكاتب: ${escapeHtml(storyAuthor.value)}</div>` : ''}
+            </div>
+            ${slideImgTag}
+            <div style="margin-top:16px;line-height:1.8;font-size:16px;color:#374151;padding:16px;background:white;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                ${cleanDesc}
+            </div>
+        `;
+
+        document.body.appendChild(wrapper); // أضف العنصر للـ DOM مؤقتًا
+        const canvas = await html2canvas(wrapper, { scale: 2, useCORS: true });
+        const imgData = canvas.toDataURL('image/png');
+
+        // أنشئ رابط للتحميل
+        const link = document.createElement('a');
+        link.href = imgData;
+        link.download = `${storyTitle.value || 'قصة'}_صفحة_${currentPage.value}.png`;
+        link.click();
+
+        document.body.removeChild(wrapper); // إزالة العنصر المؤقت
+
+        notification.show({ title: 'نجاح', message: 'تم تحميل السلايد كصورة.', type: 'success', autoClose: true, duration: 2000 });
+
+    } catch (err) {
+        console.error('downloadCurrentSlideImage failed', err);
+        notification.show({ title: 'خطأ', message: 'فشل تحميل السلايد كصورة.', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] });
     }
+};
 
-    doc.setFontSize(14)
-    // صورة السلايد - اجعلها مناسبة لصفحة واحدة
-    if (slide.image) {
-      try {
-        const res = await fetch(slide.image)
-        const blob = await res.blob()
-        const reader = new FileReader()
-        await new Promise((resolve, reject) => {
-          reader.onloadend = () => resolve(null)
-          reader.onerror = reject
-          reader.readAsDataURL(blob)
-        })
-        const imgData = reader.result
-        const maxImgW = pageWidth - 20
-        const imgH = (maxImgW * 3) / 4
-        // إذا الصورة كبيرة فنخفض ارتفاعها لكي يبقى مكان للنص (نضمن صفحة واحدة)
-        const allowedImgH = Math.min(imgH, 90)
-        doc.addImage(imgData, 'JPEG', 10, y, maxImgW, allowedImgH)
-        y += allowedImgH + 8
-      } catch (e) {
-        console.warn('Could not add slide image to PDF', e)
-      }
-    }
 
-    // نص الوصف - نجري تنظيف بسيط ونقسم النص
-    const rawText = (slide.content || slide.description || '').replace(/<br\s*\/?>/g, '\n').replace(/<[^>]*>/g, '')
-    const lines = doc.splitTextToSize(rawText, pageWidth - 20)
-    // اجعل المحاذاة لليمين للغة العربية
-    if (arabicFontLoaded) {
-      // jsPDF لا يدعم shaping الكامل، لكن وجود خط عربي غالباً يحسن النتيجة
-      // نطبع النص بمحاذاة لليمين
-      const startY = y
-      const rightX = pageWidth - 10
-      doc.setFontSize(12)
-      doc.text(lines, rightX, startY, { align: 'right', maxWidth: pageWidth - 20 })
-    } else {
-      doc.text(lines, 10, y)
-    }
 
-    doc.save(`${(storyTitle.value || 'قصة')}_صفحة_${currentPage.value}.pdf`)
-    notification.show({ title: 'نجاح', message: 'تم تحميل السلايد كملف PDF.', type: 'success', autoClose: true, duration: 2000 })
-  } catch (err) {
-    console.error('downloadCurrentSlidePDF failed', err)
-    notification.show({ title: 'خطأ', message: 'فشل تحميل السلايد كـ PDF.', type: 'error', actions: [{ label: 'حسناً', onClick: () => { }, style: 'primary' }] })
-  }
-}
+
+
+
+
+
+
+
 
 // ============================
 // تعديل printCurrentSlide
 // ============================
+
+
+
+
+
 const printCurrentSlide = async () => {
-  const slide = currentPageData.value
-  if (!slide) return
-  try {
-    // نعرض صفحة بسيطة تحتوي الصورة والعنوان والوصف فقط، في صفحة واحدة
-    const cleanTitle = escapeHtml(storyTitle.value || '')
-    const cleanDesc = formatStoryText(slide.content || slide.description || '')
-    const imgTag = slide.image ? `<div style="text-align:center;margin:12px 0"><img src="${slide.image}" style="max-width:90%;height:auto;display:block;margin:0 auto" /></div>` : ''
-    const html = `
+    const slide = currentPageData.value
+    if (!slide) return
+    try {
+        // نعرض صفحة بسيطة تحتوي صورة الطفل وعنوان القصة والصورة والوصف
+        const cleanTitle = escapeHtml(storyTitle.value || '')
+        const cleanChildName = escapeHtml(childName.value || '')
+        const cleanDesc = formatStoryText(slide.content || slide.description || '')
+
+        // صورة الطفل في الأعلى
+        const childImgTag = childImage.value ? `<div style="text-align:center;margin:16px 0"><img src="${childImage.value}" alt="صورة الطفل" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:3px solid #9333ea;box-shadow:0 4px 6px rgba(0,0,0,0.1)" /></div>` : ''
+
+        // صورة السلايد
+        const slideImgTag = slide.image ? `<div style="text-align:center;margin:16px 0"><img src="${slide.image}" style="max-width:90%;height:auto;display:block;margin:0 auto;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1)" /></div>` : ''
+
+        const html = `
       <html dir="rtl">
         <head>
           <meta charset="utf-8"/>
           <title>${cleanTitle}</title>
           <style>
-            @media print { body { margin: 0; } }
-            body { font-family: "Arial", "Tahoma", sans-serif; direction: rtl; text-align: right; padding: 24px; }
-            h1 { text-align: center; font-size: 22px; margin-bottom: 8px; }
-            .meta { text-align: center; color: #555; margin-bottom: 12px; }
-            .desc { margin-top: 12px; line-height: 1.6; font-size: 14px; }
+            @media print { 
+              body { margin: 0; } 
+            }
+            body { 
+              font-family: "Arial", "Tahoma", sans-serif; 
+              direction: rtl; 
+              text-align: right; 
+              padding: 24px;
+              background: linear-gradient(to bottom, #faf5ff 0%, #ffffff 100%);
+            }
+            
+            /* 🌟 إضافة حاوية لتطبيق قيود الصفحة الواحدة 🌟 */
+            .page-wrapper {
+              /* A4 height: 297mm. If @page margin is 15mm, printable height is 297 - 30 = 267mm.
+                 نستخدم 265mm كحد أقصى للارتفاع لضمان عدم تجاوز حدود الصفحة المخصصة للهامش */
+              max-height: 265mm;
+              /* منع ظهور أي محتوى يتجاوز الحد الأقصى للارتفاع */
+              overflow: hidden;
+              /* استخدام Flexbox لتوزيع المحتوى داخل الصفحة إذا لزم الأمر */
+              display: flex;
+              flex-direction: column;
+              box-sizing: border-box;
+              padding: 0 24px; /* لتعويض البادينج الذي أزيل من الـ body */
+            }
+
+            .header {
+              text-align: center;
+              margin-bottom: 20px;
+              padding: 16px;
+              background: white;
+              border-radius: 12px;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+              /* منع كسر الصفحة داخل الرأس */
+              page-break-inside: avoid;
+            }
+            h1 { 
+              font-size: 24px; 
+              margin: 12px 0 8px 0;
+              color: #7c3aed;
+              font-weight: bold;
+            }
+            .child-name {
+              font-size: 16px;
+              color: #6b7280;
+              margin: 4px 0;
+            }
+            .meta { 
+              color: #9ca3af; 
+              font-size: 14px;
+              margin-top: 8px;
+            }
+            .desc { 
+              margin-top: 16px; 
+              line-height: 1.8; 
+              font-size: 16px;
+              color: #374151;
+              padding: 16px;
+              background: white;
+              border-radius: 8px;
+              box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+              /* السماح للوصف بأخذ المساحة المتبقية لكنه سيُقطع إذا تجاوز 265mm */
+              flex-grow: 1; 
+              overflow: hidden; /* مهم لقطع النص */
+            }
             img { page-break-inside: avoid; }
-            /* منع الطباعة للصفحة الثانية */
-            @page { size: A4; margin: 20mm; }
+            @page { size: A4; margin: 15mm; }
           </style>
         </head>
         <body>
-          <h1>${cleanTitle}</h1>
-          <div class="meta">${storyAuthor.value ? `الكاتب: ${escapeHtml(storyAuthor.value)}` : ''}</div>
-          ${imgTag}
-          <div class="desc">${cleanDesc}</div>
+          <div class="page-wrapper">
+            <div class="header">
+              ${childImgTag}
+              <h1>${cleanTitle}</h1>
+              ${cleanChildName ? `<div class="child-name">مغامرة ${cleanChildName}</div>` : ''}
+              ${storyAuthor.value ? `<div class="meta">الكاتب: ${escapeHtml(storyAuthor.value)}</div>` : ''}
+            </div>
+            ${slideImgTag}
+            <div class="desc">${cleanDesc}</div>
+          </div>
         </body>
       </html>
     `
-    const w = window.open('', '_blank')
-    if (!w) throw new Error('popup_blocked')
-    w.document.open()
-    w.document.write(html)
-    w.document.close()
-    // نفّذ الطباعة بعد ضمان تحميل الصورة إن وُجدت
-    const tryPrint = () => {
-      try {
-        w.focus()
-        w.print()
-        w.close()
-      } catch (e) {
-        console.warn('print failed', e)
-      }
+        const w = window.open('', '_blank')
+        if (!w) throw new Error('popup_blocked')
+        w.document.open()
+        w.document.write(html)
+        w.document.close()
+        // نفّذ الطباعة بعد ضمان تحميل الصور
+        const tryPrint = () => {
+            try {
+                w.focus()
+                w.print()
+                w.close()
+            } catch (e) {
+                console.warn('print failed', e)
+            }
+        }
+        // انتظر تحميل الصور
+        setTimeout(tryPrint, 600)
+    } catch (err) {
+        console.error('printCurrentSlide failed', err)
+        notification.show({ title: 'خطأ', message: 'فشل في طباعة السلايد.', type: 'error', actions: [{ label: 'حسناً', onClick: () => { }, style: 'primary' }] })
     }
-    // إذا توجد صورة انتظر تحميلها (أقل من 700ms عادة)
-    setTimeout(tryPrint, 400)
-  } catch (err) {
-    console.error('printCurrentSlide failed', err)
-    notification.show({ title: 'خطأ', message: 'فشل في طباعة السلايد.', type: 'error', actions: [{ label: 'حسناً', onClick: () => { }, style: 'primary' }] })
-  }
 }
+
+
 
 // completeStory
 const completeStory = () => {
