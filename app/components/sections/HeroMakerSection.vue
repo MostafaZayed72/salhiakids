@@ -50,7 +50,7 @@ onMounted(() => {
       class="text-transparent bg-clip-text bg-gradient-to-r from-sky-500 to-purple-500 custom-text-pulse">بطل
       القصة</span>
     </h2>
-    <p class="text-xl text-gray-600 max-w-2xl mx-auto"> اختر بطلًا خارقًا، أضف صورتك واسمك، وكن النجم في مغامرتك الخاصة!
+    <p class="text-xl text-gray-600 max-w-2xl mx-auto">    أضف صورتك واسمك، وكن النجم في مغامرتك الخاصة!
     </p>
    </div>
 
@@ -79,7 +79,7 @@ onMounted(() => {
       </div>
 
       <div class="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-gray-300"> <div class="text-center transform hover:scale-110 transition-transform duration-300" data-aos="fade-up">
-        <div class="text-2xl font-bold text-purple-600">15+</div> <div class="text-gray-700 text-sm">أبطال خارقين</div> </div>
+        <div class="text-2xl font-bold text-purple-600">15+</div> <div class="text-gray-700 text-sm">شخصية</div> </div>
       <div class="text-center transform hover:scale-110 transition-transform duration-300" data-aos="fade-up"
         data-aos-delay="100">
         <div class="text-2xl font-bold text-sky-500">50+</div> <div class="text-gray-700 text-sm">قصة تفاعلية</div> </div>
@@ -107,7 +107,8 @@ onMounted(() => {
         <span class="material-icons text-white text-2xl">supervisor_account</span>
         </div>
         <div>
-        <h4 class="text-xl font-bold text-gray-800 mb-2">اختر بطلك</h4> <p class="text-gray-600">اختر من مجموعة متنوعة من الأبطال الخارقين المناسبين لأعمار الأطفال</p> </div>
+        <h4 class="text-xl font-bold text-gray-800 mb-2">اكتب اسمك</h4> 
+        <p class="text-gray-600">اكتب اسمك لتصبح انت محور جميع الأحداث</p> </div>
       </div>
       <div class="flex items-start gap-4 transform hover:translate-x-2 transition-transform duration-300"
         data-aos="fade-left" data-aos-delay="200">
