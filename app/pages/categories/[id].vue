@@ -774,8 +774,13 @@ onMounted(async () => {
     (غير مُقيّم)
     </span>
   </div>
-  <p class="text-gray-100 text-center text-sm leading-relaxed min-h-[4.5rem]"
-   v-html="truncateText(story.content, 120)">
+  <p class="text-purple-600 text-center text-sm leading-relaxed "
+>
+    <span class="text-gray-600">المؤلف:</span> {{ story.authorName }}
+  </p>
+  <p class="text-purple-600 text-center text-sm leading-relaxed "
+>
+    <span class="text-gray-600">الفئة:</span> {{ story.storyCategoryTitle }}
   </p>
   </div>
  </div>

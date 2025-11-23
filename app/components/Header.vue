@@ -8,7 +8,7 @@
           class="flex items-center gap-3 hover:opacity-80 transition-all duration-300 transform hover:scale-105 group">
           <div
             class="w-24 h-24 md:w-20 md:h-20 rounded-2xl flex items-center justify-center md:bg-white shadow-lg overflow-hidden transition-transform duration-500">
-            <img src="/test.png" alt="شعار النظام" class="w-full h-full object-cover ">
+            <img src="/logo.jpeg" alt="شعار النظام" class="w-full h-full object-cover ">
           </div>
           <div class="text-right">
             <h1 class="text-xl font-bold text-purple-600 custom-text-pulse" style="font-family: tajawal">

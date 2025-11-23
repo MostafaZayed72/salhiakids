@@ -194,7 +194,7 @@
             </div>
             <div :class="{'p-0': viewMode === 'list'}" class="p-5 text-right flex-grow" >
             <h3 class="text-lg font-bold text-gray-900 mb-2 truncate">{{ story.title }}</h3>
-            <p class=" text-gray-600 mb-3 line-clamp-2">{{ story.content }}</p>
+            <p class=" text-purple-600 mb-3 line-clamp-2"> <span class="text-gray-600">المؤلف:</span> {{ story.authorName }}</p>
             <div class="text-xs text-purple-600 font-semibold bg-purple-100 px-2 py-0.5 rounded-full inline-block">
             {{ story.storyCategoryTitle }}
             </div>
