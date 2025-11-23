@@ -99,6 +99,7 @@ const fetchUser = async () => {
   isLoading.value = false
  }
 }
+const notification = useNotification()
 
 // 4. دالة تحديث الملف الشخصي (PATCH request)
 const updateProfile = async () => {
@@ -125,16 +126,37 @@ const updateProfile = async () => {
   });
 
   if (response.ok) {
-   alert('تم تحديث البيانات بنجاح!');
-   isEditing.value = false;
+notification.show({
+     title: 'نجاح',
+     message: 'تم تحديث البيانات بنجاح!',
+     type: 'success',
+     autoClose: true,
+     duration: 2000
+   });
+   
+      isEditing.value = false;
    await fetchUser(); // إعادة جلب البيانات المحدثة وتحديث الـ Header
   } else {
    const errorData = await response.json();
-   alert(`فشل التعديل: ${errorData.message || 'حدث خطأ غير معروف'}`);
+   notification.show({
+     title: 'خطأ',
+     message: `فشل التعديل: ${errorData.message || 'حدث خطأ غير معروف'}`,
+     type: 'error',
+     actions: [
+       { label: 'حسناً', onClick: () => {}, style: 'primary' }
+     ]
+   });
   }
  } catch (error) {
   console.error('خطأ أثناء التعديل:', error);
-  alert('فشل الاتصال بالخادم أثناء محاولة التعديل.');
+notification.show({
+    title: 'خطأ',
+    message: 'فشل الاتصال بالخادم أثناء محاولة التعديل.',
+    type: 'error',
+    actions: [
+      { label: 'حسناً', onClick: () => {}, style: 'primary' }
+    ]
+  });
  } finally {
   isSaving.value = false;
  }
@@ -244,8 +266,15 @@ const checkSession = () => {
    const diff = (now - parseInt(lastActivity)) / (1000 * 60)
 
    if (diff > sessionTimeout) {
-    alert('انتهت الجلسة بسبب عدم النشاط')
-    logout()
+notification.show({
+      title: 'انتهت الجلسة',
+      message: 'انتهت الجلسة بسبب عدم النشاط',
+      type: 'warning',
+      actions: [
+        { label: 'تسجيل الخروج', onClick: () => logout(), style: 'primary' }
+      ]
+    })
+        logout()
    }
   }
  }

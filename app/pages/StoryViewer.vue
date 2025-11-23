@@ -46,6 +46,13 @@
               <span class="material-icons text-xl">share</span>
             </button>
 
+<button @click="printCurrentSlide" class="p-2 text-gray-500 hover:text-purple-600 transition-all duration-300 transform hover:scale-110" title="طباعة السلايد">
+  <span class="material-icons text-xl">print</span>
+</button>
+
+<button @click="downloadCurrentSlidePDF" class="p-2 text-gray-500 hover:text-purple-600 transition-all duration-300 transform hover:scale-110" title="تحميل PDF">
+  <span class="material-icons text-xl">file_download</span>
+</button>
 
           </div>
         </div>
@@ -396,20 +403,29 @@
         </div>
       </div>
     </teleport>
+
+    <NotificationModal 
+  :is-open="notification.isOpen.value"
+  :notification="notification.notification.value"
+  @close="notification.close"
+/>
   </div>
 </template>
 
+// ...existing code...
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
+import { jsPDF } from 'jspdf'
+import NotificationModal from '../components/NotificationModal.vue'
+import { useNotification } from '../composables/useNotification'
 
 const router = useRouter()
 const route = useRoute()
+const notification = useNotification()
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
-
-
 
 // admin & modals
 const isAdmin = ref(false)
@@ -447,6 +463,7 @@ const ITEMS_PAGE_SIZE = 1
 const ITEMS_ORDER_BY = 'createdAt'
 const ITEMS_DESCENDING = false // older first
 const backendTotalPages = ref(0)
+const currentPage = ref(1)
 const pageKey = computed(() => `${selectedStory.value?.id || 'none'}-${currentPage.value}`)
 
 // fetch story page (POST body contains id)
@@ -472,7 +489,7 @@ const fetchStoryPage = async (storyId, itemsPageNumber = 1) => {
       soundEffect: it.soundEffect || null,
       interactions: it.interactions || null
     })) : []
-    storyAuthor.value = data.createdByUser.fullName || ''
+    storyAuthor.value = (data.createdByUser && data.createdByUser.fullName) || data.createdByUserName || ''
     return {
       id: data.id,
       title: data.title,
@@ -525,7 +542,7 @@ const checkAdminStatus = async () => {
   }
 }
 
-// image upload helper (optional endpoint, adjust if different)
+// image upload helper
 const uploadImage = async (file) => {
   if (!file || !API_BASE) return ''
   const formData = new FormData()
@@ -537,6 +554,7 @@ const uploadImage = async (file) => {
     return res.data?.url || ''
   } catch (err) {
     console.error('uploadImage failed', err)
+    notification.show({ title: 'خطأ', message: 'فشل رفع الصورة', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
     return ''
   }
 }
@@ -591,221 +609,179 @@ const loadStory = async (id, page = 1) => {
       startTime.value = Date.now()
       await fetchSuggestions()
     } else {
-      alert('تعذر تحميل القصة من السيرفر.')
+      notification.show({ title: 'خطأ', message: 'تعذر تحميل القصة من السيرفر.', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
     }
   } finally {
     isLoading.value = false
   }
 }
 
-const nextPage = async () => {
-  if (currentPage.value < backendTotalPages.value) {
-    pageTransition.value = 'slide-left'
-    currentPage.value++
-    await loadStory(selectedStory.value.id, currentPage.value)
-  } else {
-    completeStory()
-  }
-}
-const previousPage = async () => {
-  if (currentPage.value > 1) {
-    pageTransition.value = 'slide-right'
-    currentPage.value--
-    await loadStory(selectedStory.value.id, currentPage.value)
-  }
-}
-const goToPage = async (page) => {
-  if (page >= 1 && page <= backendTotalPages.value) {
-    pageTransition.value = page > currentPage.value ? 'slide-left' : 'slide-right'
-    currentPage.value = page
-    await loadStory(selectedStory.value.id, page)
-  }
-}
-
-const toggleAudio = () => { isAudioPlaying.value = !isAudioPlaying.value }
-const playSoundEffect = (effect) => {
-  if (!isAudioPlaying.value) return
-  try {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)()
-    const osc = audioContext.createOscillator()
-    const gain = audioContext.createGain()
-    osc.connect(gain); gain.connect(audioContext.destination)
-    osc.type = 'sine'; osc.frequency.setValueAtTime(440, audioContext.currentTime)
-    gain.gain.setValueAtTime(0.1, audioContext.currentTime)
-    osc.start(); osc.stop(audioContext.currentTime + 1)
-  } catch (e) {
-    console.warn('Audio not supported', e)
-  }
-}
-const triggerInteraction = (interaction) => { console.log('interaction', interaction) }
-// Add these methods in the script section:
-
-// Download story function
-import { jsPDF } from 'jspdf'; // تأكد من استيرادها في بداية ملف <script setup>
-
-// ... (بقية الأكواد)
-
+// Download whole story as PDF
 const downloadStory = async () => {
   if (!selectedStory.value) return;
 
   try {
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    let y = 10; // موضع البداية Y
-    const margin = 10;
-    const lineHeight = 7;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const margin = 10
+    const lineHeight = 7
 
-    // ضبط الخط العربي
-    // 💡 ملاحظة: يتطلب jspdf تحميل خط يدعم اللغة العربية. 
-    // سنفترض مؤقتاً أن خطاً افتراضياً موجود، وإلا يجب تحميله.
-    doc.setFont('Amiri', 'normal'); // مثال لخط يدعم العربية (تحتاج لـ jspdf-autotable أو إضافة خط مخصص)
-    doc.setFontSize(14);
+    // Title
+    doc.setFontSize(16)
+    doc.text(storyTitle.value || 'قصة', pageWidth / 2, 20, { align: 'center' })
+    doc.setFontSize(12)
+    doc.text(`الكاتب: ${storyAuthor.value}`, pageWidth / 2, 28, { align: 'center' })
+    let y = 36
 
-    // إضافة عنوان القصة (إذا كان هناك مجال)
-    doc.text(storyTitle.value, pageWidth / 2, y, { align: 'center' });
-    y += lineHeight;
-    doc.text(`الكاتب: ${storyAuthor.value}`, pageWidth / 2, y, { align: 'center' });
-    y += lineHeight * 2;
-
-    doc.setFontSize(12);
-
-    // جلب جميع الصفحات
+    // iterate pages by fetching each backend page
     for (let i = 1; i <= backendTotalPages.value; i++) {
-      const pageData = await fetchStoryPage(selectedStory.value.id, i);
-      const pageContent = pageData?.items?.[0];
+      const pageData = await fetchStoryPage(selectedStory.value.id, i)
+      const pageContent = pageData?.items?.[0]
+      if (!pageContent) continue
 
-      if (pageContent) {
-        // 1. استخدام دالة تنسيق النص لضمان استبدال "اسم_البطل"
-        const text = formatStoryText(pageContent.content || pageContent.description)
-          .replace(/<br>/g, '\n'); // تحويل <br> لسطر جديد في PDF
+      if (i > 1) {
+        doc.addPage()
+        y = margin
+      }
 
-        // 2. إذا لم يعد هناك مساحة، نبدأ صفحة جديدة
-        if (y + 100 > pageHeight) { // 100 ارتفاع تقريبي للصورة والنص
-          doc.addPage();
-          y = margin;
+      // add image
+      if (pageContent.image) {
+        try {
+          const res = await fetch(pageContent.image)
+          const blob = await res.blob()
+          const reader = new FileReader()
+          await new Promise((resolve, reject) => {
+            reader.onloadend = () => resolve(null)
+            reader.onerror = reject
+            reader.readAsDataURL(blob)
+          })
+          const imgData = reader.result
+          const imgW = pageWidth - margin * 2
+          const imgH = (imgW * 3) / 4
+          doc.addImage(imgData, 'JPEG', margin, y, imgW, imgH)
+          y += imgH + 6
+        } catch (e) {
+          console.warn('Could not add image for page', i, e)
         }
+      }
 
-        // 3. إضافة الصورة (مهم جداً!)
-        const imageUrl = pageContent.image;
-        if (imageUrl) {
-          const imgWidth = pageWidth - (margin * 2);
-          const imgHeight = imgWidth / 1.5; // نسبة 3:2 تقريبًا
+      // add text
+      const text = (pageContent.content || pageContent.description || '').replace(/<[^>]*>/g, '').replace(/اسم_البطل/g, childName.value || '')
+      const lines = doc.splitTextToSize(text, pageWidth - margin * 2)
+      doc.text(lines, margin, y)
+      // footer
+      doc.setFontSize(9)
+      doc.text(`صفحة ${i}`, pageWidth - margin, pageHeight - 10, { align: 'right' })
+    }
 
-          // استخدام try/catch لضمان عدم توقف التحميل بسبب فشل جلب الصورة
-          try {
-            const response = await fetch(imageUrl);
-            const blob = await response.blob();
-            const reader = new FileReader();
+    doc.save(`${storyTitle.value || 'قصة'}.pdf`)
+    notification.show({ title: 'نجاح', message: 'تم تحميل القصة كـ PDF.', type: 'success', autoClose: true, duration: 2000 })
+  } catch (err) {
+    console.error('Download PDF failed', err)
+    notification.show({ title: 'خطأ', message: 'فشل تحميل القصة كملف PDF. راجع الكونسول.', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
+  }
+}
 
-            await new Promise((resolve) => {
-              reader.onloadend = () => {
-                const base64Image = reader.result;
-                const imageFormat = imageUrl.split('.').pop() === 'png' ? 'PNG' : 'JPEG';
+// download current slide as PDF
+const downloadCurrentSlidePDF = async () => {
+  const slide = currentPageData.value
+  if (!slide) return
+  try {
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+    const pageWidth = doc.internal.pageSize.getWidth()
+    let y = 20
+    doc.setFontSize(18)
+    doc.text(storyTitle.value || 'قصة', pageWidth / 2, y, { align: 'center' })
+    y += 10
+    doc.setFontSize(12)
+    doc.text(`الصفحة ${currentPage.value}`, pageWidth / 2, y, { align: 'center' })
+    y += 10
 
-                doc.addImage(base64Image, imageFormat, margin, y, imgWidth, imgHeight);
-                y += imgHeight + 5; // تحريك موضع Y بعد الصورة
-                resolve();
-              };
-              reader.readAsDataURL(blob);
-            });
-
-          } catch (e) {
-            console.warn(`Failed to fetch image for page ${i}: ${e}`);
-            doc.text(`[تعذر تحميل الصورة للصفحة ${i}]`, pageWidth / 2, y, { align: 'center' });
-            y += 10;
-          }
-        }
-
-        // 4. إضافة النص المنسق
-        const lines = doc.splitTextToSize(text, pageWidth - (margin * 2));
-        doc.text(lines, margin, y);
-        y += lines.length * lineHeight + 10; // تحريك Y بعد النص
-
-        // إضافة فاصل بين الصفحات في ملف PDF
-        doc.setFontSize(8);
-        doc.text(`--- نهاية صفحة القصة ${i} ---`, pageWidth / 2, y, { align: 'center' });
-        y += 10;
-        doc.setFontSize(12);
+    if (slide.image) {
+      try {
+        const res = await fetch(slide.image)
+        const blob = await res.blob()
+        const reader = new FileReader()
+        await new Promise((resolve, reject) => {
+          reader.onloadend = () => resolve(null)
+          reader.onerror = reject
+          reader.readAsDataURL(blob)
+        })
+        const imgData = reader.result
+        const imgW = pageWidth - 20
+        const imgH = (imgW * 3) / 4
+        doc.addImage(imgData, 'JPEG', 10, y, imgW, imgH)
+        y += imgH + 8
+      } catch (e) {
+        console.warn('Could not add slide image to PDF', e)
+        y += 4
       }
     }
 
-    // حفظ الملف
-    doc.save(`${storyTitle.value || 'قصة'}.pdf`);
-
+    const text = (slide.content || slide.description || '').replace(/<br\s*\/?>/g, '\n').replace(/<[^>]*>/g, '')
+    const lines = doc.splitTextToSize(text, pageWidth - 20)
+    doc.text(lines, 10, y)
+    doc.save(`${(storyTitle.value || 'قصة')}_صفحة_${currentPage.value}.pdf`)
+    notification.show({ title: 'نجاح', message: 'تم تحميل السلايد كملف PDF.', type: 'success', autoClose: true, duration: 2000 })
   } catch (err) {
-    console.error('Download PDF failed', err);
-    alert('فشل تحميل القصة كملف PDF');
+    console.error('downloadCurrentSlidePDF failed', err)
+    notification.show({ title: 'خطأ', message: 'فشل تحميل السلايد كـ PDF.', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
   }
 }
 
-// ... (داخل قسم state)
+// print current slide
+const printCurrentSlide = async () => {
+  const slide = currentPageData.value
+  if (!slide) return
+  try {
+    const html = `
+      <html dir="rtl"><head><meta charset="utf-8"><title>${storyTitle.value}</title>
+      <style>body{font-family:Arial, sans-serif;direction:rtl;padding:20px}img{max-width:100%;height:auto}h1{ text-align:center }</style>
+      </head><body>
+      <h1>${escapeHtml(storyTitle.value || '')}</h1>
+      <h3 style="text-align:center">الصفحة ${currentPage.value}</h3>
+      ${slide.image ? `<div style="text-align:center"><img src="${slide.image}" /></div>` : ''}
+      <div style="margin-top:16px">${formatStoryText(slide.content || slide.description || '')}</div>
+      </body></html>`
+    const w = window.open('', '_blank')
+    if (!w) throw new Error('popup_blocked')
+    w.document.write(html)
+    w.document.close()
+    w.focus()
+    setTimeout(() => { w.print(); w.close() }, 300)
+  } catch (err) {
+    console.error('printCurrentSlide failed', err)
+    notification.show({ title: 'خطأ', message: 'فشل في طباعة السلايد.', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
+  }
+}
 
-const currentPage = ref(1)
-// 💡 الحالة الجديدة: للتحكم في عرض جميع السلايدات
+// print full story (uses template to render all slides then window.print)
 const isPrintingAll = ref(false)
-
-// ... (بقية الأكواد)
-
-// 💡 الدالة الجديدة: لجلب جميع الصفحات مؤقتاً والطباعة
 const printFullStory = async () => {
   if (!selectedStory.value?.id) return
-
-  // 1. جلب بيانات القصة كاملة
-  // بما أن الـ API الخاص بك يجلب صفحة واحدة فقط، نحتاج إلى جلب كل صفحة بالترتيب
-  // هذا الجزء سيعتمد على `fetchStoryPage` ولكن يجب تعديله لجلب كل الصفحات بشكل صحيح.
-
-  // 💡 ملاحظة هامة: يجب أن تكون لديك طريقة لجلب جميع السلايدات دفعة واحدة 
-  // أو سنكرر النداء لـ fetchStoryPage. بما أن `fetchStoryPage` تعتمد على 
-  // رقم الصفحة، سأستخدمها لجلب كل صفحة على حدة.
-
   const allItems = []
-  let originalPage = currentPage.value // حفظ الصفحة الحالية
-
   for (let i = 1; i <= backendTotalPages.value; i++) {
-    // نستخدم نفس المنطق تقريباً لجلب بيانات الصفحة
     const full = await fetchStoryPage(selectedStory.value.id, i)
     if (full?.items?.[0]) {
-      // ننسخ البيانات بعد معالجة اسم البطل
       let content = full.items[0].content || ''
       if (content) content = String(content).replace(/اسم_البطل/g, childName.value || '')
-
-      allItems.push({
-        ...full.items[0],
-        content: content // نستخدم المحتوى المنسق
-      })
+      allItems.push({ ...full.items[0], content })
     }
   }
 
-  // 2. تحديث الـ selectedStory مؤقتاً لعرض جميع العناصر
-  // (هذا هو المفتاح الذي سيعرض جميع العناصر في الـ <template>)
-  const tempStory = selectedStory.value
-
-  // حفظ العناصر الأصلية لاستعادتها لاحقاً
-  const originalItems = tempStory.items
-
-  // عرض جميع العناصر في الـ state
-  selectedStory.value = { ...tempStory, items: allItems }
-  isPrintingAll.value = true // تفعيل وضع الطباعة الكاملة
-
-  // 3. طباعة الصفحة
-  await new Promise(resolve => setTimeout(resolve, 50)); // انتظار DOM ليتحدث
+  const temp = selectedStory.value
+  const originalItems = temp.items
+  selectedStory.value = { ...temp, items: allItems }
+  isPrintingAll.value = true
+  await new Promise(resolve => setTimeout(resolve, 100))
   window.print()
-
-  // 4. إعادة الحالة الأصلية
   isPrintingAll.value = false
-  selectedStory.value = { ...tempStory, items: originalItems }
-  await goToPage(originalPage) // العودة للصفحة الأصلية (أو مجرد تحديث)
+  selectedStory.value = { ...temp, items: originalItems }
+  await goToPage(currentPage.value)
 }
 
-// ...
-// 💡 لا تنس إضافة الدالة إلى الـ return إذا لم تكن تستخدم setup()
-// return { ..., printFullStory }
-// Enhanced share function
+// share story
 const shareStory = async () => {
   try {
     const shareData = {
@@ -815,20 +791,19 @@ const shareStory = async () => {
     }
 
     if (navigator.share) {
-      // Use native share if available
       await navigator.share(shareData)
     } else {
-      // Fallback to copy link
       await navigator.clipboard.writeText(window.location.href)
-      alert('تم نسخ رابط القصة!')
+      notification.show({ title: 'تم النسخ', message: 'تم نسخ رابط القصة!', type: 'success', autoClose: true, duration: 2000 })
     }
   } catch (err) {
     if (err.name !== 'AbortError') {
       console.error('Share failed', err)
-      alert('فشلت مشاركة القصة')
+      notification.show({ title: 'خطأ', message: 'فشلت مشاركة القصة', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
     }
   }
 }
+
 const completeStory = () => {
   showCompletion.value = true
   const duration = Math.round((Date.now() - (startTime.value || Date.now())) / 1000 / 60)
@@ -838,6 +813,26 @@ const restartStory = () => { currentPage.value = 1; showCompletion.value = false
 const createNewStory = () => { router.push('/custom-story') }
 const goBack = () => { router.back() }
 const openSuggestion = (sug) => { loadStory(sug.id, 1) }
+
+const previousPage = () => {
+  if (currentPage.value > 1 && selectedStory.value?.id) {
+    currentPage.value -= 1
+    loadStory(selectedStory.value.id, currentPage.value)
+    pageTransition.value = 'slide-right'
+  }
+}
+const nextPage = () => {
+  if (currentPage.value < backendTotalPages.value && selectedStory.value?.id) {
+    currentPage.value += 1
+    loadStory(selectedStory.value.id, currentPage.value)
+    pageTransition.value = 'slide-left'
+  }
+}
+const goToPage = async (page) => {
+  if (!selectedStory.value?.id) return
+  currentPage.value = page
+  await loadStory(selectedStory.value.id, page)
+}
 
 // Admin functions: edit / delete / add
 const editCurrentSlide = () => {
@@ -856,10 +851,7 @@ const onEditImageSelected = async (e) => {
   if (file) {
     isUploadingImage.value = true
     const url = await uploadImage(file)
-    if (url) {
-      if (!editingSlide.value) editingSlide.value = {}
-      editingSlide.value.imageUrl = url
-    }
+    if (url) editingSlide.value.imageUrl = url
     isUploadingImage.value = false
   }
 }
@@ -876,27 +868,42 @@ const updateSlide = async () => {
     }, { headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} })
     showEditModal.value = false
     await loadStory(selectedStory.value.id, currentPage.value)
+    notification.show({ title: 'نجاح', message: 'تم حفظ التعديل.', type: 'success', autoClose: true, duration: 1500 })
   } catch (err) {
     console.error('updateSlide failed', err)
-    alert('فشل تحديث السلايد')
+    notification.show({ title: 'خطأ', message: 'فشل تحديث السلايد', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
   }
 }
 
 const deleteCurrentSlide = async () => {
   if (!currentPageData.value?.id) return
-  if (!confirm('هل أنت متأكد من حذف هذا السلايد؟')) return
-  try {
-    await axios.delete(`${API_BASE}/api/CustomStoryItems/Delete/${currentPageData.value.id}`, { headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} })
-    const nextPageIndex = Math.max(1, Math.min(currentPage.value, backendTotalPages.value - 1 || 1))
-    await loadStory(selectedStory.value.id, nextPageIndex)
-  } catch (err) {
-    console.error('deleteCurrentSlide failed', err)
-    alert('فشل حذف السلايد')
-  }
+  notification.show({
+    title: 'تأكيد الحذف',
+    message: 'هل أنت متأكد من حذف هذا السلايد؟',
+    type: 'warning',
+    actions: [
+      { label: 'إلغاء', onClick: () => {}, style: 'secondary' },
+      {
+        label: 'حذف',
+        onClick: async () => {
+          try {
+            await axios.delete(`${API_BASE}/api/CustomStoryItems/Delete/${currentPageData.value.id}`, { headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {} })
+            const nextPageIndex = Math.max(1, Math.min(currentPage.value, backendTotalPages.value - 1 || 1))
+            await loadStory(selectedStory.value.id, nextPageIndex)
+            notification.show({ title: 'نجاح', message: 'تم حذف السلايد.', type: 'success', autoClose: true, duration: 1500 })
+          } catch (err) {
+            console.error('deleteCurrentSlide failed', err)
+            notification.show({ title: 'خطأ', message: 'فشل حذف السلايد', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
+          }
+        },
+        style: 'primary'
+      }
+    ]
+  })
 }
 
 const onNewImageSelected = async (e) => {
-  const file = e.target.files[0]
+  const file = e.target.files && e.target.files[0]
   if (file) {
     isUploadingImage.value = true
     const url = await uploadImage(file)
@@ -917,9 +924,10 @@ const addSlide = async () => {
     showAddModal.value = false
     newSlide.value = { title: '', description: '', imageUrl: '', image: null }
     await loadStory(selectedStory.value.id, backendTotalPages.value + 1)
+    notification.show({ title: 'نجاح', message: 'تم إضافة السلايد.', type: 'success', autoClose: true, duration: 1500 })
   } catch (err) {
     console.error('addSlide failed', err)
-    alert('فشل إضافة السلايد')
+    notification.show({ title: 'خطأ', message: 'فشل إضافة السلايد', type: 'error', actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }] })
   }
 }
 
@@ -928,12 +936,10 @@ const setChildImageFromQuery = () => {
   try {
     const q = route.query.imageUrl || route.query.imageKey || route.query.image || ''
     if (!q) { childImage.value = ''; return }
-    // if it's a data URL or absolute URL, use it directly
     if (/^(data:|https?:\/\/)/.test(q)) {
       childImage.value = q
       return
     }
-    // otherwise try localStorage lookup (key)
     try {
       const stored = localStorage.getItem(q)
       if (stored) {
@@ -943,7 +949,6 @@ const setChildImageFromQuery = () => {
     } catch (e) {
       console.warn('localStorage read failed', e)
     }
-    // fallback: treat as URL string anyway
     childImage.value = q
   } catch (e) {
     console.error('setChildImageFromQuery error', e)
@@ -953,27 +958,30 @@ const setChildImageFromQuery = () => {
 
 // lifecycle
 onMounted(async () => {
-  // set child image early from query (supports imageUrl or imageKey)
   setChildImageFromQuery()
-
   await checkAdminStatus()
   const id = route.query.templateId || route.query.story || route.query.id || route.query.template
   const page = Number(route.query.page) || 1
-  loadStory(id, page)
+  await loadStory(id, page)
+  notification.close()
 })
 
-// react to query changes (e.g., navigation from CustomStory)
+// react to query changes
 watch(route, async (r) => {
-  // update child name and image if changed
   childName.value = r.query.name || ''
   setChildImageFromQuery()
-
   const id = r.query.templateId || r.query.story || r.query.id
   const page = Number(r.query.page) || 1
   if (id) await loadStory(id, page)
 })
-</script>
 
+// small helpers
+function escapeHtml (str = '') {
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))
+}
+</script>
+<!-- register NotificationModal component used in template already -->
+// ...existing code...
 <style scoped>
 /* حركات الصفحات */
 .slide-left-enter-active {

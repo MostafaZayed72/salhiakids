@@ -223,6 +223,12 @@
             تعديل أدوار المستخدمين
         </button>
         <UsersRoles v-if="roles" />
+        <NotificationModal 
+  :is-open="notification.isOpen.value"
+  :notification="notification.notification.value"
+  @close="notification.close"
+/>
+
     </div>
 </template>
 
@@ -375,6 +381,7 @@ const exportToExcel = () => {
 
     XLSX.writeFile(wb, `تقرير_المدير_${reportDate}.xlsx`);
 };
+const notification = useNotification()
 
 const exportToWord = async () => {
     if (!dashboardData.value) {
@@ -459,8 +466,14 @@ const exportToWord = async () => {
 
     } catch (e) {
         console.error("Word Export Error:", e);
-        alert(`فشل تصدير Word. تحقق من الكونسول. (الخطأ: ${e.message})`);
-    }
+notification.show({
+      title: 'خطأ',
+      message: `فشل تصدير Word. تحقق من الكونسول. (الخطأ: ${e.message})`,
+      type: 'error',
+      actions: [
+        { label: 'حسناً', onClick: () => {}, style: 'primary' }
+      ]
+    })    }
 };
 
 const printReport = () => {

@@ -206,7 +206,8 @@
             </div>
           </div>
         </div>
-
+        <NotificationModal :is-open="notification.isOpen.value" :notification="notification.notification.value"
+          @close="notification.close" />
       </div>
     </main>
 
@@ -274,15 +275,20 @@
   </div>
 </template>
 
+
 <script>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import NotificationModal from '../components/NotificationModal.vue'
+import { useNotification } from '../composables/useNotification'
 
 export default {
   name: 'CustomStory',
+  components: { NotificationModal },
   setup() {
     const router = useRouter()
+    const notification = useNotification()
 
     const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
 
@@ -332,11 +338,11 @@ export default {
 
     const adminSaveEdit = async () => {
       if (!editForm.value.title.trim()) {
-        alert('الرجاء إدخال عنوان صحيح')
+        notification.show({ title: 'تنبيه', message: 'الرجاء إدخال عنوان صحيح', type: 'warning' })
         return
       }
       if (!editForm.value.authorName || !editForm.value.authorName.trim()) {
-        alert('الرجاء إدخال اسم المؤلف')
+        notification.show({ title: 'تنبيه', message: 'الرجاء إدخال اسم المؤلف', type: 'warning' })
         return
       }
       try {
@@ -355,9 +361,10 @@ export default {
         await fetchAvailableStories(currentPage.value)
         isAdminEditOpen.value = false
 
+        notification.show({ title: 'نجاح', message: 'تم حفظ التعديلات بنجاح', type: 'success', autoClose: true, duration: 2000 })
       } catch (err) {
         console.error('Admin edit error', err)
-        alert('فشل حفظ التعديلات')
+        notification.show({ title: 'خطأ', message: 'فشل حفظ التعديلات', type: 'error' })
       }
     }
 
@@ -426,6 +433,7 @@ export default {
         }
       } catch (error) {
         console.error('Error fetching available stories:', error)
+        notification.show({ title: 'خطأ', message: 'فشل في جلب القصص من الخادم', type: 'error', autoClose: true })
       } finally {
         isLoadingStories.value = false
       }
@@ -450,6 +458,8 @@ export default {
       }
     }
 
+    const currentFacingMode = ref('user')
+
     const startCamera = async () => {
       if (isCameraActive.value) { stopCamera(); return }
       try {
@@ -460,7 +470,7 @@ export default {
         if (cameraVideo.value) { cameraVideo.value.srcObject = stream }
       } catch (error) {
         console.error('خطأ في تشغيل الكاميرا:', error)
-        alert('تعذر الوصول إلى الكاميرا. يرجى التأكد من السماح بالوصول.')
+        notification.show({ title: 'خطأ', message: 'تعذر الوصول إلى الكاميرا. يرجى التأكد من السماح بالوصول.', type: 'error' })
       }
     }
 
@@ -549,6 +559,7 @@ export default {
           childImageUrl = await uploadChildImage(storyData.childImage)
           if (!childImageUrl) {
             console.warn('لم يتم رفع الصورة، سيتم المتابعة بدون صورة.')
+            notification.show({ title: 'تنبيه', message: 'فشل رفع الصورة، سيتم المتابعة بدون صورة.', type: 'warning', autoClose: true })
           }
         }
 
@@ -563,7 +574,7 @@ export default {
 
       } catch (error) {
         console.error('خطأ في إنشاء القصة:', error)
-        alert('حدث خطأ أثناء إنشاء القصة')
+        notification.show({ title: 'خطأ', message: 'حدث خطأ أثناء إنشاء القصة', type: 'error' })
       } finally {
         isGenerating.value = false
       }
@@ -616,24 +627,38 @@ export default {
     }
 
     onMounted(() => {
+      notification.close()
       fetchAvailableStories(1)
       determineAdmin()
     })
 
     // admin actions
     const adminDeleteStory = async (storyId) => {
-      if (!confirm('هل أنت متأكد من حذف هذه القصة؟')) return
-      try {
-        const BASE = API_BASE
-        const token = getToken()
-        const headers = token ? { Authorization: `Bearer ${token}` } : {}
-        await axios.delete(`${BASE}/api/CustomStories/Delete/${storyId}`, { headers })
-        await fetchAvailableStories(currentPage.value)
-        alert('تم حذف القصة بنجاح')
-      } catch (err) {
-        console.error(err)
-        alert('فشل حذف القصة')
-      }
+      notification.show({
+        title: 'تأكيد الحذف',
+        message: 'هل أنت متأكد من حذف هذه القصة؟',
+        type: 'warning',
+        actions: [
+          { label: 'إلغاء', onClick: () => { }, style: 'secondary' },
+          {
+            label: 'حذف',
+            onClick: async () => {
+              try {
+                const BASE = API_BASE
+                const token = getToken()
+                const headers = token ? { Authorization: `Bearer ${token}` } : {}
+                await axios.delete(`${BASE}/api/CustomStories/Delete/${storyId}`, { headers })
+                await fetchAvailableStories(currentPage.value)
+                notification.show({ title: 'نجاح', message: 'تم حذف القصة بنجاح', type: 'success', autoClose: true, duration: 2000 })
+              } catch (err) {
+                console.error(err)
+                notification.show({ title: 'خطأ', message: 'فشل حذف القصة', type: 'error' })
+              }
+            },
+            style: 'primary'
+          }
+        ]
+      })
     }
 
     return {
@@ -653,10 +678,19 @@ export default {
       editForm,
       adminCancelEdit,
       adminSaveEdit,
+      notification
     }
   }
 }
 </script>
+
+
+
+
+
+
+
+
 
 <style scoped>
 /* خطوط قصاصة النص لضمان عدم وجود سكرول أفقي */
