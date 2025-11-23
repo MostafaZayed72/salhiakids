@@ -1,4 +1,3 @@
-
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import axios from 'axios'
@@ -57,11 +56,7 @@ const isLoading = ref(true)
 const showAddModal = ref(false)
 const showEditModal = ref(false)
 const isUploading = ref(false)
-
-// 🌟 حالة الإشعار المخصص (الـ Popup) 🌟
-const showCustomAlert = ref(false)
-const customAlertMessage = ref('')
-const customAlertType = ref('info') // يمكن أن تكون 'success', 'error', 'info'
+const notification = useNotification()
 
 
 // 🌟 تحديث نموذج القصة (لإضافة حقل سنة النشر)
@@ -104,21 +99,6 @@ const getCookie = (name) => {
  return match ? decodeURIComponent(match[2]) : ''
 }
 const getToken = () => getCookie('authToken') || getCookie('token') || ''
-
-// ------------------------------------
-// Helper: دالة الإشعار المخصص
-// ------------------------------------
-
-const displayCustomAlert = (message, type = 'info') => {
- customAlertMessage.value = message;
- customAlertType.value = type;
- showCustomAlert.value = true;
- 
- // إخفاء الإشعار تلقائيًا بعد 4 ثوانٍ
- setTimeout(() => {
-  showCustomAlert.value = false;
- }, 4000); 
-}
 
 
 // ------------------------------------
@@ -295,7 +275,12 @@ const handleFileSelected = async (event, targetField) => {
   currentModel.coverImageUrl = url
  } else {
   // فشل الرفع: عرض التنبيه
-  displayCustomAlert('فشل رفع الملف. الرجاء التأكد من أن الملف صورة.', 'error');
+  notification.show({
+    title: 'خطأ في الرفع',
+    message: 'فشل رفع الملف. الرجاء التأكد من أن الملف صورة.',
+    type: 'error',
+    actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }]
+  });
  }
  
  // إعادة تعيين حقل الملف للسماح باختيار ملف جديد
@@ -322,7 +307,12 @@ const handleFileUploadSelection = (event, isNew) => {
 const addStory = async () => {
  const catId = effectiveCategoryId.value
  if (!catId || isUploading.value || !newStory.value.title || !newStory.value.content) {
-  displayCustomAlert('الرجاء ملء الحقول المطلوبة (بما في ذلك العنوان والمحتوى) والتأكد من عدم وجود عملية رفع قيد التنفيذ.', 'error');
+  notification.show({
+    title: 'بيانات ناقصة',
+    message: 'الرجاء ملء الحقول المطلوبة (بما في ذلك العنوان والمحتوى) والتأكد من عدم وجود عملية رفع قيد التنفيذ.',
+    type: 'warning',
+    actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }]
+  });
   return
  }
 
@@ -353,7 +343,12 @@ const addStory = async () => {
    if (uploadedUrl) {
     uploadMediaUrl = uploadedUrl
    } else {
-    displayCustomAlert('فشل رفع ملف الميديا. يرجى المحاولة مرة أخرى.', 'error');
+    notification.show({
+      title: 'خطأ في الرفع',
+      message: 'فشل رفع ملف الميديا. يرجى المحاولة مرة أخرى.',
+      type: 'error',
+      actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }]
+    });
     return
    }
   }
@@ -369,11 +364,32 @@ const addStory = async () => {
   currentPage.value = 1
   await fetchStories()
 
-  displayCustomAlert('تمت إضافة القصة بنجاح وهي في انتظار المراجعة.', 'success');
+  notification.show({
+    title: 'تمت الإضافة',
+    message: 'تمت إضافة القصة بنجاح وهي في انتظار المراجعة.',
+    type: 'success',
+    autoClose: true,
+    duration: 3000
+  });
   showReviewModal.value = true
  } catch (err) {
   console.error('Add story failed:', err.response?.data || err)
-  displayCustomAlert('فشلت عملية الإضافة: ' + (err.response?.data?.message || 'خطأ غير معروف.'), 'error');
+  let errorMessage = 'فشلت عملية الإضافة: ' + (err.response?.data?.message || 'خطأ غير معروف.');
+  
+  if (err.response?.data?.errors) {
+    const errors = err.response.data.errors;
+    const errorMessages = Object.values(errors).flat();
+    if (errorMessages.length > 0) {
+      errorMessage = 'يرجى تصحيح الأخطاء التالية:\n' + errorMessages.map(msg => `• ${msg}`).join('\n');
+    }
+  }
+
+  notification.show({
+    title: 'خطأ في الإضافة',
+    message: errorMessage,
+    type: 'error',
+    actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }]
+  });
  } finally {
   isUploading.value = false // إعادة الحالة مهما كان نتيجة العملية
  }
@@ -422,7 +438,12 @@ const updateStory = async () => {
    if (uploadedUrl) {
     uploadMediaUrl = uploadedUrl
    } else {
-    displayCustomAlert('فشل رفع ملف الميديا الجديد. يرجى المحاولة مرة أخرى.', 'error');
+    notification.show({
+      title: 'خطأ في الرفع',
+      message: 'فشل رفع ملف الميديا الجديد. يرجى المحاولة مرة أخرى.',
+      type: 'error',
+      actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }]
+    });
     return
    }
   }
@@ -436,31 +457,80 @@ const updateStory = async () => {
   showEditModal.value = false
   editingStory.value = null
   await fetchStories()
-  displayCustomAlert('تم تحديث القصة بنجاح!', 'success');
+  notification.show({
+    title: 'تم التحديث',
+    message: 'تم تحديث القصة بنجاح!',
+    type: 'success',
+    autoClose: true,
+    duration: 3000
+  });
  } catch (err) {
   console.error('Update story failed:', err.response?.data || err)
-  displayCustomAlert('فشل تحديث القصة: ' + (err.response?.data?.message || 'خطأ غير معروف'), 'error');
+  let errorMessage = 'فشل تحديث القصة: ' + (err.response?.data?.message || 'خطأ غير معروف');
+
+  if (err.response?.data?.errors) {
+    const errors = err.response.data.errors;
+    const errorMessages = Object.values(errors).flat();
+    if (errorMessages.length > 0) {
+      errorMessage = 'يرجى تصحيح الأخطاء التالية:\n' + errorMessages.map(msg => `• ${msg}`).join('\n');
+    }
+  }
+
+  notification.show({
+    title: 'خطأ في التحديث',
+    message: errorMessage,
+    type: 'error',
+    actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }]
+  });
  } finally {
   isUploading.value = false // إعادة الحالة
  }
 }
+
 // ------------------------------------
 // 7. حذف قصة (DELETE)
 // ------------------------------------
-const deleteStory = async (id) => {
- if (!confirm('هل أنت متأكد من حذف هذه القصة؟ سيتم حذفها نهائياً.')) return
- try {
-  await axios.delete(`${API_BASE}/api/MasterStories/Delete/${id}`, {
-   headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {}
+const deleteStory = (id) => {
+  notification.show({
+    title: 'حذف القصة',
+    message: 'هل أنت متأكد من حذف هذه القصة؟ سيتم حذفها نهائياً.',
+    type: 'warning',
+    actions: [
+      {
+        label: 'نعم، حذف',
+        onClick: async () => {
+          try {
+            await axios.delete(`${API_BASE}/api/MasterStories/Delete/${id}`, {
+              headers: getToken() ? { Authorization: `Bearer ${getToken()}` } : {}
+            })
+            await fetchStories()
+            notification.show({
+              title: 'تم الحذف',
+              message: 'تم حذف القصة بنجاح.',
+              type: 'success',
+              autoClose: true,
+              duration: 3000
+            })
+          } catch (err) {
+            console.error('Delete story failed:', err.response?.data || err)
+            notification.show({
+              title: 'خطأ',
+              message: 'فشل حذف القصة: ' + (err.response?.data?.message || 'خطأ غير معروف'),
+              type: 'error',
+              actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }]
+            })
+          }
+        },
+        style: 'danger'
+      },
+      {
+        label: 'إلغاء',
+        onClick: () => {},
+        style: 'secondary'
+      }
+    ]
   })
-  await fetchStories()
-  displayCustomAlert('تم حذف القصة بنجاح.', 'success');
- } catch (err) {
-  console.error('Delete story failed:', err.response?.data || err)
-  displayCustomAlert('فشل حذف القصة: ' + (err.response?.data?.message || 'خطأ غير معروف'), 'error');
- }
 }
-
 
 // ------------------------------------
 // حالة البحث الصوتي
@@ -538,7 +608,12 @@ const startVoiceSearch = () => {
 
     recognition.start();
   } else {
-    displayCustomAlert('متصفحك لا يدعم التعرف على الكلام. يرجى استخدام Chrome أو Edge.', 'error');
+    notification.show({
+      title: 'غير مدعوم',
+      message: 'متصفحك لا يدعم التعرف على الكلام. يرجى استخدام Chrome أو Edge.',
+      type: 'error',
+      actions: [{ label: 'حسناً', onClick: () => {}, style: 'primary' }]
+    });
   }
 };
 
@@ -949,26 +1024,7 @@ onMounted(async () => {
  </div>
  </Transition>
 
-<transition name="fade">
-<div v-if="showCustomAlert" class="fixed inset-0 flex items-start justify-center pt-20 z-[9999] pointer-events-none">
-    <div 
-        :class="{
-            'bg-green-500': customAlertType === 'success',
-            'bg-red-500': customAlertType === 'error',
-            'bg-blue-500': customAlertType === 'info'
-        }"
-        class="text-white px-6 py-3 rounded-lg shadow-2xl transition-all duration-300 transform translate-y-0 opacity-100 max-w-sm w-full mx-4 pointer-events-auto"
-        role="alert"
-    >
-        <div class="flex items-center">
-            <span v-if="customAlertType === 'success'" class="material-icons ml-2 text-2xl">check_circle</span>
-            <span v-else-if="customAlertType === 'error'" class="material-icons ml-2 text-2xl">error</span>
-            <span v-else class="material-icons ml-2 text-2xl">info</span>
-            <p class="font-semibold text-lg">{{ customAlertMessage }}</p>
-        </div>
-    </div>
-</div>
-</transition>
+<NotificationModal :is-open="notification.isOpen.value" :notification="notification.notification.value" @close="notification.close" />
 </section>
 </template>
 

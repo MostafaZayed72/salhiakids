@@ -24,7 +24,7 @@
             <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ notification.title }}</h2>
 
             <!-- Message -->
-            <p class="text-gray-600 text-sm mb-6 leading-relaxed">{{ notification.message }}</p>
+            <p class="text-gray-600 text-sm mb-6 leading-relaxed whitespace-pre-line">{{ notification.message }}</p>
 
             <!-- Actions -->
             <div v-if="notification.actions && notification.actions.length > 0" class="flex flex-col gap-3">
