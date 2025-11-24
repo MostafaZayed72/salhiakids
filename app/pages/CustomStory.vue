@@ -31,7 +31,7 @@
               </div>
 
               <div v-else>
-                <div v-if="availableStories.length > 0" class="grid grid-cols-2 gap-4">
+                <div v-if="availableStories.length > 0" class="grid md:grid-cols-2 gap-4">
                   <div v-for="story in availableStories" :key="story.id" @click="selectStoryTemplate(story)" :class="[
                     'cursor-pointer rounded-2xl p-4 border-2 transition-all duration-300 transform hover:scale-105',
                     selectedStory?.id === story.id
