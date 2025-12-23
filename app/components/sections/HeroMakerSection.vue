@@ -1,9 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
 // (مفترض أن DynamicHeroBackground و AOS موجودين أو تم استيرادهم في مكان آخر)
 
 const emit = defineEmits(['goToCustomStory']);
+const router = useRouter();
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 
@@ -126,6 +128,13 @@ onMounted(() => {
       data-aos="zoom-in" data-aos-delay="300">
       <span class="text-lg">ابدأ مغامرتك</span>
       <span class="material-icons transform rotate-180">arrow_forward</span>
+      </button>
+
+      <button @click="router.push('/ai-story-maker')"
+      class="mt-4 w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3"
+      data-aos="zoom-in" data-aos-delay="400">
+      <span class="text-lg">ابدأ مغامرتك بالذكاء الصناعي</span>
+      <span class="material-icons">auto_awesome</span>
       </button>
     </div>
    </div>

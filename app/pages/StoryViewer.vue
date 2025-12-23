@@ -135,6 +135,14 @@
                     <img v-else :src="currentPageData.image" :alt="currentPageData.title"
                       class="w-full h-auto object-contain transform hover:scale-105 transition-transform duration-700"
                       style="max-height:60vh;" />
+                    
+                    <!-- Child Image Overlay -->
+                    <img v-if="childImage && currentPageData.image" 
+                      :src="childImage" 
+                      alt="صورة الطفل"
+                      class="absolute rounded-full border-4 border-white shadow-lg object-cover"
+                      style="width: 15%; height: auto; aspect-ratio: 1/1; top: 18%; left: 38%; transform: translateX(-50%); z-index: 10;" />
+                    
                     <div class="absolute inset-0 bg-gradient-to-t from-white/30 to-transparent pointer-events-none">
                     </div>
                     <div
