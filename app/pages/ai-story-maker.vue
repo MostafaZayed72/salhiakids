@@ -182,6 +182,12 @@
         </div>
     </div>
 
+
+    <NotificationModal 
+      :isOpen="showLoginNotification" 
+      :notification="loginNotification"
+      @close="showLoginNotification = false" 
+    />
   </div>
 </template>
 
@@ -189,6 +195,7 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import NotificationModal from '@/components/NotificationModal.vue';
 
 const router = useRouter();
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
@@ -201,6 +208,26 @@ const isSubmitting = ref(false);
 const submittingProgress = ref(0);
 const uploadError = ref('');
 const fileInput = ref(null);
+const showLoginNotification = ref(false);
+
+const loginNotification = reactive({
+  title: 'تسجيل الدخول مطلوب',
+  message: 'عذراً، يجب عليك تسجيل الدخول أولاً لتتمكن من إنشاء قصتك الخاصة.',
+  type: 'warning',
+  actions: [
+    {
+      label: 'تسجيل الدخول',
+      onClick: () => router.push('/login'),
+      style: 'primary',
+      icon: 'login'
+    },
+    {
+      label: 'إلغاء',
+      onClick: () => showLoginNotification.value = false,
+      style: 'secondary'
+    }
+  ]
+});
 
 const form = reactive({
   customStoryId: '',
@@ -303,6 +330,12 @@ const removeImage = () => {
 
 const generateStory = async () => {
   if (!isFormValid.value) return;
+
+  const token = getCookie('authToken') || getCookie('token');
+  if (!token) {
+    showLoginNotification.value = true;
+    return;
+  }
 
   isSubmitting.value = true;
   submittingProgress.value = 0;

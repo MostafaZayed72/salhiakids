@@ -71,10 +71,60 @@
       <div v-else-if="currentSlide" class="w-full max-w-5xl perspective-container relative my-2">
         <transition name="page-flip">
              <!-- Slide Content -->
-             <div :key="currentSlideIndex" class="bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row transition-all duration-500 border border-gray-100 w-full backface-hidden origin-center">
+             <div :key="currentSlideIndex" 
+                  class="bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col transition-all duration-500 border border-gray-100 w-full backface-hidden origin-center min-h-[600px]"
+                  :class="{'md:flex-row': currentSlideIndex !== 0}">
                 
-                  <!-- Odd Slide (1, 3...): Text Left, Image Right (RTL context reversed visual) -->
-                  <div class="flex flex-col md:flex-row w-full h-full relative group">
+                  <!-- COVER VIEW (Index 0) -->
+                  <div v-if="currentSlideIndex === 0" class="w-full h-full flex flex-col items-center justify-center p-8 bg-[#fffbf0] text-center relative border-[12px] border-double border-[#8b5a2b]">
+                      
+                      <!-- Decor Corners -->
+                      <div class="absolute top-4 left-4 w-16 h-16 border-t-4 border-l-4 border-[#8b5a2b] rounded-tl-3xl opacity-60"></div>
+                      <div class="absolute top-4 right-4 w-16 h-16 border-t-4 border-r-4 border-[#8b5a2b] rounded-tr-3xl opacity-60"></div>
+                      <div class="absolute bottom-4 left-4 w-16 h-16 border-b-4 border-l-4 border-[#8b5a2b] rounded-bl-3xl opacity-60"></div>
+                      <div class="absolute bottom-4 right-4 w-16 h-16 border-b-4 border-r-4 border-[#8b5a2b] rounded-br-3xl opacity-60"></div>
+
+                      <div class="z-10 max-w-2xl w-full flex flex-col items-center gap-8">
+                          
+                          <!-- Cover Title -->
+                          <div class="space-y-2">
+                              <h1 class="text-4xl md:text-6xl font-bold text-[#5c3a1e]" style="font-family: 'Reem Kufi', sans-serif;">
+                                  {{ currentSlide.title || 'عنوان القصة' }}
+                              </h1>
+                              <div class="h-1 w-32 bg-[#8b5a2b] mx-auto rounded-full"></div>
+                          </div>
+
+                          <!-- Cover Image -->
+                          <div class="w-64 h-64 md:w-80 md:h-80 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.3)] border-8 border-white overflow-hidden transform hover:scale-105 transition-transform duration-700">
+                             <img v-if="currentSlide.imageUrl" 
+                                  :src="currentSlide.imageUrl" 
+                                  class="w-full h-full object-cover" 
+                                  alt="غلاف القصة" />
+                             <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                  <span class="material-icons text-6xl text-gray-400">auto_stories</span>
+                             </div>
+                          </div>
+
+                          <!-- Description / Intro -->
+                          <p class="text-lg md:text-xl text-[#6d4c33] leading-relaxed max-w-lg font-medium">
+                              {{ currentSlide.description }}
+                          </p>
+
+                          <!-- Start Button Cue -->
+                          <button @click="nextSlide" class="mt-4 px-8 py-3 bg-[#8b5a2b] text-[#fffbf0] rounded-full font-bold text-lg hover:bg-[#6d4c33] transition-colors shadow-lg flex items-center gap-2 animate-bounce">
+                              <span>ابدأ القراءة</span>
+                              <span class="material-icons">menu_book</span>
+                          </button>
+                      </div>
+
+                      <!-- Background Pattern -->
+                      <div class="absolute inset-0 opacity-5 pointer-events-none" 
+                           style="background-image: radial-gradient(#8b5a2b 1px, transparent 1px); background-size: 20px 20px;">
+                      </div>
+                  </div>
+
+                  <!-- STANDARD STORY VIEW (Index > 0) -->
+                  <div v-else class="flex flex-col md:flex-row w-full h-full relative group">
                     
                     <!-- Image Section -->
                      <div class="md:w-1/2 relative overflow-hidden bg-gray-100 min-h-[250px] md:min-h-[450px]"

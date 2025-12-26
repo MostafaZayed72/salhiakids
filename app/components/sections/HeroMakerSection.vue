@@ -2,6 +2,8 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import Cookies from 'js-cookie';
+import NotificationModal from '@/components/NotificationModal.vue';
 // (مفترض أن DynamicHeroBackground و AOS موجودين أو تم استيرادهم في مكان آخر)
 
 const emit = defineEmits(['goToCustomStory']);
@@ -38,6 +40,36 @@ const fetchCustomStories = async () => {
 onMounted(() => {
     fetchCustomStories();
 });
+
+const showLoginNotification = ref(false);
+
+const loginNotification = {
+  title: 'تسجيل الدخول مطلوب',
+  message: 'عذراً، يجب عليك تسجيل الدخول أولاً لتتمكن من إنشاء قصتك الخاصة.',
+  type: 'warning',
+  actions: [
+    {
+      label: 'تسجيل الدخول',
+      onClick: () => router.push('/login'),
+      style: 'primary',
+      icon: 'login'
+    },
+    {
+      label: 'إلغاء',
+      onClick: () => showLoginNotification.value = false,
+      style: 'secondary'
+    }
+  ]
+};
+
+const handleStartAdventure = () => {
+    const token = Cookies.get('authToken') || Cookies.get('token');
+    if (!token) {
+        showLoginNotification.value = true;
+    } else {
+        router.push('/ai-story-maker');
+    }
+};
 </script>
 
 <template>
@@ -130,7 +162,7 @@ onMounted(() => {
       <span class="material-icons transform rotate-180">arrow_forward</span>
       </button>
 
-      <button @click="router.push('/ai-story-maker')"
+      <button @click="handleStartAdventure"
       class="mt-4 w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3"
       data-aos="zoom-in" data-aos-delay="400">
       <span class="text-lg">ابدأ مغامرتك بالذكاء الصناعي</span>
@@ -139,5 +171,10 @@ onMounted(() => {
     </div>
    </div>
   </div>
+     <NotificationModal 
+      :isOpen="showLoginNotification" 
+      :notification="loginNotification"
+      @close="showLoginNotification = false" 
+    />
  </section>
 </template>
