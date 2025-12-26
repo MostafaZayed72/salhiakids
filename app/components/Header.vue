@@ -86,6 +86,16 @@
         <span
             class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
     </router-link>
+
+    <router-link to="/admin/system-settings" class="custom-dropdown-item group" @click="showMenu = false">
+        <div class="custom-dropdown-icon bg-gradient-to-r from-gray-600 to-gray-500">
+            <span class="material-icons">settings</span> 
+        </div>
+        <span>إعدادات النظام</span>
+        <span
+            class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+    </router-link>
+
     <router-link to="/profile" class="custom-dropdown-item group" @click="showMenu = false">
         <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
             <span class="material-icons">person</span> </div>

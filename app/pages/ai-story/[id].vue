@@ -91,7 +91,12 @@
                               <h1 class="text-4xl md:text-6xl font-bold text-[#5c3a1e]" style="font-family: 'Reem Kufi', sans-serif;">
                                   {{ currentSlide.title || 'عنوان القصة' }}
                               </h1>
-                              <div class="h-1 w-32 bg-[#8b5a2b] mx-auto rounded-full"></div>
+                              
+                              <h2 v-if="story?.heroName" class="text-2xl md:text-3xl text-[#8b5a2b] font-semibold mt-2">
+                                  البطل: {{ story.heroName }}
+                              </h2>
+
+                              <div class="h-1 w-32 bg-[#8b5a2b] mx-auto rounded-full mt-4"></div>
                           </div>
 
                           <!-- Cover Image -->
@@ -155,9 +160,7 @@
                         <div class="absolute bottom-0 left-0 w-24 h-24 bg-sky-50 rounded-tr-full opacity-50 -z-0"></div>
 
                         <div class="relative z-10">
-                          <h2 class="text-xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-6 leading-relaxed">
-                             {{ currentSlide.title || '...' }}
-                          </h2>
+                          <!-- Title Removed as per request -->
                           <p class="text-base md:text-xl text-gray-600 leading-loose whitespace-pre-line">
                              {{ currentSlide.description }}
                           </p>
