@@ -85,6 +85,10 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
+definePageMeta({
+  middleware: 'admin-auth'
+})
+
 const router = useRouter();
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 

@@ -165,7 +165,7 @@ const handleStartAdventure = () => {
       <button @click="handleStartAdventure"
       class="mt-4 w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-4 px-8 rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3"
       data-aos="zoom-in" data-aos-delay="400">
-      <span class="text-lg">ابدأ مغامرتك بالذكاء الصناعي</span>
+      <span class="text-lg">ابدأ مغامرتك بالذكاء الإصطناعي</span>
       <span class="material-icons">auto_awesome</span>
       </button>
     </div>

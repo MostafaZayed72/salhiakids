@@ -89,7 +89,7 @@
                           <!-- Cover Title -->
                           <div class="space-y-2">
                               <h1 class="text-4xl md:text-6xl font-bold text-[#5c3a1e]" style="font-family: 'Reem Kufi', sans-serif;">
-                                  {{ currentSlide.title || 'عنوان القصة' }}
+                                  {{ story.storyName || 'عنوان القصة' }}
                               </h1>
                               
                               <h2 v-if="story?.heroName" class="text-2xl md:text-3xl text-[#8b5a2b] font-semibold mt-2">
