@@ -192,7 +192,16 @@ export default {
         } else {
           // فشل الـ API
           let errorMsg = 'حدث خطأ في تسجيل الدخول. تأكد من البيانات.'
-          if (data && data.message) {
+          
+          if (data && data.Code) {
+              if (data.Code === 'UserNotFound') {
+                  errorMsg = 'المستخدم غير مسجل على الموقع';
+              } else if (data.Code === 'InvalidCredentials') {
+                  errorMsg = 'كلمة المرور غير صحيحة';
+              } else if (data.Message) {
+                   errorMsg = data.Message;
+              }
+          } else if (data && data.message) {
             errorMsg = data.message 
           } else if (data && data.errors) {
             errorMsg = Object.values(data.errors).flat().join(' | ')
