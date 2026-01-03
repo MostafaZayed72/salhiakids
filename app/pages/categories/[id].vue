@@ -854,7 +854,7 @@ onMounted(async () => {
                 class="w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
                 <option :value="0">لا يوجد مرفق</option>
                 <option :value="1">صورة</option>
-                <option :value="2">رابط فيديو (يوتيوب)</option>
+                <option :value="2">رابط فيديو</option>
                 <option :value="4">ملف (PDF)</option>    </select>
             </div>
 
@@ -947,7 +947,7 @@ onMounted(async () => {
                 class="w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 <option :value="0">لا يوجد مرفق</option>
                 <option :value="1">صورة</option>
-                <option :value="2">رابط فيديو (يوتيوب)</option>
+                <option :value="2">رابط فيديو</option>
                 <option :value="4">ملف (PDF)</option>
                 </select>
             </div>

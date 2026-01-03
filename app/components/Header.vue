@@ -77,15 +77,42 @@
                 <div
                   class="p-3 bg-gradient-to-b from-gray-800 to-purple-900 rounded-b-2xl">
                   <template v-if="user?.role === 'admin'">
-    
+
     <router-link to="/dashboard" class="custom-dropdown-item group" @click="showMenu = false">
         <div class="custom-dropdown-icon bg-gradient-to-r from-blue-500 to-cyan-500">
-            <span class="material-icons">dashboard</span> 
+            <span class="material-icons">bar_chart</span> 
         </div>
-        <span>لوحة التحكم</span>
+        <span>التقارير والإحصائيات</span>
         <span
             class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
     </router-link>
+
+    <router-link to="/admin/users" class="custom-dropdown-item group" @click="showMenu = false">
+        <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
+            <span class="material-icons">manage_accounts</span> 
+        </div>
+        <span>إدارة المستخدمين</span>
+        <span
+            class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+    </router-link>
+
+    <router-link to="/admin/content-management" class="custom-dropdown-item group" @click="showMenu = false">
+        <div class="custom-dropdown-icon bg-gradient-to-r from-green-500 to-teal-500">
+            <span class="material-icons">library_books</span> 
+        </div>
+        <span>إدارة المحتوى</span>
+        <span
+            class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+    </router-link>
+
+    <router-link to="/profile" class="custom-dropdown-item group" @click="showMenu = false">
+        <div class="custom-dropdown-icon bg-gradient-to-r from-indigo-500 to-blue-500">
+            <span class="material-icons">person</span> </div>
+        <span>حسابي</span>
+        <span
+            class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
+    </router-link>
+
 
     <router-link to="/admin/system-settings" class="custom-dropdown-item group" @click="showMenu = false">
         <div class="custom-dropdown-icon bg-gradient-to-r from-gray-600 to-gray-500">
@@ -96,15 +123,8 @@
             class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
     </router-link>
 
-    <router-link to="/profile" class="custom-dropdown-item group" @click="showMenu = false">
-        <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
-            <span class="material-icons">person</span> </div>
-        <span>حسابي</span>
-        <span
-            class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
-    </router-link>
     <router-link to="/favorite" class="custom-dropdown-item group" @click="showMenu = false">
-        <div class="custom-dropdown-icon bg-gradient-to-r from-purple-500 to-pink-500">
+        <div class="custom-dropdown-icon bg-gradient-to-r from-red-500 to-pink-500">
             <span class="material-icons">favorite</span>
         </div>
         <span>القصص المفضلة</span>
@@ -112,7 +132,7 @@
             class="material-icons transform group-hover:translate-x-1 transition-transform">chevron_left</span>
     </router-link>
     <router-link to="/addCustomStory" class="custom-dropdown-item group" @click="showMenu = false">
-        <div class="custom-dropdown-icon bg-gradient-to-r from-green-500 to-teal-500">
+        <div class="custom-dropdown-icon bg-gradient-to-r from-yellow-500 to-orange-500">
             <span class="material-icons">add_box</span>
         </div>
         <span>تخصيص قصة</span>

@@ -24,7 +24,7 @@
           </p>
 
           <!-- شركاؤنا -->
-          <div>
+          <!-- <div>
             <h4 class="text-lg font-bold text-white mb-4">شركاؤنا</h4>
             <div class="flex flex-wrap gap-4">
               <div v-for="partner in partners" :key="partner.name"
@@ -35,7 +35,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
 
         <!-- روابط سريعة -->
@@ -193,8 +193,7 @@ const socialLinks = [
 
 const policies = [
   { name: 'سياسة الخصوصية', path: '/privacy' },
-  { name: 'الشروط والأحكام', path: '/terms' },
-  { name: 'خريطة الموقع', path: '/sitemap' }
+  { name: 'الشروط والأحكام', path: '/terms' }
 ]
 </script>
 

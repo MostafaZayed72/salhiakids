@@ -218,11 +218,7 @@
             </div>
         </div>
 
-        <button @click="roles = true"
-            class="mt-10 block mx-auto text-lg bg-purple-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-purple-700 transition-colors">
-            تعديل أدوار المستخدمين
-        </button>
-        <UsersRoles v-if="roles" />
+
         <NotificationModal 
   :is-open="notification.isOpen.value"
   :notification="notification.notification.value"
@@ -241,7 +237,7 @@ import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, Width
 import { saveAs } from 'file-saver';
 
 const router = useRouter();
-const roles = ref(false);
+
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
 const DASHBOARD_ENDPOINT = `${API_BASE}/api/dashboard/overview`;

@@ -5,6 +5,7 @@ import AOS from 'aos'; // 1. استيراد AOS
 import 'aos/dist/aos.css'; // 2. استيراد تنسيقات AOS
 
 import DynamicHeroBackground from '../components/DynamicHeroBackground.vue'; // نفترض وجود هذا المكون
+import PartnersSlider from '~/components/PartnersSlider.vue';
 const router = useRouter();
 
 // ----------------------------------------------------
@@ -325,6 +326,7 @@ onUnmounted(() => {
       /> -->
 
     </main>
+    <PartnersSlider />
     <Footer />
 
   </div>
