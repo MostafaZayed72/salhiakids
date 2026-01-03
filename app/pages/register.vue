@@ -139,6 +139,8 @@ export default {
         
         errorMessage.value = errorList
         console.log('✅ Errors processed successfully:', errorList)
+      } else if (data && data.Code === 'EmailAlreadyExists') {
+          errorMessage.value = 'البريد الإلكتروني مسجل بالفعل';
       } else if (data && data.message) {
         errorMessage.value = data.message
       } else if (data && data.title) {
