@@ -48,11 +48,24 @@ export default {
       return { firstName, lastName }
     }
     
+    const validatePhoneNumber = (phone) => {
+      // السماح ب + في البداية، وأرقام فقط، والطول بين 10 و 15
+      const phoneRegex = /^\+?[0-9]{10,15}$/;
+      return phoneRegex.test(phone);
+    }
+
     const validateForm = () => {
       fieldErrors.value = {} // مسح الأخطاء السابقة
       
       if (!form.value.fullName.trim()) {
         errorMessage.value = 'الاسم الكامل مطلوب'
+        return false
+      }
+
+      const { firstName } = getNames(form.value.fullName)
+      if (firstName.length < 3) {
+        fieldErrors.value.FirstName = ['الاسم يجب أن يكون بين 3 و 50 حرفًا']
+        errorMessage.value = 'يرجى تصحيح الأخطاء في النموذج'
         return false
       }
 
@@ -64,6 +77,12 @@ export default {
       if (form.value.password !== form.value.confirmPassword) {
         errorMessage.value = 'كلمات المرور غير متطابقة'
         return false
+      }
+      
+      if (form.value.phone && !validatePhoneNumber(form.value.phone)) {
+        fieldErrors.value.PhoneNumber = ['يرجى إدخال رقم هاتف صحيح (10-15 رقمًا)'];
+        errorMessage.value = 'يرجى تصحيح الأخطاء في النموذج';
+        return false;
       }
 
       if (!form.value.agreeTerms) {
@@ -132,15 +151,42 @@ export default {
         const errorList = Object.entries(data.errors)
           .map(([field, errors]) => {
             const translatedField = FIELD_TRANSLATIONS[field] || field
-            const errorTexts = Array.isArray(errors) ? errors : [errors]
+            let errorTexts = Array.isArray(errors) ? errors : [errors]
+
+            // ترجمة رسالة خطأ الهاتف المحددة من الباك اند
+            if (field === 'PhoneNumber') {
+              errorTexts = errorTexts.map(enErr => {
+                 if (enErr.includes('Please provide a valid phone number')) {
+                   return 'يرجى إدخال رقم هاتف صحيح (10-15 رقمًا)';
+                 }
+                 return enErr;
+              });
+              // تحديث الخطأ في fieldErrors أيضاً ليظهر مترجماً تحت الحقل مباشرة
+              fieldErrors.value.PhoneNumber = errorTexts;
+            }
+
+            // ترجمة رسالة خطأ الاسم الأول
+            if (field === 'FirstName') {
+              errorTexts = errorTexts.map(enErr => {
+                 if (enErr.includes('must be between 3 and 50 characters')) {
+                   return 'الاسم يجب أن يكون بين 3 و 50 حرفًا';
+                 }
+                 return enErr;
+              });
+              fieldErrors.value.FirstName = errorTexts;
+            }
+
             return `<strong>${translatedField}:</strong> ${errorTexts.join(', ')}`
           })
           .join('<br />')
         
         errorMessage.value = errorList
         console.log('✅ Errors processed successfully:', errorList)
-      } else if (data && data.Code === 'EmailAlreadyExists') {
+      } else if (data && (data.Code === 'EmailAlreadyExists' || data.message === 'Email is already registered')) {
           errorMessage.value = 'البريد الإلكتروني مسجل بالفعل';
+      } else if (data && data.Code === 'PhoneNumberAlreadyExists') {
+          errorMessage.value = 'هذا الرقم مسجل بالفعل';
+          fieldErrors.value.PhoneNumber = ['هذا الرقم مسجل بالفعل'];
       } else if (data && data.message) {
         errorMessage.value = data.message
       } else if (data && data.title) {
