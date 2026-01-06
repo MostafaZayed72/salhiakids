@@ -170,18 +170,18 @@
         <p class="text-gray-500">حاول البحث بكلمات مفتاحية مختلفة أو إزالة بعض الفلاتر.</p>
     </div>
 
-    <div v-else :class="{'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8': viewMode === 'grid', 'space-y-6': viewMode === 'list'}">
+     <div v-else :class="{'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8': viewMode === 'grid', 'space-y-4': viewMode === 'list'}">
         <div 
         v-for="story in stories" 
                     @click="navigateTo(`/stories/${story.id}`)"
 
         :key="story.id" 
-        :class="{'flex gap-4 p-4': viewMode === 'list', 'flex-col': viewMode === 'grid'}"
+        :class="{'flex flex-row gap-3 p-3': viewMode === 'list', 'flex-col': viewMode === 'grid'}"
         class="bg-white cursor-pointer rounded-xl shadow-lg overflow-hidden transform hover:scale-[1.02] transition-transform duration-300 border-b-4 border-purple-500"
         >
             <div 
             :class="{
-                'w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden ': viewMode === 'list', 
+                'w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 rounded-lg overflow-hidden ': viewMode === 'list', 
                 'relative w-full aspect-square overflow-hidden': viewMode === 'grid'
             }"
             class="image-container "
@@ -192,10 +192,10 @@
                 class="w-full h-full object-cover"
                 >
             </div>
-            <div :class="{'p-0': viewMode === 'list'}" class="p-5 text-right flex-grow" >
-            <h3 class="text-lg font-bold text-gray-900 mb-2 truncate">{{ story.title }}</h3>
-            <p class=" text-purple-600 mb-3 line-clamp-2"> <span class="text-gray-600">المؤلف:</span> {{ story.authorName }}</p>
-            <div class="text-xs text-purple-600 font-semibold bg-purple-100 px-2 py-0.5 rounded-full inline-block">
+            <div :class="{'p-0': viewMode === 'list'}" class="p-5 text-right flex-grow min-w-0" >
+            <h3 class="text-base sm:text-lg font-bold text-gray-900 mb-1 sm:mb-2 truncate">{{ story.title }}</h3>
+            <p class=" text-sm sm:text-base text-purple-600 mb-2 sm:mb-3 line-clamp-2"> <span class="text-gray-600">المؤلف:</span> {{ story.authorName }}</p>
+            <div class="text-[10px] sm:text-xs text-purple-600 font-semibold bg-purple-100 px-2 py-0.5 rounded-full inline-block">
             {{ story.storyCategoryTitle }}
             </div>
             </div>
@@ -693,6 +693,7 @@ const navigateTo = (path) => {
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }

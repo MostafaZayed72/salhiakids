@@ -367,9 +367,9 @@ placeholder="ادخل رقم هاتفك (مثال: +966501234567)"
             >
             <label class="text-sm text-[#1B3C53] flex-1">
               أوافق على 
-              <a href="#" class="font-medium text-[#1B3C53] hover:underline transition-colors duration-200">شروط الاستخدام</a>
+              <NuxtLink to="/terms" class="font-medium text-blue-600 underline hover:text-blue-800 transition-colors duration-200">شروط الاستخدام</NuxtLink>
               و
-              <a href="#" class="font-medium text-[#1B3C53] hover:underline transition-colors duration-200">سياسة الخصوصية</a>
+              <NuxtLink to="/privacy" class="font-medium text-blue-600 underline hover:text-blue-800 transition-colors duration-200">سياسة الخصوصية</NuxtLink>
             </label>
           </div>
 

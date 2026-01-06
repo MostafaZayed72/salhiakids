@@ -117,6 +117,21 @@ const handleStoryClick = (storyId) => {
  // استخدام router.push للتوجيه إلى صفحة القصة
  router.push(`/stories/${storyId}`);
 };
+
+// ----------------------------------------------------
+// 7. دوال مساعدة للعرض
+// ----------------------------------------------------
+const isVideo = (url) => {
+  if (!url) return false;
+  // إزالة Query Parameters للتحقق من الامتداد
+  const cleanUrl = url.split('?')[0].toLowerCase();
+  const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi'];
+  return videoExtensions.some(ext => cleanUrl.endsWith(ext));
+};
+
+const handleImageError = (e) => {
+  e.target.src = '/hero.jpeg'; // استخدام صورة موجودة فعلياً كبديل
+};
 </script>
 
 <template>
@@ -153,21 +168,42 @@ const handleStoryClick = (storyId) => {
     لا توجد قصص مفضلة مطابقة لمعايير البحث الحالية.
    </p>
    
-   <div v-else class="stories-grid ">
+   <div v-else class="stories-grid">
     <div
      v-for="story in stories"
      :key="story.id"
-     class="story-card bg-gradient-to-br from-pink-500 to-purple-300"
+     class="bg-white cursor-pointer rounded-xl shadow-lg overflow-hidden transform hover:scale-[1.02] transition-transform duration-300 border-b-4 border-purple-500 flex flex-col h-full"
      @click="handleStoryClick(story.masterStoryId)"
     >
-     <img 
-      :src="story.imageUrl || '/default-placeholder.jpg'" 
-      :alt="story.title" 
-      class="story-image"
-     />
-     <h3 class="story-title">{{ story.title }}</h3>
-     <p class="story-summary">{{ story.summary }}</p>
+     
+     <div class="relative w-full aspect-square overflow-hidden bg-gray-100 group">
+       <!-- عرض الفيديو إذا كان الرابط فيديو -->
+       <video
+        v-if="isVideo(story.imageUrl || story.coverImageUrl)"
+        :src="story.imageUrl || story.coverImageUrl"
+        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        muted
+        loop
+        playsinline
+        onmouseover="this.play()" 
+        onmouseout="this.pause()"
+       ></video>
+
+       <!-- عرض الصورة إذا لم يكن فيديو -->
+       <img 
+        v-else
+        :src="story.imageUrl || story.coverImageUrl || '/hero.jpeg'" 
+        :alt="story.title" 
+        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        @error="handleImageError"
+       />
      </div>
+
+     <div class="p-5 text-right flex-grow flex flex-col min-w-0">
+       <h3 class="text-lg font-bold text-gray-900 mb-2 truncate">{{ story.title }}</h3>
+       <p class="text-gray-600 text-sm line-clamp-3 mb-3">{{ story.summary }}</p>
+     </div>
+    </div>
    </div>
   </template>
 
@@ -212,6 +248,7 @@ const handleStoryClick = (storyId) => {
 }
 .controls-bar {
  display: flex;
+ flex-wrap: wrap;
  gap: 15px;
  margin-bottom: 25px;
  align-items: center;
@@ -240,7 +277,7 @@ const handleStoryClick = (storyId) => {
 }
 .stories-grid {
  display: grid;
- grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+ grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
  gap: 20px;
 }
 .story-card {
@@ -288,7 +325,8 @@ const handleStoryClick = (storyId) => {
  font-size: 0.9em;
  color: #7f8c8d;
  display: -webkit-box;
- -webkit-line-clamp: 2;
+ -webkit-line-clamp: 3;
+ line-clamp: 3;
  -webkit-box-orient: vertical;
  overflow: hidden;
   text-align: right; /* المحتوى النصي العادي يكون محاذي لليمين (لغة عربية) */
