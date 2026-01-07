@@ -62,12 +62,7 @@
           </router-link>
         </p>
         
-        <p class="text-sm font-light text-gray-500 mt-2 text-center">
-          هل لديك رمز استعادة؟ 
-          <router-link to="/ResetPassword" class="font-medium text-pink-600 hover:underline transition-colors duration-300">
-            تعيين كلمة مرور جديدة
-          </router-link>
-        </p>
+       
 
       </form>
     </div>
